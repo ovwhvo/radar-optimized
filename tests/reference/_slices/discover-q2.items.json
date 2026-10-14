@@ -1,0 +1,42 @@
+[
+ {
+  "id": "sz-hightech-recognition-2026",
+  "retrieval": {
+   "score": 20,
+   "matchedTerms": [
+    "高新技术企业",
+    "认定"
+   ],
+   "reasons": [
+    "标题匹配“高新技术企业”",
+    "标题匹配“认定”"
+   ]
+  }
+ },
+ {
+  "id": "sz-techsme-evaluation-2026",
+  "retrieval": {
+   "score": 16,
+   "matchedTerms": [
+    "科技型中小企业",
+    "认定"
+   ],
+   "reasons": [
+    "标题匹配“科技型中小企业”",
+    "事项分类匹配“认定”"
+   ]
+  }
+ },
+ {
+  "id": "lg-rd-investment-2026",
+  "retrieval": {
+   "score": 7,
+   "matchedTerms": [
+    "高新技术企业"
+   ],
+   "reasons": [
+    "方向标签匹配“高新技术企业”"
+   ]
+  }
+ }
+]

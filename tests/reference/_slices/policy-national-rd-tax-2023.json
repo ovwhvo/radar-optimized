@@ -1,0 +1,320 @@
+{
+ "category": "税费优惠",
+ "benefit": "一般企业费用化研发费用在据实扣除基础上再按100%加计扣除；资本化部分按无形资产成本200%税前摊销。该比例是税前扣除比例，不能当作现金补贴比例。",
+ "title": "研发费用税前加计扣除",
+ "summary": "对符合规定的实际研发费用进行税前加计扣除，适用于符合核算与行业要求的居民企业。研发活动和费用归集是判断重点。",
+ "steps": [
+  {
+   "title": "判断活动与行业",
+   "description": "先核实企业征收方式、行业、研发活动性质及费用范围。",
+   "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html"
+  },
+  {
+   "title": "建立项目辅助账",
+   "description": "区分研发费用和经营费用，归集实际发生的可扣除支出；委外、境外、合作、集中研发分别核算。",
+   "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html"
+  },
+  {
+   "title": "在适用申报期填报",
+   "description": "符合条件后自行填报企业所得税申报项目。申报前核对当期税务系统与适用申报日历。",
+   "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html"
+  },
+  {
+   "title": "留存备查",
+   "description": "整理和留存活动、归集、合同及申报依据；准备接受税务机关核验。",
+   "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html"
+  }
+ ],
+ "applicationStatus": "tax_filing",
+ "limitations": [
+  "本条仅覆盖一般100%/200%规则；集成电路、工业母机等更高比例专项政策及清单不在本样本覆盖范围。",
+  "不计算企业实际减税金额；亏损、其他优惠和实际可扣除基数均可能影响结果。",
+  "2024年指引引用的旧技术合同管理依据已更新；深圳合同登记操作使用本库关联2026年版指南。",
+  "原文仅独立显示成文日期2023-03-26，未将其冒充为网页发布日期。",
+  "具体留存备查全套材料和当期税务申报表需再按适用最新要求核实。"
+ ],
+ "tags": [
+  "全国",
+  "研发",
+  "企业所得税",
+  "加计扣除"
+ ],
+ "formGuide": {
+  "title": "研发加计扣除：项目归集资料整理",
+  "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+  "templateUrl": null,
+  "version": "国家税务总局2024-04-12政策指引；一般研发归集资料",
+  "kind": "preparation_fields",
+  "completeness": "partial",
+  "retrievedAt": "2026-10-10T09:24:22.413071Z",
+  "verifiedAt": "2026-10-10T10:08:54.545112Z",
+  "snapshotPath": "data/snapshots/national-rd-guide-2024.html",
+  "fields": [
+   {
+    "id": "rd-goal",
+    "label": "研发活动技术目标",
+    "type": "textarea",
+    "help": "以项目真实目标说明获得新知识或实质改进；活动是否合规定义待专业核验。",
+    "evidence": "政策指引申请条件1定义研发活动。",
+    "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+    "placeholder": "待填：研发活动技术目标",
+    "required": true,
+    "locator": "申请条件1"
+   },
+   {
+    "id": "rd-form",
+    "label": "研发组织形式",
+    "type": "select",
+    "help": "按实际项目选择；不同形式分别归集。",
+    "evidence": "政策指引优惠内容区分委外、合作、集中研发。",
+    "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+    "placeholder": "待填：研发组织形式",
+    "required": true,
+    "locator": "优惠内容",
+    "options": [
+     {
+      "value": "自主研发",
+      "label": "自主研发"
+     },
+     {
+      "value": "委托境内研发",
+      "label": "委托境内研发"
+     },
+     {
+      "value": "委托境外研发",
+      "label": "委托境外研发"
+     },
+     {
+      "value": "合作研发",
+      "label": "合作研发"
+     },
+     {
+      "value": "集中研发",
+      "label": "集中研发"
+     }
+    ]
+   },
+   {
+    "id": "payroll-cost",
+    "label": "人员人工费用（万元）",
+    "type": "number",
+    "help": "依据该项目辅助账及原始凭证；不要直接取企业全部人工费用。",
+    "evidence": "政策指引申请条件2列允许费用范围：人员人工费用。",
+    "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+    "placeholder": "待填：人员人工费用（万元）",
+    "required": true,
+    "unit": "万元",
+    "locator": "申请条件2"
+   },
+   {
+    "id": "direct-cost",
+    "label": "直接投入费用（万元）",
+    "type": "number",
+    "help": "依据可归集的实际研发投入，生产经营费用另记。",
+    "evidence": "政策指引申请条件2列直接投入费用；条件5要求分开核算。",
+    "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+    "placeholder": "待填：直接投入费用（万元）",
+    "required": true,
+    "unit": "万元",
+    "locator": "申请条件2、5"
+   },
+   {
+    "id": "depreciation-cost",
+    "label": "折旧费用（万元）",
+    "type": "number",
+    "help": "整理研发相关折旧和分配依据，是否可扣除须财税核验。",
+    "evidence": "政策指引申请条件2列折旧费用。",
+    "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+    "placeholder": "待填：折旧费用（万元）",
+    "required": true,
+    "unit": "万元",
+    "locator": "申请条件2"
+   },
+   {
+    "id": "amortization-cost",
+    "label": "无形资产摊销（万元）",
+    "type": "number",
+    "help": "整理研发使用的无形资产及摊销依据，不与资本化研发优惠混用。",
+    "evidence": "政策指引申请条件2列无形资产摊销。",
+    "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+    "placeholder": "待填：无形资产摊销（万元）",
+    "required": true,
+    "unit": "万元",
+    "locator": "申请条件2"
+   },
+   {
+    "id": "other-rd-cost",
+    "label": "其他相关费用（万元）",
+    "type": "number",
+    "help": "保留分项，适用限额、分配和费用范围需专业核验。",
+    "evidence": "政策指引申请条件2列其他相关费用。",
+    "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+    "placeholder": "待填：其他相关费用（万元）",
+    "required": true,
+    "unit": "万元",
+    "locator": "申请条件2"
+   },
+   {
+    "id": "contract-registration",
+    "label": "委托或合作研发合同登记依据",
+    "type": "textarea",
+    "help": "涉及委托或合作时填合同及登记证明；不涉及时记录项目形式，不虚构登记号。",
+    "evidence": "政策指引申请条件6要求委托、合作研发项目合同登记。",
+    "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+    "placeholder": "待填：委托或合作研发合同登记依据",
+    "required": false,
+    "locator": "申请条件6"
+   }
+  ],
+  "limitations": [
+   "这是项目归集信息整理，未取得当期所得税申报表或完整留存备查资料清单，不是税务正式申报表。",
+   "仅覆盖已列费用类别的部分信息，不自动计算可加计扣除基数、税款或判定研发性质。",
+   "当期申报表、特殊行业、委外限额及其他费用限额须按最新适用法规和主管税务机关核验。"
+  ]
+ },
+ "id": "national-rd-tax-2023",
+ "verifiedAt": "2026-10-10T09:36:33.1127683+00:00",
+ "policyStatus": "active",
+ "materials": [
+  {
+   "id": "rd-aux-ledger",
+   "name": "研发费用辅助账及归集记录",
+   "note": "按研发项目分别设置；费用化与资本化分类、费用分配及原始凭证需可核对。",
+   "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+   "verified": true
+  },
+  {
+   "id": "rd-tax-return",
+   "name": "企业所得税适用申报表",
+   "note": "通过适用预缴或年度申报表相关项目自行申报；需使用当期税务系统表单。",
+   "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+   "verified": true
+  },
+  {
+   "id": "rd-contract-proof",
+   "name": "委托、合作研发合同及认定登记证明",
+   "note": "仅涉及委托/合作研发时适用；深圳登记按2026年版指南办理。",
+   "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+   "verified": true
+  }
+ ],
+ "applicationStatusLabel": "按纳税申报期办理",
+ "window": {
+  "open": null,
+  "close": null,
+  "note": "非补贴项目集中窗口；按适用预缴和汇算清缴申报期享受。"
+ },
+ "authority": "财政部、国家税务总局",
+ "policyStatusLabel": "长期制度性政策",
+ "relatedDocuments": [
+  {
+   "id": "src-rd-guide",
+   "title": "一文了解：研发费用加计扣除政策",
+   "url": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+   "authority": "国家税务总局",
+   "publishedAt": "2024-04-12",
+   "snapshotPath": "data/snapshots/national-rd-guide-2024.html",
+   "retrievedAt": "2026-10-10T09:24:22.413071Z",
+   "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+  },
+  {
+   "id": "src-contract",
+   "title": "深圳市科技创新局关于发布《深圳市技术合同认定登记办理指南（2026年版）》的通知",
+   "url": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+   "authority": "深圳市科技创新局",
+   "publishedAt": "2026-06-29",
+   "documentDate": "2026-06-29",
+   "snapshotPath": "data/snapshots/sz-tech-contract-2026.html",
+   "excerptPath": "data/snapshots/sz-tech-contract-2026.txt",
+   "retrievedAt": "2026-10-10T09:18:03.4173755Z",
+   "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+  }
+ ],
+ "source": {
+  "id": "src-rd-tax",
+  "title": "财政部 税务总局关于进一步完善研发费用税前加计扣除政策的公告",
+  "url": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5201978/content.html",
+  "authority": "财政部、国家税务总局",
+  "publishedAt": null,
+  "documentDate": "2023-03-26",
+  "snapshotPath": "data/snapshots/national-rd-tax-2023.html",
+  "excerptPath": "data/snapshots/national-rd-tax-2023.txt",
+  "retrievedAt": "2026-10-10T09:18:03.6952177Z",
+  "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+ },
+ "version": "财政部 税务总局公告2023年第7号",
+ "region": "全国",
+ "publishedAt": null,
+ "conditions": [
+  {
+   "id": "rd-resident",
+   "label": "居民企业、查账征收并准确归集研发费用",
+   "field": "compliant",
+   "operator": "manual",
+   "value": null,
+   "evidence": "官方政策指引要求会计核算健全、查账征收、可准确归集研发费用的居民企业；普通合规自评不能代替税务核算核验。",
+   "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+   "question": "请提供企业所得税居民企业身份、征收方式和研发费用核算依据，分别说明是否查账征收及准确归集研发费用。",
+   "assessmentAllowed": false,
+   "inputType": "evidence",
+   "periodRequirement": "拟享受优惠的纳税年度"
+  },
+  {
+   "id": "rd-industry",
+   "label": "核验行业是否属于不适用范围",
+   "field": "industry",
+   "operator": "manual",
+   "value": null,
+   "evidence": "政策指引列明烟草制造、住宿餐饮、批发零售、房地产、租赁商务服务、娱乐及规定的其他行业不适用；须按实际行业口径判断。",
+   "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+   "question": "企业实际所属国民经济行业代码是什么？请核对烟草、住宿餐饮、批零、房地产、租赁商务、娱乐等不适用行业范围，并记录判断依据。",
+   "assessmentAllowed": false,
+   "inputType": "evidence",
+   "periodRequirement": "拟享受优惠的纳税年度"
+  },
+  {
+   "id": "rd-activity",
+   "label": "属于符合税务定义的研发活动",
+   "field": "industry",
+   "operator": "manual",
+   "value": null,
+   "evidence": "研发须具有获得科学技术新知识或实质性改进技术、产品、工艺的明确目标和系统性；常规升级、简单改变、维护等活动不适用。",
+   "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+   "question": "逐个研发项目说明技术目标、实质创新及研发活动证据，排查常规升级、维护、技术支持等不适用活动。",
+   "assessmentAllowed": false,
+   "inputType": "evidence",
+   "periodRequirement": "拟享受优惠的纳税年度及项目期间"
+  },
+  {
+   "id": "rd-accounting",
+   "label": "区分研发与生产经营费用并设置研发辅助账",
+   "field": "rdRatio",
+   "operator": "manual",
+   "value": null,
+   "evidence": "政策指引要求按项目归集研发费用，并分别核算研发及生产经营费用；划分不清的费用不得加计扣除。",
+   "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+   "question": "请提供按项目设置的研发辅助账及研发与经营费用分开核算的说明；记录费用划分依据和原始凭证，待财税人员核验。",
+   "assessmentAllowed": false,
+   "inputType": "evidence",
+   "periodRequirement": "拟享受优惠的纳税年度"
+  },
+  {
+   "id": "rd-contract",
+   "label": "委托或合作研发合同认定登记及境外限额",
+   "field": "exporter",
+   "operator": "manual",
+   "value": null,
+   "evidence": "委托/合作研发需登记合同；委外费用通常按实际发生额80%归集，境外还有境内符合条件研发费用三分之二的限额。存在这些情形须逐项核验。",
+   "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+   "question": "是否存在委托、合作或境外研发？请分别记录合同登记、实际支出、80%归集和境外三分之二限额计算；不涉及时说明依据。",
+   "assessmentAllowed": false,
+   "inputType": "evidence",
+   "periodRequirement": "拟享受优惠的纳税年度及合同期间"
+  }
+ ],
+ "validity": {
+  "from": "2023-01-01",
+  "to": null
+ },
+ "audience": "会计核算健全、实行查账征收、能准确归集研发费用且不属规定不适用行业的居民企业。"
+}

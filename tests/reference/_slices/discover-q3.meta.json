@@ -1,0 +1,63 @@
+{
+ "interpretation": {
+  "summary": "你想了解企业所得税优惠、小型微利企业所得税优惠。已找到 2 个有真实来源的候选，请选择要进一步核对的事项。",
+  "status": "ready",
+  "suggestedTask": "eligibility",
+  "topics": [
+   {
+    "id": "income-tax",
+    "label": "企业所得税优惠",
+    "matchedText": "企业所得税"
+   },
+   {
+    "id": "small",
+    "label": "小型微利企业所得税优惠",
+    "matchedText": "小微企业"
+   }
+  ],
+  "region": null,
+  "regions": [],
+  "excludedTerms": [],
+  "unresolvedTerms": [
+   "少交一点"
+  ],
+  "companyFactsInferred": false
+ },
+ "meta": {
+  "mode": "deterministic",
+  "query": {
+   "positiveTerms": [
+    "企业所得税",
+    "小微企业"
+   ],
+   "excludedTerms": [],
+   "unresolvedTerms": [
+    "少交一点"
+   ],
+   "residualHandling": "soft",
+   "topicTerms": [
+    "企业所得税",
+    "小微企业"
+   ],
+   "message": "已按明确主题检索；未识别片段未参与地区、资格、行业或数值判断。"
+  },
+  "totalAvailable": 6,
+  "excluded": [],
+  "limitations": [
+   "仅搜索本地已收录政策样本；不代表全部政策或匹配资格。",
+   "语义别名与排除词使用可解释规则，未调用大模型。",
+   "自然语言理解为本地规则模拟，未调用大模型。",
+   "候选中的历史批次和未知窗口不表示当前可办理，须核对主管部门最新通知。",
+   "地区与主题仅为你描述的检索范围，未确认企业注册地、行业、人数、收入、年度或任何资格。"
+  ],
+  "modelUsed": false,
+  "understanding": "dictionary_rules",
+  "totalReturned": 2,
+  "catalogueSuppressed": false,
+  "selectionRequired": true,
+  "companyFactsInferred": false
+ },
+ "followUpQuestions": [
+  "描述中的“少交一点”尚未准确对应规则；可补充业务目的或事项名称，数字和年度不会自动成为企业事实。"
+ ]
+}

@@ -2,9 +2,9 @@ import {windowCopy} from './presentation.js';
 export const esc = value => String(value ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const safeUrl = value => { try { const u=new URL(value,location.origin); return ['http:','https:'].includes(u.protocol)?u.href:'#'; } catch { return '#'; } };
 export const link = (url,label,cls='text-link') => `<a class="${cls}" href="${esc(safeUrl(url))}" target="_blank" rel="noopener noreferrer">${esc(label)} ${icon('external')}</a>`;
-// github.io 等静态托管没有后端代理时，站内快照/附件改指原站（顶层导航不带 Origin，
-// 原站允许同源外 GET 访问静态资料）；同源部署与本地代理保持原相对路径。
-export const siteUrl = p => location.hostname.endsWith('.github.io') ? 'https://radar.huixiang17.cn' + (p.startsWith('/') ? p : '/' + p) : p;
+// 快照/附件已全部随包发布：解析为相对当前页面的 URL（兼容 GitHub Pages 子路径），
+// 不再回链任何外部站点。
+export const siteUrl = p => new URL(String(p).replace(/^\//, ''), location.href).href;
 const paths={chevron:'<path d="m7 10 5 5 5-5"/>',radar:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 3v9l7-5"/><circle cx="8" cy="16" r="1"/>',search:'<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/>',check:'<path d="m5 12 4 4L19 6"/>',cross:'<path d="m6 6 12 12M6 18 18 6"/>',help:'<circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 0 1 6 0c0 2-3 2-3 4M12 17h.01"/>',shield:'<path d="M12 3 4 6v6c0 5 8 9 8 9s8-4 8-9V6z"/><path d="m8 12 3 3 5-6"/>',file:'<path d="M14 2H5v20h14V7zM14 2v5h5M8 12h8M8 16h6"/>',brief:'<rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V3h8v4M3 12h18M10 12v3h4v-3"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',external:'<path d="M14 3h7v7M21 3 10 14M10 3H3v18h18v-7"/>',arrow:'<path d="M4 12h16m-6-6 6 6-6 6"/>',user:'<circle cx="12" cy="7" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/>',settings:'<path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="15" cy="17" r="3"/>',database:'<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 4 16 4 16 0V5M4 12c0 4 16 4 16 0"/>',spark:'<path d="m12 3 2 6 7 3-7 3-2 6-2-6-7-3 7-3z"/>',download:'<path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/>',menu:'<path d="M4 6h16M4 12h16M4 18h16"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/>'};
 export function icon(name,extraClass=''){return `<svg class="icon ${extraClass}" aria-hidden="true" viewBox="0 0 24 24">${paths[name]||paths.file}</svg>`;}
 export const date = v => v ? String(v).slice(0,10) : '未确认';

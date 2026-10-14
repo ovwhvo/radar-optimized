@@ -1,0 +1,283 @@
+{
+ "category": "研发创新",
+ "benefit": "国高等基本档次补助10万至300万元；符合相同条件的国家专精特新“小巨人”、国家制造业单项冠军按对应金额150%，最高450万元。实际金额受财政预算总量和核准结果约束。",
+ "title": "龙岗科技企业研发投入扶持",
+ "summary": "支持龙岗实际经营科技企业的上一年度研发投入。按研发投入档次核准扶持；国高、专精特新小巨人、制造业单项冠军、生物医药等路径须分别核验。",
+ "steps": [
+  {
+   "title": "确认本批指南与窗口",
+   "description": "实施细则第二十六条要求按龙岗政府在线发布的项目申报指南申请。先确认是否已有适用本版本的新批次。",
+   "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html"
+  },
+  {
+   "title": "整理资格与研发证据",
+   "description": "对照第十一条确定资格路径、上一年度研发投入档次、比例例外和专项审计依据。",
+   "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html"
+  },
+  {
+   "title": "按本批指南申报并补正",
+   "description": "管理办法规定主管部门初审材料；符合条件但材料不齐备的，在要求期限内补齐。",
+   "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12595209.html"
+  },
+  {
+   "title": "审核、公示及拨付",
+   "description": "审核通过后按规定公示五个工作日；最终金额、立项和拨付由主管部门确定。",
+   "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html"
+  }
+ ],
+ "applicationStatus": "unknown",
+ "limitations": [
+  "尚未核验适用2026年实施细则的研发投入项目申报窗口，状态保留未知。",
+  "材料清单只包括现行实施细则明确的核准依据，完整清单及官方表格待批次指南补齐。",
+  "2024年细则于2026年1月23日废止；新细则发布前已完成申报的项目仍按原政策执行，不能混用版本。",
+  "地区和自报资格只能用于初步筛选；实际经营、资格路径和审计金额仍须人工核验。"
+ ],
+ "tags": [
+  "龙岗",
+  "研发投入",
+  "高新技术",
+  "制造业",
+  "生物医药"
+ ],
+ "formGuide": {
+  "title": "龙岗研发扶持：核准依据资料整理",
+  "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+  "templateUrl": null,
+  "version": "深龙科规〔2026〕2号 · 第十一条",
+  "kind": "preparation_fields",
+  "completeness": "partial",
+  "retrievedAt": "2026-10-10T09:18:02.1579658Z",
+  "verifiedAt": "2026-10-10T10:08:54.545112Z",
+  "snapshotPath": "data/snapshots/lg-rd-2026.html",
+  "fields": [
+   {
+    "id": "qualification-route",
+    "label": "拟适用资格路径",
+    "type": "select",
+    "help": "按真实资格选择，保留证书或主管部门名单；选择并不代表资格获确认。",
+    "evidence": "实施细则第十一条列五类扶持范围。",
+    "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+    "placeholder": "待填：拟适用资格路径",
+    "required": true,
+    "locator": "第十一条扶持范围",
+    "options": [
+     {
+      "value": "国家高新技术企业",
+      "label": "国家高新技术企业"
+     },
+     {
+      "value": "国家专精特新“小巨人”企业",
+      "label": "国家专精特新“小巨人”企业"
+     },
+     {
+      "value": "制造业单项冠军企业",
+      "label": "制造业单项冠军企业"
+     },
+     {
+      "value": "生物医药类企业",
+      "label": "生物医药类企业"
+     },
+     {
+      "value": "青年人才创业项目企业",
+      "label": "青年人才创业项目企业"
+     }
+    ]
+   },
+   {
+    "id": "qualification-proof",
+    "label": "资格证书或认定名单依据",
+    "type": "textarea",
+    "help": "写证书/名单名称、有效期间及所在页，不编造证书编号。",
+    "evidence": "第十一条审核方式以国高证书、主管部门名单及研发专项审计报告为准。",
+    "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+    "placeholder": "待填：资格证书或认定名单依据",
+    "required": true,
+    "locator": "第十一条审核方式"
+   },
+   {
+    "id": "rd-investment",
+    "label": "上一年度研发投入（万元）",
+    "type": "number",
+    "help": "依据研发专项审计报告填写金额；所属年度随本批指南确认。",
+    "evidence": "第十一条设上一年度研发投入300万元及以上分档。",
+    "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+    "placeholder": "待填：上一年度研发投入（万元）",
+    "required": true,
+    "unit": "万元",
+    "locator": "第十一条扶持标准"
+   },
+   {
+    "id": "revenue-amount",
+    "label": "研发比例计算对应营业收入（万元）",
+    "type": "number",
+    "help": "按适用路径和高企办法口径记录，不能与研发投入互换；生物医药例外需核验。",
+    "evidence": "第十一条要求适用路径满足研发投入占营业收入比例。",
+    "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+    "placeholder": "待填：研发比例计算对应营业收入（万元）",
+    "required": false,
+    "unit": "万元",
+    "locator": "第十一条扶持标准"
+   },
+   {
+    "id": "tax-deduction-filing",
+    "label": "研发加计扣除申报依据",
+    "type": "textarea",
+    "help": "记录已办理的年度、申报表行或回执，尚未办理就如实说明。",
+    "evidence": "第十一条要求已在税务部门办理研发费用加计扣除申报。",
+    "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+    "placeholder": "待填：研发加计扣除申报依据",
+    "required": true,
+    "locator": "第十一条扶持标准"
+   },
+   {
+    "id": "rd-audit-proof",
+    "label": "研发专项审计报告依据",
+    "type": "textarea",
+    "help": "记录报告名称、审计年度及相关金额页码；出具机构资质和格式待本批指南核实。",
+    "evidence": "第十一条审核方式明确研发专项审计报告。",
+    "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+    "placeholder": "待填：研发专项审计报告依据",
+    "required": true,
+    "locator": "第十一条审核方式"
+   }
+  ],
+  "limitations": [
+   "现行细则未提供本批次申报书；这是核准依据整理，不是官方申请表。",
+   "适用2026细则的新批次窗口和完整材料清单仍未核验，不能据此提交。",
+   "填写研发或营业收入金额不会自动算出资助额；资格路径、比例例外和财政总量须另验。"
+  ]
+ },
+ "id": "lg-rd-investment-2026",
+ "verifiedAt": "2026-10-10T09:36:33.1127683+00:00",
+ "policyStatus": "active",
+ "materials": [
+  {
+   "id": "lg-rd-audit",
+   "name": "研发专项审计报告",
+   "note": "实施细则明确的核准依据；具体出具资质、报告年度和格式须待本批指南核实。",
+   "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+   "verified": true
+  },
+  {
+   "id": "lg-cert",
+   "name": "适用资格证书或主管部门认定名单",
+   "note": "国高证书/专精特新或单项冠军认定名单等；按实际资格路径准备。",
+   "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+   "verified": true
+  },
+  {
+   "id": "lg-application",
+   "name": "本批次申报书及完整附件清单",
+   "note": "当前未核验本版本对应批次模板和完整材料；暂不能据此提交。",
+   "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+   "verified": false
+  }
+ ],
+ "applicationStatusLabel": "新批次窗口待核验",
+ "window": {
+  "open": null,
+  "close": null,
+  "note": "现行实施细则不等于正在受理；本数据尚未核验适用本版本的申报指南及窗口。"
+ },
+ "authority": "深圳市龙岗区科技创新局",
+ "policyStatusLabel": "2026年实施细则有效",
+ "relatedDocuments": [
+  {
+   "id": "src-lg-management",
+   "title": "深圳市龙岗区科技创新局 深圳市龙岗区财政局关于印发《深圳市龙岗区科技创新专项资金管理办法》的通知",
+   "url": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12595209.html",
+   "authority": "深圳市龙岗区科技创新局、深圳市龙岗区财政局",
+   "publishedAt": "2026-01-09",
+   "snapshotPath": "data/snapshots/lg-management-2026.html",
+   "retrievedAt": "2026-10-10T09:24:23.4103398Z",
+   "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+  }
+ ],
+ "source": {
+  "id": "src-lg-innovation",
+  "title": "深圳市龙岗区科技创新局关于印发《深圳市龙岗区科技创新专项资金实施细则》的通知",
+  "url": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+  "authority": "深圳市龙岗区科技创新局",
+  "publishedAt": "2026-01-13",
+  "documentDate": "2026-01-13",
+  "snapshotPath": "data/snapshots/lg-rd-2026.html",
+  "excerptPath": "data/snapshots/lg-rd-2026.txt",
+  "retrievedAt": "2026-10-10T09:18:02.1579658Z",
+  "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+ },
+ "version": "深龙科规〔2026〕2号 · 第十一条",
+ "region": "龙岗区",
+ "publishedAt": "2026-01-13",
+ "conditions": [
+  {
+   "id": "lg-region",
+   "label": "核验在龙岗区实际经营",
+   "field": "region",
+   "operator": "manual",
+   "value": null,
+   "evidence": "管理办法第十条要求本行政区域内实际经营。仅有注册地区或地址自报不能证明实际经营，需用本批指南认可的经营证据核验。",
+   "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12595209.html",
+   "question": "企业在拟申报时是否确实在龙岗区经营？请记录经营地址和能证明实际经营的租赁、场地或经营资料，待本批指南核验。",
+   "assessmentAllowed": true,
+   "inputType": "boolean",
+   "periodRequirement": "拟申报时的实际经营期间"
+  },
+  {
+   "id": "lg-qualification",
+   "label": "核验企业适用资格路径",
+   "field": "highTech",
+   "operator": "manual",
+   "value": null,
+   "evidence": "第十一条范围包括国家高新技术企业、国家专精特新“小巨人”、制造业单项冠军、生物医药类及青年人才创业项目企业。生物医药类不受国高资格限制，不能简单按国高否决其他路径。",
+   "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+   "question": "拟按国高、小巨人、制造业单项冠军、生物医药或青年人才创业项目中的哪一路径申请？请记录资格名称、有效期和证书或认定名单。",
+   "assessmentAllowed": false,
+   "inputType": "evidence",
+   "periodRequirement": "资格证书或认定名单有效期间"
+  },
+  {
+   "id": "lg-rd-amount",
+   "label": "上一年度研发投入达到300万元门槛",
+   "field": "revenue",
+   "operator": "manual",
+   "value": null,
+   "evidence": "第十一条设300万元及以上研发投入档次；该金额是研发投入，不是营业收入，需依据研发专项审计报告核对。",
+   "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+   "question": "拟申报批次对应上一年度的研发投入是否达到300万元？请填写审计报告年度、研发投入金额和报告页码；不要填营业收入。",
+   "assessmentAllowed": true,
+   "inputType": "boolean",
+   "periodRequirement": "拟申报批次指南对应的上一年度"
+  },
+  {
+   "id": "lg-rd-ratio",
+   "label": "按适用路径核验研发投入比例和加计扣除申报",
+   "field": "rdRatio",
+   "operator": "manual",
+   "value": null,
+   "evidence": "第十一条要求已办理研发费用加计扣除申报，国高路径参照高企办法核对研发投入占营业收入比例；生物医药类不受该比例限制。",
+   "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+   "question": "是否已办理对应年度研发加计扣除申报？按所选资格路径提供营业收入、研发比例计算、申报回执，并说明是否适用生物医药比例例外。",
+   "assessmentAllowed": false,
+   "inputType": "evidence",
+   "periodRequirement": "拟申报批次指南对应的上一年度及适用计算期间"
+  },
+  {
+   "id": "lg-credit",
+   "label": "核验信用、会计制度和同一事项重复资助",
+   "field": "compliant",
+   "operator": "manual",
+   "value": null,
+   "evidence": "管理办法第十九条要求诚信守法、完善财务制度，未列入严重失信、失信被执行人或经营异常名单，且同一事项不得重复或多头申报区级财政资金。",
+   "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12595209.html",
+   "question": "请分别核对会计制度、信用名单及同一事项区级资助情况，记录查询日期、结果和已获财政资助，不能仅用“合规”勾选代替。",
+   "assessmentAllowed": false,
+   "inputType": "evidence",
+   "periodRequirement": "拟申报批次要求的核查期间"
+  }
+ ],
+ "validity": {
+  "from": "2026-01-23",
+  "duration": "三年"
+ },
+ "audience": "在龙岗实际经营、符合具体研发投入及申报条件的国家高新技术、国家专精特新小巨人、制造业单项冠军、生物医药类等实施细则列明企业。"
+}

@@ -1,0 +1,228 @@
+{
+ "items": [
+  {
+   "id": "src-rd-tax",
+   "title": "财政部 税务总局关于进一步完善研发费用税前加计扣除政策的公告",
+   "url": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5201978/content.html",
+   "authority": "财政部、国家税务总局",
+   "publishedAt": null,
+   "verifiedAt": "2026-10-10T09:36:33.1127683+00:00",
+   "retrievedAt": "2026-10-10T09:18:03.6952177Z",
+   "snapshotPath": "data/snapshots/national-rd-tax-2023.html",
+   "excerptPath": "data/snapshots/national-rd-tax-2023.txt",
+   "documentDate": "2023-03-26",
+   "sha256": null,
+   "policyIds": [
+    "national-rd-tax-2023"
+   ],
+   "checkStatus": "snapshot_only"
+  },
+  {
+   "id": "src-rd-guide",
+   "title": "一文了解：研发费用加计扣除政策",
+   "url": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+   "authority": "国家税务总局",
+   "publishedAt": "2024-04-12",
+   "verifiedAt": "2026-10-10T09:36:33.1127683+00:00",
+   "retrievedAt": "2026-10-10T09:24:22.413071Z",
+   "snapshotPath": "data/snapshots/national-rd-guide-2024.html",
+   "excerptPath": null,
+   "documentDate": null,
+   "sha256": null,
+   "policyIds": [
+    "national-rd-tax-2023"
+   ],
+   "checkStatus": "snapshot_only"
+  },
+  {
+   "id": "src-smallprofit",
+   "title": "财政部 税务总局关于进一步支持小微企业和个体工商户发展有关税费政策的公告",
+   "url": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5210453/content.html",
+   "authority": "财政部、国家税务总局",
+   "publishedAt": null,
+   "verifiedAt": "2026-10-10T09:36:33.1127683+00:00",
+   "retrievedAt": "2026-10-10T09:18:03.9446982Z",
+   "snapshotPath": "data/snapshots/national-smallprofit-2023.html",
+   "excerptPath": "data/snapshots/national-smallprofit-2023.txt",
+   "documentDate": "2023-08-02",
+   "sha256": null,
+   "policyIds": [
+    "national-smallprofit-tax-2023"
+   ],
+   "checkStatus": "snapshot_only"
+  },
+  {
+   "id": "src-tax-faq",
+   "title": "税费政策可视答疑第二十四期热点问题",
+   "url": "https://liaoning.chinatax.gov.cn/art/2025/9/30/art_782_156392.html",
+   "authority": "国家税务总局辽宁省税务局",
+   "publishedAt": "2025-09-30",
+   "verifiedAt": "2026-10-10T09:36:33.1127683+00:00",
+   "retrievedAt": "2026-10-10T09:24:23.2679874Z",
+   "snapshotPath": "data/snapshots/national-tax-faq-2025.html",
+   "excerptPath": null,
+   "documentDate": null,
+   "sha256": null,
+   "policyIds": [
+    "national-smallprofit-tax-2023"
+   ],
+   "checkStatus": "snapshot_only"
+  },
+  {
+   "id": "src-hightech",
+   "title": "深圳市工业和信息化局关于开展2026年高新技术企业认定工作的通知",
+   "url": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+   "authority": "深圳市工业和信息化局",
+   "publishedAt": "2026-06-18",
+   "verifiedAt": "2026-10-10T09:36:33.1127683+00:00",
+   "retrievedAt": "2026-10-10T09:18:02.5146629Z",
+   "snapshotPath": "data/snapshots/sz-hightech-2026.html",
+   "excerptPath": "data/snapshots/sz-hightech-2026.txt",
+   "documentDate": "2026-06-15",
+   "sha256": null,
+   "policyIds": [
+    "sz-hightech-recognition-2026"
+   ],
+   "checkStatus": "snapshot_only"
+  },
+  {
+   "id": "src-hightech-extension",
+   "title": "市工业和信息化局关于延长2026年第三批高新技术企业认定受理时间的通知",
+   "url": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12970193.html",
+   "authority": "深圳市工业和信息化局",
+   "publishedAt": "2026-09-07",
+   "verifiedAt": "2026-10-10T09:36:33.1127683+00:00",
+   "retrievedAt": "2026-10-10T09:18:02.7816848Z",
+   "snapshotPath": "data/snapshots/sz-hightech-extension-2026.html",
+   "excerptPath": "data/snapshots/sz-hightech-extension-2026.txt",
+   "documentDate": "2026-09-04",
+   "sha256": null,
+   "policyIds": [
+    "sz-hightech-recognition-2026"
+   ],
+   "checkStatus": "snapshot_only"
+  },
+  {
+   "id": "src-techsme",
+   "title": "市工业和信息化局关于组织开展2026年科技型中小企业评价工作的通知",
+   "url": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/mpost_12834874.html",
+   "authority": "深圳市工业和信息化局",
+   "publishedAt": "2026-06-10",
+   "verifiedAt": "2026-10-10T09:36:33.1127683+00:00",
+   "retrievedAt": "2026-10-10T09:18:02.9493009Z",
+   "snapshotPath": "data/snapshots/sz-techsme-2026.html",
+   "excerptPath": "data/snapshots/sz-techsme-2026.txt",
+   "documentDate": null,
+   "sha256": null,
+   "policyIds": [
+    "sz-hightech-recognition-2026",
+    "sz-techsme-evaluation-2026"
+   ],
+   "checkStatus": "snapshot_only"
+  },
+  {
+   "id": "src-lg-innovation",
+   "title": "深圳市龙岗区科技创新局关于印发《深圳市龙岗区科技创新专项资金实施细则》的通知",
+   "url": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+   "authority": "深圳市龙岗区科技创新局",
+   "publishedAt": "2026-01-13",
+   "verifiedAt": "2026-10-10T09:36:33.1127683+00:00",
+   "retrievedAt": "2026-10-10T09:18:02.1579658Z",
+   "snapshotPath": "data/snapshots/lg-rd-2026.html",
+   "excerptPath": "data/snapshots/lg-rd-2026.txt",
+   "documentDate": "2026-01-13",
+   "sha256": null,
+   "policyIds": [
+    "lg-rd-investment-2026"
+   ],
+   "checkStatus": "snapshot_only"
+  },
+  {
+   "id": "src-lg-management",
+   "title": "深圳市龙岗区科技创新局 深圳市龙岗区财政局关于印发《深圳市龙岗区科技创新专项资金管理办法》的通知",
+   "url": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12595209.html",
+   "authority": "深圳市龙岗区科技创新局、深圳市龙岗区财政局",
+   "publishedAt": "2026-01-09",
+   "verifiedAt": "2026-10-10T09:36:33.1127683+00:00",
+   "retrievedAt": "2026-10-10T09:24:23.4103398Z",
+   "snapshotPath": "data/snapshots/lg-management-2026.html",
+   "excerptPath": null,
+   "documentDate": null,
+   "sha256": null,
+   "policyIds": [
+    "lg-rd-investment-2026"
+   ],
+   "checkStatus": "snapshot_only"
+  },
+  {
+   "id": "src-contract",
+   "title": "深圳市科技创新局关于发布《深圳市技术合同认定登记办理指南（2026年版）》的通知",
+   "url": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+   "authority": "深圳市科技创新局",
+   "publishedAt": "2026-06-29",
+   "verifiedAt": "2026-10-10T09:36:33.1127683+00:00",
+   "retrievedAt": "2026-10-10T09:18:03.4173755Z",
+   "snapshotPath": "data/snapshots/sz-tech-contract-2026.html",
+   "excerptPath": "data/snapshots/sz-tech-contract-2026.txt",
+   "documentDate": "2026-06-29",
+   "sha256": null,
+   "policyIds": [
+    "national-rd-tax-2023",
+    "sz-tech-contract-2026"
+   ],
+   "checkStatus": "snapshot_only"
+  },
+  {
+   "id": "src-techsme-attachments-2026",
+   "title": "深圳2026科技型中小企业评价通知附件1-2（公开ZIP）",
+   "url": "https://www.sz.gov.cn/attachment/1/1721/1721303/12834874.zip",
+   "authority": "深圳市工业和信息化局",
+   "publishedAt": "2026-06-10",
+   "verifiedAt": "2026-10-10T10:08:54.545112Z",
+   "retrievedAt": "2026-10-10T09:55:45.502287Z",
+   "snapshotPath": "data/templates/sz-techsme-2026-official-attachments.zip",
+   "excerptPath": null,
+   "documentDate": null,
+   "sha256": "2451366e3a274ceafadf97e5513b4eebda6d6bbae3899b1cb84cf2602dc41042",
+   "policyIds": [
+    "sz-techsme-evaluation-2026"
+   ],
+   "checkStatus": "snapshot_only"
+  },
+  {
+   "id": "src-techsme-service-guide-2022",
+   "title": "科技型中小企业评价服务工作指引（国科火字〔2022〕67号；含附件1信息表）",
+   "url": "https://www.yima.gov.cn/backend/ueditor/jsp/upload/files/ymszf_data/attach/0/d7cdd7705fb24f58a2689f602e3e6305.pdf",
+   "authority": "科技部火炬中心；义马市政府公开转载PDF",
+   "publishedAt": "2026-06-10",
+   "verifiedAt": "2026-10-10T10:08:54.545112Z",
+   "retrievedAt": "2026-10-10T09:57:11.1007386Z",
+   "snapshotPath": "data/templates/techsme-service-guide-2022-official.pdf",
+   "excerptPath": "data/snapshots/techsme-service-guide-2022-fields.txt",
+   "documentDate": "2022-03-04",
+   "sha256": "87de2c01a2e8c350bbda5db6474f5c481ac9f6e361eb4cbd5d43f138126e3261",
+   "policyIds": [
+    "sz-techsme-evaluation-2026"
+   ],
+   "checkStatus": "snapshot_only"
+  },
+  {
+   "id": "src-techsme-guide-hunan",
+   "title": "科技型中小企业评价服务工作指引（湖南省科学技术厅公开正文）",
+   "url": "https://kjt.hunan.gov.cn/kjt/xxgk/tzgg/kjbtzgg/202503/t20250303_33599900.html",
+   "authority": "科技部火炬中心；湖南省科学技术厅转载",
+   "publishedAt": "2022-03-04",
+   "verifiedAt": "2026-10-10T10:08:54.545112Z",
+   "retrievedAt": "2026-10-10T09:57:11.1007386Z",
+   "snapshotPath": "data/snapshots/techsme-service-guide-2022-hunan.html",
+   "excerptPath": null,
+   "documentDate": "2022-03-04",
+   "sha256": null,
+   "policyIds": [
+    "sz-techsme-evaluation-2026"
+   ],
+   "checkStatus": "snapshot_only"
+  }
+ ],
+ "datasetDate": "2026-10-10"
+}

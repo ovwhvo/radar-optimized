@@ -263,9 +263,11 @@ def main():
         if s.is_file():
             emit(DIST / extra, s.read_bytes(), also_gzip=False)
 
-    data_json = SRC / "data" / "policies.json"
-    if data_json.is_file():
-        emit(DIST / "data" / "policies.json", data_json.read_bytes())
+    # data 目录整树发布（policies/sources/快照/附件全部随包，运行时零外链依赖）
+    for f in sorted((SRC / "data").rglob("*")):
+        if f.is_file():
+            also_gz = f.suffix in (".json", ".html", ".txt", ".svg")
+            emit(DIST / f.relative_to(SRC), f.read_bytes(), also_gzip=also_gz)
 
     # ---- 6. 体积对照报告
     orig_js = sum(p.stat().st_size for p in SRC.rglob("*") if p.suffix in (".js", ".mjs"))

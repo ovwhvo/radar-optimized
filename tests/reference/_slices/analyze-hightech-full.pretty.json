@@ -1,0 +1,305 @@
+{
+ "mode": "mock",
+ "contractVersion": 2,
+ "inputFingerprint": "d8b7f56a26d78f6deda5bf6fb3f91f69243083ead9e880bd648e5f6c4e312df7",
+ "assessmentsFingerprint": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+ "policyVersions": [
+  {
+   "policyId": "sz-hightech-recognition-2026",
+   "version": "2026年度认定通知 + 第三批延期通知",
+   "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+  }
+ ],
+ "results": [
+  {
+   "policyId": "sz-hightech-recognition-2026",
+   "title": "深圳高新技术企业认定（2026批次）",
+   "policyVersion": "2026年度认定通知 + 第三批延期通知",
+   "source": {
+    "id": "src-hightech",
+    "title": "深圳市工业和信息化局关于开展2026年高新技术企业认定工作的通知",
+    "url": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+    "authority": "深圳市工业和信息化局",
+    "publishedAt": "2026-06-18",
+    "documentDate": "2026-06-15",
+    "snapshotPath": "data/snapshots/sz-hightech-2026.html",
+    "excerptPath": "data/snapshots/sz-hightech-2026.txt",
+    "retrievedAt": "2026-10-10T09:18:02.5146629Z",
+    "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+   },
+   "verifiedAt": "2026-10-10T09:36:33.1127683+00:00",
+   "applicationStatus": "closed",
+   "conditions": [
+    {
+     "conditionId": "high-region",
+     "label": "地区范围初筛：深圳市（含深汕）",
+     "field": "region",
+     "fact": "深圳市龙岗区",
+     "status": "met",
+     "reason": "所填企业事实满足这一结构化条件；仍需官方材料验证。",
+     "evidence": "申请条件（一）要求深圳市（含深汕特别合作区）依法注册、独立法人居民企业；地区只做初筛，法人和税务居民属性待验。",
+     "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+     "question": "企业注册地区是否在深圳市（含深汕）？请按营业执照确认；地区符合仍需另核验法人和居民企业身份。",
+     "inputType": "evidence",
+     "assessmentAllowed": false,
+     "evidenceOrigin": "user_profile",
+     "periodRequired": false,
+     "expectedPeriod": null
+    },
+    {
+     "conditionId": "high-age",
+     "label": "申请时注册成立一年以上",
+     "field": "ageYears",
+     "fact": "尚未提供本条专项事实与期间",
+     "status": "missing",
+     "reason": "请补充本条要求的具体资料、专项事实及对应期间；基础档案不能替代原文的专项口径。",
+     "evidence": "申请条件（一）为一年以上；需以成立日期和实际申请日期核验，粗略年数尤其临界值不足以判定。",
+     "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+     "question": "在拟提交申请的当天，营业执照注册成立日期是否已经超过一年？请记录成立日期及拟申请日期，不能只填粗略年数。",
+     "inputType": "boolean",
+     "assessmentAllowed": true,
+     "evidenceOrigin": "unverified",
+     "periodRequired": false,
+     "expectedPeriod": null,
+     "missingFields": [],
+     "requiredInput": "assessment"
+    },
+    {
+     "conditionId": "high-ip",
+     "label": "拥有支撑主要产品核心技术的知识产权所有权",
+     "field": "hasIp",
+     "fact": "需专项资料核验（已有基础字段不能替代）",
+     "status": "verify",
+     "reason": "该条件需要材料或人工核验，模拟服务无法确认；基础档案不能替代原文要求的专项事实、统计期间和口径。",
+     "evidence": "申请条件（二）要求通过自主研发、受让、受赠、并购等获得核心支持知识产权所有权；任意知识产权不能替代核心支持核验。",
+     "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+     "question": "请提供支撑主要产品核心技术的知识产权、授权/变更文件及有效期，并说明核心支持关系；任意知识产权不能代替。",
+     "inputType": "evidence",
+     "assessmentAllowed": false,
+     "evidenceOrigin": "unverified",
+     "periodRequired": false,
+     "expectedPeriod": null
+    },
+    {
+     "conditionId": "high-field",
+     "label": "核心技术属于国家重点支持的高新技术领域",
+     "field": "industry",
+     "fact": "需专项资料核验（已有基础字段不能替代）",
+     "status": "verify",
+     "reason": "该条件需要材料或人工核验，模拟服务无法确认；基础档案不能替代原文要求的专项事实、统计期间和口径。",
+     "evidence": "申请条件（三）要求技术属于指定领域；需按产品技术及领域目录判断。",
+     "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+     "question": "主要产品核心技术对应国家重点支持高新技术领域的哪一具体条目？请记录目录条目及技术说明。",
+     "inputType": "evidence",
+     "assessmentAllowed": false,
+     "evidenceOrigin": "unverified",
+     "periodRequired": false,
+     "expectedPeriod": null
+    },
+    {
+     "conditionId": "high-staff",
+     "label": "科技人员占当年职工总数不低于10%",
+     "field": "employees",
+     "fact": "需专项资料核验（已有基础字段不能替代）",
+     "status": "verify",
+     "reason": "该条件需要材料或人工核验，模拟服务无法确认；基础档案不能替代原文要求的专项事实、统计期间和口径。",
+     "evidence": "申请条件（四）规定科技人员比例≥10%；仅有总职工人数不足以判断。",
+     "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+     "question": "请提供当年职工总数、科技人员人数、统计口径和人员名单，计算科技人员比例是否达到10%，由专业人员核对。",
+     "inputType": "evidence",
+     "assessmentAllowed": false,
+     "evidenceOrigin": "unverified",
+     "periodRequired": false,
+     "expectedPeriod": null
+    },
+    {
+     "conditionId": "high-rd",
+     "label": "近三年研发费用比例及境内研发占比",
+     "field": "rdRatio",
+     "fact": "需专项资料核验（已有基础字段不能替代）",
+     "status": "verify",
+     "reason": "该条件需要材料或人工核验，模拟服务无法确认；基础档案不能替代原文要求的专项事实、统计期间和口径。",
+     "evidence": "最近一年销售≤5000万元、≤2亿元、>2亿元分别对应近三年研发占比≥5%、≥4%、≥3%；境内研发占总研发≥60%。必须核对年度和分母。",
+     "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+     "question": "请分别整理近三年研发费用和销售收入、最近一年销售收入档次、境内研发金额；经营不足三年按实际经营期，核验两个比例。",
+     "inputType": "evidence",
+     "assessmentAllowed": false,
+     "evidenceOrigin": "unverified",
+     "periodRequired": false,
+     "expectedPeriod": null
+    },
+    {
+     "conditionId": "high-income",
+     "label": "近一年高新产品服务收入占同期总收入不低于60%",
+     "field": "revenue",
+     "fact": "需专项资料核验（已有基础字段不能替代）",
+     "status": "verify",
+     "reason": "该条件需要材料或人工核验，模拟服务无法确认；基础档案不能替代原文要求的专项事实、统计期间和口径。",
+     "evidence": "申请条件（六）为高新产品服务收入比例，不是营业收入绝对值。",
+     "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+     "question": "请整理近一年高新产品服务收入和同期总收入、代表性合同及发票，计算是否达到60%，由专项报告核验收入归属。",
+     "inputType": "evidence",
+     "assessmentAllowed": false,
+     "evidenceOrigin": "unverified",
+     "periodRequired": false,
+     "expectedPeriod": null
+    },
+    {
+     "conditionId": "high-innovation",
+     "label": "创新能力、事故环境及年度申报限制",
+     "field": "compliant",
+     "fact": "需专项资料核验（已有基础字段不能替代）",
+     "status": "verify",
+     "reason": "该条件需要材料或人工核验，模拟服务无法确认；基础档案不能替代原文要求的专项事实、统计期间和口径。",
+     "evidence": "条件（七）（八）要求创新能力达标及申请前一年无重大安全质量事故或严重环境违法；有效2024/2025高企不能申报，并有更名迁移前置事项。",
+     "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+     "question": "请分别提供创新能力评价证据、申请前一年安全质量环保记录、现有高企证书年份及更名迁移事项完成情况。",
+     "inputType": "evidence",
+     "assessmentAllowed": false,
+     "evidenceOrigin": "unverified",
+     "periodRequired": false,
+     "expectedPeriod": null
+    },
+    {
+     "conditionId": "high-sme",
+     "label": "符合科技型中小企业入库条件者取得本年度编号",
+     "field": "techSme",
+     "fact": "需专项资料核验（已有基础字段不能替代）",
+     "status": "verify",
+     "reason": "该条件需要材料或人工核验，模拟服务无法确认；基础档案不能替代原文要求的专项事实、统计期间和口径。",
+     "evidence": "重要提示要求符合科技型中小企业评价入库条件的企业应获得本年度入库编号；不对不适用该条件的企业直接否决。",
+     "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+     "question": "企业是否适用2026科技型中小企业入库要求？适用时请提供本年度入库编号；不适用需记录人数、销售及资产等判断依据。",
+     "inputType": "evidence",
+     "assessmentAllowed": false,
+     "evidenceOrigin": "unverified",
+     "periodRequired": false,
+     "expectedPeriod": null
+    },
+    {
+     "conditionId": "sz-hightech-recognition-2026-entity",
+     "label": "核验深圳依法注册、独立法人及居民企业属性",
+     "field": "compliant",
+     "fact": "需专项资料核验（已有基础字段不能替代）",
+     "status": "verify",
+     "reason": "该条件需要材料或人工核验，模拟服务无法确认；基础档案不能替代原文要求的专项事实、统计期间和口径。",
+     "evidence": "申请条件（一）要求深圳依法注册、独立法人资格居民企业。自报所在地和地区范围初筛不能证明主体注册和税务属性。",
+     "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+     "question": "请分别核对营业执照深圳注册地址、独立法人及税务居民身份，记录对应证明；单一所在地自报不足以确认。",
+     "inputType": "evidence",
+     "assessmentAllowed": false,
+     "evidenceOrigin": "unverified",
+     "periodRequired": false,
+     "expectedPeriod": null
+    }
+   ],
+   "summary": "已提供事实未发现明确不匹配；已满足项仅为初步依据。 还有 1 项企业事实或期间缺失。 8 项条件需要人工核验。 此历史申报批次已截止，不能视为当前可申报。",
+   "counts": {
+    "met": 1,
+    "unmet": 0,
+    "missing": 1,
+    "verify": 8
+   },
+   "nextSteps": [
+    "补充缺失的具体企业事实、资料依据和指定数据期间。",
+    "逐项准备材料，并由经办人确认人工核验条件。",
+    "等待或查阅主管部门下一批正式通知；不沿用历史截止日期。"
+   ],
+   "missingFields": [],
+   "followUpQuestions": [
+    {
+     "policyId": "sz-hightech-recognition-2026",
+     "conditionId": "high-age",
+     "question": "在拟提交申请的当天，营业执照注册成立日期是否已经超过一年？请记录成立日期及拟申请日期，不能只填粗略年数。",
+     "inputType": "boolean",
+     "assessmentAllowed": true,
+     "expectedPeriod": null,
+     "reason": "请补充本条要求的具体资料、专项事实及对应期间；基础档案不能替代原文的专项口径。"
+    },
+    {
+     "policyId": "sz-hightech-recognition-2026",
+     "conditionId": "high-ip",
+     "question": "请提供支撑主要产品核心技术的知识产权、授权/变更文件及有效期，并说明核心支持关系；任意知识产权不能代替。",
+     "inputType": "evidence",
+     "assessmentAllowed": false,
+     "expectedPeriod": null,
+     "reason": "该条件需要材料或人工核验，模拟服务无法确认；基础档案不能替代原文要求的专项事实、统计期间和口径。"
+    },
+    {
+     "policyId": "sz-hightech-recognition-2026",
+     "conditionId": "high-field",
+     "question": "主要产品核心技术对应国家重点支持高新技术领域的哪一具体条目？请记录目录条目及技术说明。",
+     "inputType": "evidence",
+     "assessmentAllowed": false,
+     "expectedPeriod": null,
+     "reason": "该条件需要材料或人工核验，模拟服务无法确认；基础档案不能替代原文要求的专项事实、统计期间和口径。"
+    },
+    {
+     "policyId": "sz-hightech-recognition-2026",
+     "conditionId": "high-staff",
+     "question": "请提供当年职工总数、科技人员人数、统计口径和人员名单，计算科技人员比例是否达到10%，由专业人员核对。",
+     "inputType": "evidence",
+     "assessmentAllowed": false,
+     "expectedPeriod": null,
+     "reason": "该条件需要材料或人工核验，模拟服务无法确认；基础档案不能替代原文要求的专项事实、统计期间和口径。"
+    },
+    {
+     "policyId": "sz-hightech-recognition-2026",
+     "conditionId": "high-rd",
+     "question": "请分别整理近三年研发费用和销售收入、最近一年销售收入档次、境内研发金额；经营不足三年按实际经营期，核验两个比例。",
+     "inputType": "evidence",
+     "assessmentAllowed": false,
+     "expectedPeriod": null,
+     "reason": "该条件需要材料或人工核验，模拟服务无法确认；基础档案不能替代原文要求的专项事实、统计期间和口径。"
+    },
+    {
+     "policyId": "sz-hightech-recognition-2026",
+     "conditionId": "high-income",
+     "question": "请整理近一年高新产品服务收入和同期总收入、代表性合同及发票，计算是否达到60%，由专项报告核验收入归属。",
+     "inputType": "evidence",
+     "assessmentAllowed": false,
+     "expectedPeriod": null,
+     "reason": "该条件需要材料或人工核验，模拟服务无法确认；基础档案不能替代原文要求的专项事实、统计期间和口径。"
+    },
+    {
+     "policyId": "sz-hightech-recognition-2026",
+     "conditionId": "high-innovation",
+     "question": "请分别提供创新能力评价证据、申请前一年安全质量环保记录、现有高企证书年份及更名迁移事项完成情况。",
+     "inputType": "evidence",
+     "assessmentAllowed": false,
+     "expectedPeriod": null,
+     "reason": "该条件需要材料或人工核验，模拟服务无法确认；基础档案不能替代原文要求的专项事实、统计期间和口径。"
+    },
+    {
+     "policyId": "sz-hightech-recognition-2026",
+     "conditionId": "high-sme",
+     "question": "企业是否适用2026科技型中小企业入库要求？适用时请提供本年度入库编号；不适用需记录人数、销售及资产等判断依据。",
+     "inputType": "evidence",
+     "assessmentAllowed": false,
+     "expectedPeriod": null,
+     "reason": "该条件需要材料或人工核验，模拟服务无法确认；基础档案不能替代原文要求的专项事实、统计期间和口径。"
+    },
+    {
+     "policyId": "sz-hightech-recognition-2026",
+     "conditionId": "sz-hightech-recognition-2026-entity",
+     "question": "请分别核对营业执照深圳注册地址、独立法人及税务居民身份，记录对应证明；单一所在地自报不足以确认。",
+     "inputType": "evidence",
+     "assessmentAllowed": false,
+     "expectedPeriod": null,
+     "reason": "该条件需要材料或人工核验，模拟服务无法确认；基础档案不能替代原文要求的专项事实、统计期间和口径。"
+    }
+   ],
+   "window": {
+    "open": "2026-08-07",
+    "close": "2026-09-11T18:00:00+08:00",
+    "note": "展示最后一批新申请窗口，延期后9月11日18:00截止；受理期内退回修改的9月16日18:00截止。",
+    "status": "closed"
+   },
+   "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+   "mode": "mock"
+  }
+ ],
+ "task": "eligibility",
+ "generatedAt": "2026-10-14T15:06:56.875Z",
+ "disclaimer": "原型演示：企业事实由用户或示例提供，分析和问答是确定性模拟结果，不是官方审核结论。来源中的历史批次与未核验窗口不代表当前开放。"
+}

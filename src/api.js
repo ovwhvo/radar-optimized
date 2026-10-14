@@ -1,7 +1,9 @@
 import { handlesLocal, localRequest } from './local-store.js';
+import { handlesLocalApi, localApiRequest } from './local-api.js';
 export class ApiError extends Error {constructor(message,{status=0,code='NETWORK_ERROR',details=null}={}){super(message);this.name='ApiError';this.status=status;this.code=code;this.details=details;}}
 export async function request(endpoint,options={}){
   if(handlesLocal(endpoint)){try{return await localRequest(endpoint,options);}catch(error){if(error.name==='AbortError')throw error;throw new ApiError(error.message,{status:error.status??0,code:error.code??'BROWSER_STORAGE_ERROR',details:error.details??null});}}
+  if(handlesLocalApi(endpoint)){try{return await localApiRequest(endpoint,options);}catch(error){if(error.name==='AbortError')throw error;throw new ApiError(error.message,{status:error.status??0,code:error.code??'LOCAL_API_ERROR',details:error.details??null});}}
   const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),15000);
   const relay=()=>controller.abort();if(options.signal?.aborted)controller.abort();options.signal?.addEventListener('abort',relay,{once:true});
   try{const r=await fetch('/api/v1'+endpoint,{...options,signal:controller.signal,headers:{'Content-Type':'application/json',...options.headers},body:options.body===undefined?undefined:JSON.stringify(options.body)});

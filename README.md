@@ -18,21 +18,34 @@ radar-optimized/
 ## 快速开始
 
 ```bash
-python build.py      # 生成 dist/（内容哈希 + .gz 预压缩副本）
-python serve.py 8090 # 本地预览 http://127.0.0.1:8090/，API 转发到原站
+python build.py      # 生成 dist/（内容哈希 + .gz 预压缩副本 + data 整树）
+python serve.py 8090 # 本地预览 http://127.0.0.1:8090/（纯静态，无任何上游依赖）
 ```
 
-部署时把 `dist/` 放到站点根目录，并按 `nginx.conf.example` 调整上游、证书路径。
+部署时把 `dist/` 放到任意静态托管即可（**不需要任何后端、不需要 API key、不依赖原站**），并可按 `nginx.conf.example` 优化响应头、压缩与缓存。
 
-## 随处访问（三种方式）
+## 独立化（零原站运行时依赖，2026-10-14 起）
 
-| 方式 | URL/入口 | 功能范围 | 说明 |
-|---|---|---|---|
-| **GitHub Codespaces**（推荐，任意设备浏览器可用） | 仓库页面 → Code → Create codespace；容器自动构建，转发 8090 端口 | ✅ **完整功能** | 服务端代理 `/api/v1` 回原站（server-side 请求不带浏览器 Origin，不受同源限制） |
-| **本地** | `python serve.py 8090` | ✅ 完整功能 | 同上 |
-| **GitHub Pages**（静态演示） | `https://ovwhvo.github.io/radar-optimized/` | ⚠️ 静态演示：UI、企业资料、我的记录、导出可用；检索/核对/助手不可用 | 原站 API 有 **Origin 白名单**（跨域返回 403 `ORIGIN_NOT_ALLOWED`），Pages 无后端可代理。页面会显示相应提示；站内快照/附件链接自动指回原站 |
+原站的 3 个 POST 接口（`/discover` 检索、`/analyze` 核对、`/assistant` 问答）已在 `src/local-api.js` 中**于浏览器内重写实现**，`/health` `/sources` 本地生成/随包镜像，13 个官方快照与附件（约 1.2 MB）全部抓取随包发布：
 
-> 若要让 Pages 版检索也工作，需由 API 托管方把 Pages 域名加入 Origin 白名单（服务端配置），或自行部署 `serve.py` 类代理。
+| 原站端点 | 本地实现 | 等价性 |
+|---|---|---|
+| `POST /discover` | 词典规则引擎（地区/主题词典 + 加权打分 + 词干白名单） | 4 组参考问题的候选集合与顺序逐项一致 |
+| `POST /analyze` | 资格初筛引擎（结构化 in/lte 条件 + 专项自报 + SHA-256 指纹） | 7 组参考（含 met/unmet/missing/verify 全状态）逐字段一致，**指纹与原站完全相同** |
+| `POST /assistant` | 确定性模板问答（explain/materials/steps/review/forms） | explain 与 unsupported 的回答、证据、限制逐字一致 |
+| `GET /health` `/sources` | 本地生成 / `data/sources.json` 静态镜像 | 字段一致（health 的 baseUrl 指向当前站点） |
+
+- 等价性测试页 `tests/api-equivalence.html`（对拍 `tests/reference/` 原站 2026-10-14 捕获）：**678 通过 / 0 失败 / 1 软警告**（唯一警告是未识别分词片段的措辞差异，不影响候选结果）。
+- 无头浏览器净流量日志实测：**原站域名出现 0 次、外部请求 0 个**（`verify/net-local.json`）。
+- 页脚保留「原站出处」链接（仅为标注来源，运行时不加载）。
+
+## 随处访问（三种方式，功能一致）
+
+| 方式 | 入口 | 说明 |
+|---|---|---|
+| **本地** | `python serve.py 8090` | 全功能 |
+| **GitHub Pages** | `https://ovwhvo.github.io/radar-optimized/` | 全功能（检索/核对/问答均为浏览器内本地实现，无需后端） |
+| **GitHub Codespaces** | 仓库 → Code → Create codespace，转发 8090 端口 | 全功能 |
 
 ## 相对原站的改动
 

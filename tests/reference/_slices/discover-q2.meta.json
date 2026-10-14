@@ -1,0 +1,65 @@
+{
+ "interpretation": {
+  "summary": "你想了解科技型中小企业评价入库、高新技术企业认定。已找到 3 个有真实来源的候选，请选择要进一步核对的事项。 其中 2 项对应已截止历史批次，只能作为后续准备参考。 其中 1 项办理窗口尚未核验。",
+  "status": "ready",
+  "suggestedTask": "eligibility",
+  "topics": [
+   {
+    "id": "techsme",
+    "label": "科技型中小企业评价入库",
+    "matchedText": "科技型中小企业"
+   },
+   {
+    "id": "hightech",
+    "label": "高新技术企业认定",
+    "matchedText": "高新技术企业"
+   },
+   {
+    "id": "recognition",
+    "label": "企业资质认定",
+    "matchedText": "认定"
+   }
+  ],
+  "region": null,
+  "regions": [],
+  "excludedTerms": [],
+  "unresolvedTerms": [],
+  "companyFactsInferred": false
+ },
+ "meta": {
+  "mode": "deterministic",
+  "query": {
+   "positiveTerms": [
+    "科技型中小企业",
+    "高新技术企业",
+    "认定"
+   ],
+   "excludedTerms": [],
+   "unresolvedTerms": [],
+   "residualHandling": "soft",
+   "topicTerms": [
+    "科技型中小企业",
+    "高新技术企业"
+   ],
+   "message": null
+  },
+  "totalAvailable": 6,
+  "excluded": [],
+  "limitations": [
+   "仅搜索本地已收录政策样本；不代表全部政策或匹配资格。",
+   "语义别名与排除词使用可解释规则，未调用大模型。",
+   "自然语言理解为本地规则模拟，未调用大模型。",
+   "候选中的历史批次和未知窗口不表示当前可办理，须核对主管部门最新通知。",
+   "地区与主题仅为你描述的检索范围，未确认企业注册地、行业、人数、收入、年度或任何资格。"
+  ],
+  "modelUsed": false,
+  "understanding": "dictionary_rules",
+  "totalReturned": 3,
+  "catalogueSuppressed": false,
+  "selectionRequired": true,
+  "companyFactsInferred": false
+ },
+ "followUpQuestions": [
+  "你希望查哪个城市或区的事项？这个地区只用于发现范围，后续仍需提供真实注册或经营依据。"
+ ]
+}

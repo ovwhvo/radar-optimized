@@ -1,0 +1,187 @@
+{
+ "mode": "mock",
+ "contractVersion": 2,
+ "inputFingerprint": "a952184f6129f14d708eabaf8675398823f35b1fa3daff001661034f120c0889",
+ "assessmentsFingerprint": "e29627164a151a1400554e050f3fbce674467bbfa27e39f1b857014c31e4baf7",
+ "policyVersions": [
+  {
+   "policyId": "lg-rd-investment-2026",
+   "version": "深龙科规〔2026〕2号 · 第十一条",
+   "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+  }
+ ],
+ "results": [
+  {
+   "policyId": "lg-rd-investment-2026",
+   "title": "龙岗科技企业研发投入扶持",
+   "policyVersion": "深龙科规〔2026〕2号 · 第十一条",
+   "source": {
+    "id": "src-lg-innovation",
+    "title": "深圳市龙岗区科技创新局关于印发《深圳市龙岗区科技创新专项资金实施细则》的通知",
+    "url": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+    "authority": "深圳市龙岗区科技创新局",
+    "publishedAt": "2026-01-13",
+    "documentDate": "2026-01-13",
+    "snapshotPath": "data/snapshots/lg-rd-2026.html",
+    "excerptPath": "data/snapshots/lg-rd-2026.txt",
+    "retrievedAt": "2026-10-10T09:18:02.1579658Z",
+    "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+   },
+   "verifiedAt": "2026-10-10T09:36:33.1127683+00:00",
+   "applicationStatus": "unknown",
+   "conditions": [
+    {
+     "conditionId": "lg-region",
+     "label": "核验在龙岗区实际经营",
+     "field": "region",
+     "fact": "是（用户自报）：租赁合同与水电费单据；期间：2025年度",
+     "status": "met",
+     "reason": "用户自报的具体资料及期间提供了初步满足依据；未经材料验证或官方审核，不代表取得资格。",
+     "evidence": "管理办法第十条要求本行政区域内实际经营。仅有注册地区或地址自报不能证明实际经营，需用本批指南认可的经营证据核验。",
+     "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12595209.html",
+     "question": "企业在拟申报时是否确实在龙岗区经营？请记录经营地址和能证明实际经营的租赁、场地或经营资料，待本批指南核验。",
+     "inputType": "boolean",
+     "assessmentAllowed": true,
+     "evidenceOrigin": "user_report",
+     "periodRequired": false,
+     "expectedPeriod": null,
+     "assessment": {
+      "period": "2025年度",
+      "source": "user",
+      "note": "租赁合同与水电费单据",
+      "answer": "yes"
+     }
+    },
+    {
+     "conditionId": "lg-qualification",
+     "label": "核验企业适用资格路径",
+     "field": "highTech",
+     "fact": "用户暂未确认",
+     "status": "verify",
+     "reason": "已保留用户自报资料；该条件涉及复合规则或专项审核，答案不能替代材料、适用路径和官方核验。",
+     "evidence": "第十一条范围包括国家高新技术企业、国家专精特新“小巨人”、制造业单项冠军、生物医药类及青年人才创业项目企业。生物医药类不受国高资格限制，不能简单按国高否决其他路径。",
+     "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+     "question": "拟按国高、小巨人、制造业单项冠军、生物医药或青年人才创业项目中的哪一路径申请？请记录资格名称、有效期和证书或认定名单。",
+     "inputType": "evidence",
+     "assessmentAllowed": false,
+     "evidenceOrigin": "user_report",
+     "periodRequired": false,
+     "expectedPeriod": null,
+     "assessment": {
+      "period": "",
+      "source": "user",
+      "note": "",
+      "answer": "unknown"
+     }
+    },
+    {
+     "conditionId": "lg-rd-amount",
+     "label": "上一年度研发投入达到300万元门槛",
+     "field": "revenue",
+     "fact": "否（用户自报）：审计报告研发投入200万元；期间：2025年度",
+     "status": "unmet",
+     "reason": "用户自报该项暂未满足，保留具体资料及期间；应回读原文并核实，不是官方审核结论。",
+     "evidence": "第十一条设300万元及以上研发投入档次；该金额是研发投入，不是营业收入，需依据研发专项审计报告核对。",
+     "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+     "question": "拟申报批次对应上一年度的研发投入是否达到300万元？请填写审计报告年度、研发投入金额和报告页码；不要填营业收入。",
+     "inputType": "boolean",
+     "assessmentAllowed": true,
+     "evidenceOrigin": "user_report",
+     "periodRequired": false,
+     "expectedPeriod": null,
+     "assessment": {
+      "period": "2025年度",
+      "source": "user",
+      "note": "审计报告研发投入200万元",
+      "answer": "no"
+     }
+    },
+    {
+     "conditionId": "lg-rd-ratio",
+     "label": "按适用路径核验研发投入比例和加计扣除申报",
+     "field": "rdRatio",
+     "fact": "需专项资料核验（已有基础字段不能替代）",
+     "status": "verify",
+     "reason": "该条件需要材料或人工核验，模拟服务无法确认；基础档案不能替代原文要求的专项事实、统计期间和口径。",
+     "evidence": "第十一条要求已办理研发费用加计扣除申报，国高路径参照高企办法核对研发投入占营业收入比例；生物医药类不受该比例限制。",
+     "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+     "question": "是否已办理对应年度研发加计扣除申报？按所选资格路径提供营业收入、研发比例计算、申报回执，并说明是否适用生物医药比例例外。",
+     "inputType": "evidence",
+     "assessmentAllowed": false,
+     "evidenceOrigin": "unverified",
+     "periodRequired": false,
+     "expectedPeriod": null
+    },
+    {
+     "conditionId": "lg-credit",
+     "label": "核验信用、会计制度和同一事项重复资助",
+     "field": "compliant",
+     "fact": "需专项资料核验（已有基础字段不能替代）",
+     "status": "verify",
+     "reason": "该条件需要材料或人工核验，模拟服务无法确认；基础档案不能替代原文要求的专项事实、统计期间和口径。",
+     "evidence": "管理办法第十九条要求诚信守法、完善财务制度，未列入严重失信、失信被执行人或经营异常名单，且同一事项不得重复或多头申报区级财政资金。",
+     "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12595209.html",
+     "question": "请分别核对会计制度、信用名单及同一事项区级资助情况，记录查询日期、结果和已获财政资助，不能仅用“合规”勾选代替。",
+     "inputType": "evidence",
+     "assessmentAllowed": false,
+     "evidenceOrigin": "unverified",
+     "periodRequired": false,
+     "expectedPeriod": null
+    }
+   ],
+   "summary": "已填写信息中有 1 项未满足条件。 3 项条件需要人工核验。 2 项依据用户专项自报，尚未审核证明材料。 当前申报窗口未核验。",
+   "counts": {
+    "met": 1,
+    "unmet": 1,
+    "missing": 0,
+    "verify": 3
+   },
+   "nextSteps": [
+    "核对不匹配条件及企业事实，必要时调整申报方向。",
+    "逐项准备材料，并由经办人确认人工核验条件。",
+    "打开官方来源，核验当前办理窗口、材料版本和申报渠道。"
+   ],
+   "missingFields": [],
+   "followUpQuestions": [
+    {
+     "policyId": "lg-rd-investment-2026",
+     "conditionId": "lg-qualification",
+     "question": "拟按国高、小巨人、制造业单项冠军、生物医药或青年人才创业项目中的哪一路径申请？请记录资格名称、有效期和证书或认定名单。",
+     "inputType": "evidence",
+     "assessmentAllowed": false,
+     "expectedPeriod": null,
+     "reason": "已保留用户自报资料；该条件涉及复合规则或专项审核，答案不能替代材料、适用路径和官方核验。"
+    },
+    {
+     "policyId": "lg-rd-investment-2026",
+     "conditionId": "lg-rd-ratio",
+     "question": "是否已办理对应年度研发加计扣除申报？按所选资格路径提供营业收入、研发比例计算、申报回执，并说明是否适用生物医药比例例外。",
+     "inputType": "evidence",
+     "assessmentAllowed": false,
+     "expectedPeriod": null,
+     "reason": "该条件需要材料或人工核验，模拟服务无法确认；基础档案不能替代原文要求的专项事实、统计期间和口径。"
+    },
+    {
+     "policyId": "lg-rd-investment-2026",
+     "conditionId": "lg-credit",
+     "question": "请分别核对会计制度、信用名单及同一事项区级资助情况，记录查询日期、结果和已获财政资助，不能仅用“合规”勾选代替。",
+     "inputType": "evidence",
+     "assessmentAllowed": false,
+     "expectedPeriod": null,
+     "reason": "该条件需要材料或人工核验，模拟服务无法确认；基础档案不能替代原文要求的专项事实、统计期间和口径。"
+    }
+   ],
+   "window": {
+    "open": null,
+    "close": null,
+    "note": "现行实施细则不等于正在受理；本数据尚未核验适用本版本的申报指南及窗口。",
+    "status": "unknown"
+   },
+   "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+   "mode": "mock"
+  }
+ ],
+ "task": "eligibility",
+ "generatedAt": "2026-10-14T15:03:25.695Z",
+ "disclaimer": "原型演示：企业事实由用户或示例提供，分析和问答是确定性模拟结果，不是官方审核结论。来源中的历史批次与未核验窗口不代表当前开放。"
+}
