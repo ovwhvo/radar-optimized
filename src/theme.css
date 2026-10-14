@@ -1,0 +1,59 @@
+/* ==========================================================================
+   theme.css —— 最终配色层（浅色可读优先）
+   原则：柔和浅底降低长时间阅读疲劳；首屏保留深蓝色场作为品牌锚点；
+        语义四色加深保证白底上 4.5:1 以上对比；动作色统一信号蓝。
+   ========================================================================== */
+:root {
+  --ink: #16283d;          /* 主文字：深蓝墨，对比 ≈13:1 */
+  --muted: #56708c;        /* 次要文字 ≈5.4:1 */
+  --brand: #1a7cd6;
+  --line: #dfe7f0;
+  --ground: #f1f4f9;
+}
+html, body { background: #f1f4f9; color: #16283d; }
+::selection { background: #cfe4fb; color: #10243a; }
+:focus-visible { outline: 2px solid #1a7cd6; outline-offset: 2px; }
+
+/* 文字层级（白/浅底上必须够黑） */
+.page-title h1 { color: #16283d; }
+.page-title p, .section-heading p, .section-heading > span { color: #56708c; }
+.journey button[aria-current] { color: #16283d; }
+.understanding h2, .question-recap strong { color: #16283d; }
+.understanding p { color: #44586e; }
+.scope-tags span { background: #e7eef7; color: #3d5570; }
+
+/* 卡片与选中态 */
+.policy-card { background: #fff; border-color: #e2e9f2; }
+.policy-card:hover { border-color: #b9cde3; }
+.policy-card.selected { background: #eef6ff; border-color: #1a7cd6; }
+.candidate-title h2 { color: #16283d; }
+.card-purpose { color: #44586e; }
+
+/* 语义四色（白底加深，保证可读） */
+.counts .count-met strong { color: #157f4b; }
+.counts .count-unmet strong { color: #c93b30; }
+.counts .count-missing strong { color: #a56a00; }
+.counts .count-verify strong { color: #56708c; }
+.status.met { color: #157f4b; }
+.status.unmet { color: #c93b30; }
+.status.missing { color: #a56a00; }
+.status.verify { color: #56708c; }
+.pill.closed { background: #fdeceb; color: #a5342a; border-color: #f0c4be; }
+
+/* 弱底色块（保持分区感但不刺眼） */
+.understanding, .question-recap { background: #eef3f9; border-color: #e2e9f2; }
+.panel, .record-card, .source-row { background: #fff; border-color: #e2e9f2; }
+.hint { background: #eef3f9; color: #3d5570; border-color: #dbe5f0; }
+.hint.warning { background: #fff4dd; color: #7a4f00; border-color: #f0dfb8; }
+.stage-actions { background: #fff; border-color: #e2e9f2; }
+.stage-actions strong { color: #16283d; }
+.stage-actions small { color: #56708c; }
+.focus-overview { background: #17324e; border-color: #24466b; }
+.focus-overview h2 { color: #fff; }
+.focus-overview p { color: #c3d6ea; }
+.demo-banner { background: #fff4dd; color: #7a4f00; border-bottom-color: #f0dfb8; }
+#toast { background: #16283d; color: #fff; }
+.site-footer { color: #56708c; border-top-color: #e2e9f2; }
+.menu-label, .menu-foot { color: #56708c; }
+input, textarea, select, .field input, .field textarea, .field select { background: #fff; border-color: #cfdbe9; color: #16283d; }
+input::placeholder, textarea::placeholder { color: #7a8ca0; }
