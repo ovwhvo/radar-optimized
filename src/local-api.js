@@ -1,5 +1,5 @@
 // ============================================================================
-// local-api.js —— 浏览器内本地 API（完全脱离原站 radar.huixiang17.cn 的运行时依赖）
+// local-api.js —— 浏览器内本地 API（检索/核对/问答全部在浏览器内确定性实现）
 // 端点：GET /health /sources；POST /discover /analyze /assistant
 // 契约对拍基准：tests/reference/（原站 2026-10-14 捕获）；等价性测试：tests/
 // 指纹算法与 local-store.js fingerprint() 完全同构，保证记录保存校验互通。
