@@ -555,27 +555,38 @@ const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matc
 function enhance(root) {
   const gsap = g();
   if (!gsap || !root || reduced()) return;
-  // 候选卡片：阶梯入场（重点内容首屏聚焦）
+  // 雷达扫描线：常驻缓慢摆动（主题动效，只起一次）
+  const sweep = root.querySelector('.radar-sweep');
+  if (sweep && !sweep._tween) {
+    sweep._tween = gsap.fromTo(sweep, { rotation: -26 }, {
+      rotation: 16, duration: 7, ease: 'sine.inOut', yoyo: true, repeat: -1,
+      transformOrigin: 'right center'
+    });
+  }
+  // 候选卡片：大幅阶梯入场（重点内容首屏聚焦）
   const cards = root.querySelectorAll('.policy-card');
-  if (cards.length) gsap.from(cards, { y: 18, opacity: 0, duration: 0.38, stagger: 0.06, ease: 'power2.out', clearProps: 'transform,opacity' });
-  // 底部行动条：滑入（提示“下一步在这里”）
+  if (cards.length) gsap.from(cards, { y: 30, opacity: 0, scale: 0.97, duration: 0.5, stagger: 0.08, ease: 'power3.out', clearProps: 'transform,opacity,scale' });
+  // 底部行动条：滑入（提示"下一步在这里"）
   const bar = root.querySelector('.stage-actions');
-  if (bar) gsap.from(bar, { y: 26, opacity: 0, duration: 0.32, ease: 'power3.out', clearProps: 'transform,opacity' });
-  // 核对结论卡：轻弹入场
+  if (bar) gsap.from(bar, { y: 40, opacity: 0, duration: 0.4, ease: 'back.out(1.2)', clearProps: 'transform,opacity' });
+  // 核对结论卡：弹入
   const focus = root.querySelector('.focus-overview');
-  if (focus) gsap.from(focus, { y: 14, opacity: 0, scale: 0.985, duration: 0.4, ease: 'back.out(1.4)', clearProps: 'transform,opacity' });
+  if (focus) gsap.from(focus, { y: 20, opacity: 0, scale: 0.97, duration: 0.5, ease: 'back.out(1.5)', clearProps: 'transform,opacity' });
   // 四色统计数字：滚动到位（凸显能不能申）
   root.querySelectorAll('.counts strong').forEach(el => {
     const to = Number(el.textContent) || 0;
     if (!to) return;
     gsap.fromTo(el, { textContent: 0 }, {
-      textContent: to, duration: 0.6, ease: 'power1.out',
+      textContent: to, duration: 0.7, ease: 'power2.out',
       snap: { textContent: 1 }, clearProps: 'textContent'
     });
   });
   // 条件行：短距淡入
   const rows = root.querySelectorAll('.condition-list .condition, .check-row');
-  if (rows.length) gsap.from(rows, { y: 10, opacity: 0, duration: 0.3, stagger: 0.04, ease: 'power2.out', clearProps: 'transform,opacity' });
+  if (rows.length) gsap.from(rows, { y: 14, opacity: 0, duration: 0.35, stagger: 0.05, ease: 'power2.out', clearProps: 'transform,opacity' });
+  // 选中徽章：弹一下
+  const badge = root.querySelector('.policy-card.selected .check-select');
+  if (badge) gsap.fromTo(badge, { scale: 0.9 }, { scale: 1, duration: 0.25, ease: 'back.out(2.4)', clearProps: 'transform' });
 }
 
 function pop(el) {
@@ -1128,7 +1139,7 @@ function home(){
  const starters=[['我们在龙岗做软件研发，想了解研发投入扶持和税收优惠','研发投入支持'],['我们在深圳做技术服务，想减轻企业所得税负担','企业所得税优惠'],['深圳企业做技术开发，技术合同该怎么登记？','技术合同登记']];
  const regions=[...new Set(S.policies.map(p=>p.region))].map(r=>({'全国':'全国税惠','深圳市':'深圳','龙岗区':'龙岗'})[r]||r).join(' · ');
  const starterMarkup=`<div class="home-start"><div class="home-start-examples" role="group" aria-label="从示例开始"><span>试试这样问</span>${starters.map(([q,label])=>`<button class="btn subtle home-starter" data-fill-query="${esc(q)}" data-home-example>${esc(label)} ${icon('arrow')}</button>`).join('')}</div><div class="home-coverage"><span>当前 ${S.policies.length} 项官方精选样本 · ${esc(regions)}</span><button class="text-link" data-nav="sources">查看覆盖范围 ${icon('arrow')}</button></div></div>`;
- return `<section class="home-stage ${expanded?'is-expanded':''}" aria-label="查找企业政策"><div class="home-ambient" aria-hidden="true" inert><span class="home-aurora home-aurora-blue"></span><span class="home-aurora home-aurora-cyan"></span><span class="home-aurora home-aurora-accent"></span></div><div class="home-heading"><h1 tabindex="-1">企业政策，<br><span>从你的问题开始。</span></h1><p>用一句话找到相关政策，再把办理资料整理清楚。</p></div><form id="search-form" class="home-composer"><label class="sr-only" for="query">描述你的经营问题</label><textarea id="query" name="q" rows="1" maxlength="4000" placeholder="描述你的经营问题" aria-describedby="home-input-guide">${esc(S.query)}</textarea><div class="home-compose-actions"><span id="home-input-guide">说说地区、业务，以及希望得到的支持。</span><button class="btn primary" type="submit">查找政策 ${icon('arrow')}</button></div></form>${starterMarkup}<div class="home-guidance" ${expanded?'':'hidden'}><div class="home-guide-heading"><h2>不知道怎么问？从一个具体问题开始。</h2><button class="text-link" data-action="collapse-home">收起引导</button></div><div class="home-examples">${[
+ return `<section class="home-stage ${expanded?'is-expanded':''}" aria-label="查找企业政策"><div class="home-ambient" aria-hidden="true" inert><span class="home-aurora home-aurora-blue"></span><span class="home-aurora home-aurora-cyan"></span><span class="home-aurora home-aurora-accent"></span><span class="radar-sweep"></span></div><div class="home-heading"><h1 tabindex="-1">企业政策，<br><span>从你的问题开始。</span></h1><p>用一句话找到相关政策，再把办理资料整理清楚。</p></div><form id="search-form" class="home-composer"><label class="sr-only" for="query">描述你的经营问题</label><textarea id="query" name="q" rows="1" maxlength="4000" placeholder="描述你的经营问题" aria-describedby="home-input-guide">${esc(S.query)}</textarea><div class="home-compose-actions"><span id="home-input-guide">说说地区、业务，以及希望得到的支持。</span><button class="btn primary" type="submit">查找政策 ${icon('arrow')}</button></div></form>${starterMarkup}<div class="home-guidance" ${expanded?'':'hidden'}><div class="home-guide-heading"><h2>不知道怎么问？从一个具体问题开始。</h2><button class="text-link" data-action="collapse-home">收起引导</button></div><div class="home-examples">${[
  ['我们在龙岗做软件研发，想了解研发投入扶持和税收优惠','研发投入能获得哪些支持？','例如：龙岗软件企业，准备了解研发扶持'],
  ['我们在深圳做技术服务，想减轻企业所得税负担','企业所得税能不能少交一些？','例如：深圳小企业，想核对税收优惠'],
  ['深圳企业做技术开发，技术合同该怎么登记？','签了技术合同，怎么申请登记？','例如：深圳技术开发合同，想了解办理流程']
