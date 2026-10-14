@@ -50,6 +50,15 @@
   .home-stage .home-composer, .home-stage .home-start { animation: none; }
 }
 
+/* —— 主按钮可读性修复：抵消 glass 中高特异性选择器残留（选中政策后的
+   “继续”按钮曾白字白底、hover 才显形）。与原选择器同特异性、本文件更后加载。 */
+.btn.primary,
+.btn.primary:not(.subtle):not(.menu-trigger) { background: #066ac8; border-color: #0059ad; color: #fff; }
+.btn.primary:hover:not(:disabled),
+.btn.primary:not(.subtle):not(.menu-trigger):hover:not(:disabled) { background: #005bad; border-color: #005bad; }
+.btn.primary:disabled,
+.btn.primary:not(.subtle):not(.menu-trigger):disabled { background: #b9cde3; border-color: #b9cde3; color: #eef4fa; }
+
 /* 0) 全局盒模型：修复小屏由 padding 撑出的横向溢出（U4 相关） */
 *, *::before, *::after { box-sizing: border-box; }
 .topbar { max-width: 100%; }

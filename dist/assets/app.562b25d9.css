@@ -1115,6 +1115,12 @@ html {scrollbar-gutter:stable}
   .home-stage .home-heading h1, .home-stage .home-heading p,
   .home-stage .home-composer, .home-stage .home-start { animation: none; }
 }
+.btn.primary,
+.btn.primary:not(.subtle):not(.menu-trigger) { background: #066ac8; border-color: #0059ad; color: #fff; }
+.btn.primary:hover:not(:disabled),
+.btn.primary:not(.subtle):not(.menu-trigger):hover:not(:disabled) { background: #005bad; border-color: #005bad; }
+.btn.primary:disabled,
+.btn.primary:not(.subtle):not(.menu-trigger):disabled { background: #b9cde3; border-color: #b9cde3; color: #eef4fa; }
 *, *::before, *::after { box-sizing: border-box; }
 .topbar { max-width: 100%; }
 .navigation-material::before, .top-menu, .stage-actions, .dialog, .dialog-frame,
