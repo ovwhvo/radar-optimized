@@ -1,0 +1,17 @@
+{
+  "name": "radar-optimized",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "forwardPorts": [8090],
+  "portsAttributes": {
+    "8090": {
+      "label": "radar-optimized",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "postCreateCommand": "python build.py",
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-python.python"]
+    }
+  }
+}

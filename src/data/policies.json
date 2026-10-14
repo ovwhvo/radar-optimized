@@ -1,0 +1,2271 @@
+{
+  "schemaVersion": 1,
+  "datasetDate": "2026-10-10",
+  "verifiedAt": "2026-10-10T10:08:54.545112Z",
+  "coverage": "6项公开官方样本，覆盖龙岗研发扶持、深圳资质/办理和企业通用国家税惠；非全量政策库，非实时申报状态。",
+  "units": {
+    "revenue": "万元（年销售收入；不是应纳税所得额或资产总额）",
+    "rdRatio": "百分数，5表示5%；适用年度和分母须另行核对",
+    "employees": "人（政策指定统计口径）",
+    "ageYears": "年"
+  },
+  "statusSemantics": {
+    "policyStatus": "政策制度/版本状态，与单批申报状态分开",
+    "applicationStatus": {
+      "open": "官方资料明确常年受理或核验窗口覆盖数据日",
+      "closed": "本库核验的历史通知窗口已截止",
+      "unknown": "未核验该版本申报窗口",
+      "tax_filing": "按法定税期办理，无单次集中项目窗口"
+    }
+  },
+  "policies": [
+    {
+      "verifiedAt": "2026-10-10T09:36:33.1127683+00:00",
+      "sourceType": "official",
+      "id": "lg-rd-investment-2026",
+      "title": "龙岗科技企业研发投入扶持",
+      "category": "研发创新",
+      "region": "龙岗区",
+      "authority": "深圳市龙岗区科技创新局",
+      "publishedAt": "2026-01-13",
+      "version": "深龙科规〔2026〕2号 · 第十一条",
+      "policyStatus": "active",
+      "policyStatusLabel": "2026年实施细则有效",
+      "applicationStatus": "unknown",
+      "applicationStatusLabel": "新批次窗口待核验",
+      "window": {
+        "open": null,
+        "close": null,
+        "note": "现行实施细则不等于正在受理；本数据尚未核验适用本版本的申报指南及窗口。"
+      },
+      "validity": {
+        "from": "2026-01-23",
+        "duration": "三年"
+      },
+      "summary": "支持龙岗实际经营科技企业的上一年度研发投入。按研发投入档次核准扶持；国高、专精特新小巨人、制造业单项冠军、生物医药等路径须分别核验。",
+      "benefit": "国高等基本档次补助10万至300万元；符合相同条件的国家专精特新“小巨人”、国家制造业单项冠军按对应金额150%，最高450万元。实际金额受财政预算总量和核准结果约束。",
+      "source": {
+        "id": "src-lg-innovation",
+        "title": "深圳市龙岗区科技创新局关于印发《深圳市龙岗区科技创新专项资金实施细则》的通知",
+        "url": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+        "authority": "深圳市龙岗区科技创新局",
+        "publishedAt": "2026-01-13",
+        "documentDate": "2026-01-13",
+        "snapshotPath": "data/snapshots/lg-rd-2026.html",
+        "excerptPath": "data/snapshots/lg-rd-2026.txt",
+        "retrievedAt": "2026-10-10T09:18:02.1579658Z",
+        "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+      },
+      "tags": [
+        "龙岗",
+        "研发投入",
+        "高新技术",
+        "制造业",
+        "生物医药"
+      ],
+      "conditions": [
+        {
+          "id": "lg-region",
+          "label": "核验在龙岗区实际经营",
+          "field": "region",
+          "operator": "manual",
+          "value": null,
+          "evidence": "管理办法第十条要求本行政区域内实际经营。仅有注册地区或地址自报不能证明实际经营，需用本批指南认可的经营证据核验。",
+          "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12595209.html",
+          "question": "企业在拟申报时是否确实在龙岗区经营？请记录经营地址和能证明实际经营的租赁、场地或经营资料，待本批指南核验。",
+          "assessmentAllowed": true,
+          "inputType": "boolean",
+          "periodRequirement": "拟申报时的实际经营期间"
+        },
+        {
+          "id": "lg-qualification",
+          "label": "核验企业适用资格路径",
+          "field": "highTech",
+          "operator": "manual",
+          "value": null,
+          "evidence": "第十一条范围包括国家高新技术企业、国家专精特新“小巨人”、制造业单项冠军、生物医药类及青年人才创业项目企业。生物医药类不受国高资格限制，不能简单按国高否决其他路径。",
+          "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+          "question": "拟按国高、小巨人、制造业单项冠军、生物医药或青年人才创业项目中的哪一路径申请？请记录资格名称、有效期和证书或认定名单。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "资格证书或认定名单有效期间"
+        },
+        {
+          "id": "lg-rd-amount",
+          "label": "上一年度研发投入达到300万元门槛",
+          "field": "revenue",
+          "operator": "manual",
+          "value": null,
+          "evidence": "第十一条设300万元及以上研发投入档次；该金额是研发投入，不是营业收入，需依据研发专项审计报告核对。",
+          "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+          "question": "拟申报批次对应上一年度的研发投入是否达到300万元？请填写审计报告年度、研发投入金额和报告页码；不要填营业收入。",
+          "assessmentAllowed": true,
+          "inputType": "boolean",
+          "periodRequirement": "拟申报批次指南对应的上一年度"
+        },
+        {
+          "id": "lg-rd-ratio",
+          "label": "按适用路径核验研发投入比例和加计扣除申报",
+          "field": "rdRatio",
+          "operator": "manual",
+          "value": null,
+          "evidence": "第十一条要求已办理研发费用加计扣除申报，国高路径参照高企办法核对研发投入占营业收入比例；生物医药类不受该比例限制。",
+          "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+          "question": "是否已办理对应年度研发加计扣除申报？按所选资格路径提供营业收入、研发比例计算、申报回执，并说明是否适用生物医药比例例外。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "拟申报批次指南对应的上一年度及适用计算期间"
+        },
+        {
+          "id": "lg-credit",
+          "label": "核验信用、会计制度和同一事项重复资助",
+          "field": "compliant",
+          "operator": "manual",
+          "value": null,
+          "evidence": "管理办法第十九条要求诚信守法、完善财务制度，未列入严重失信、失信被执行人或经营异常名单，且同一事项不得重复或多头申报区级财政资金。",
+          "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12595209.html",
+          "question": "请分别核对会计制度、信用名单及同一事项区级资助情况，记录查询日期、结果和已获财政资助，不能仅用“合规”勾选代替。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "拟申报批次要求的核查期间"
+        }
+      ],
+      "materials": [
+        {
+          "id": "lg-rd-audit",
+          "name": "研发专项审计报告",
+          "note": "实施细则明确的核准依据；具体出具资质、报告年度和格式须待本批指南核实。",
+          "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+          "verified": true
+        },
+        {
+          "id": "lg-cert",
+          "name": "适用资格证书或主管部门认定名单",
+          "note": "国高证书/专精特新或单项冠军认定名单等；按实际资格路径准备。",
+          "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+          "verified": true
+        },
+        {
+          "id": "lg-application",
+          "name": "本批次申报书及完整附件清单",
+          "note": "当前未核验本版本对应批次模板和完整材料；暂不能据此提交。",
+          "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+          "verified": false
+        }
+      ],
+      "steps": [
+        {
+          "title": "确认本批指南与窗口",
+          "description": "实施细则第二十六条要求按龙岗政府在线发布的项目申报指南申请。先确认是否已有适用本版本的新批次。",
+          "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html"
+        },
+        {
+          "title": "整理资格与研发证据",
+          "description": "对照第十一条确定资格路径、上一年度研发投入档次、比例例外和专项审计依据。",
+          "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html"
+        },
+        {
+          "title": "按本批指南申报并补正",
+          "description": "管理办法规定主管部门初审材料；符合条件但材料不齐备的，在要求期限内补齐。",
+          "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12595209.html"
+        },
+        {
+          "title": "审核、公示及拨付",
+          "description": "审核通过后按规定公示五个工作日；最终金额、立项和拨付由主管部门确定。",
+          "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html"
+        }
+      ],
+      "relatedDocuments": [
+        {
+          "id": "src-lg-management",
+          "title": "深圳市龙岗区科技创新局 深圳市龙岗区财政局关于印发《深圳市龙岗区科技创新专项资金管理办法》的通知",
+          "url": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12595209.html",
+          "authority": "深圳市龙岗区科技创新局、深圳市龙岗区财政局",
+          "publishedAt": "2026-01-09",
+          "snapshotPath": "data/snapshots/lg-management-2026.html",
+          "retrievedAt": "2026-10-10T09:24:23.4103398Z",
+          "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+        }
+      ],
+      "limitations": [
+        "尚未核验适用2026年实施细则的研发投入项目申报窗口，状态保留未知。",
+        "材料清单只包括现行实施细则明确的核准依据，完整清单及官方表格待批次指南补齐。",
+        "2024年细则于2026年1月23日废止；新细则发布前已完成申报的项目仍按原政策执行，不能混用版本。",
+        "地区和自报资格只能用于初步筛选；实际经营、资格路径和审计金额仍须人工核验。"
+      ],
+      "audience": "在龙岗实际经营、符合具体研发投入及申报条件的国家高新技术、国家专精特新小巨人、制造业单项冠军、生物医药类等实施细则列明企业。",
+      "summaryOrigin": "assistant_curated_from_official_sources",
+      "formGuide": {
+        "title": "龙岗研发扶持：核准依据资料整理",
+        "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+        "templateUrl": null,
+        "version": "深龙科规〔2026〕2号 · 第十一条",
+        "kind": "preparation_fields",
+        "completeness": "partial",
+        "retrievedAt": "2026-10-10T09:18:02.1579658Z",
+        "verifiedAt": "2026-10-10T10:08:54.545112Z",
+        "snapshotPath": "data/snapshots/lg-rd-2026.html",
+        "fields": [
+          {
+            "id": "qualification-route",
+            "label": "拟适用资格路径",
+            "type": "select",
+            "help": "按真实资格选择，保留证书或主管部门名单；选择并不代表资格获确认。",
+            "evidence": "实施细则第十一条列五类扶持范围。",
+            "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+            "placeholder": "待填：拟适用资格路径",
+            "required": true,
+            "locator": "第十一条扶持范围",
+            "options": [
+              {
+                "value": "国家高新技术企业",
+                "label": "国家高新技术企业"
+              },
+              {
+                "value": "国家专精特新“小巨人”企业",
+                "label": "国家专精特新“小巨人”企业"
+              },
+              {
+                "value": "制造业单项冠军企业",
+                "label": "制造业单项冠军企业"
+              },
+              {
+                "value": "生物医药类企业",
+                "label": "生物医药类企业"
+              },
+              {
+                "value": "青年人才创业项目企业",
+                "label": "青年人才创业项目企业"
+              }
+            ]
+          },
+          {
+            "id": "qualification-proof",
+            "label": "资格证书或认定名单依据",
+            "type": "textarea",
+            "help": "写证书/名单名称、有效期间及所在页，不编造证书编号。",
+            "evidence": "第十一条审核方式以国高证书、主管部门名单及研发专项审计报告为准。",
+            "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+            "placeholder": "待填：资格证书或认定名单依据",
+            "required": true,
+            "locator": "第十一条审核方式"
+          },
+          {
+            "id": "rd-investment",
+            "label": "上一年度研发投入（万元）",
+            "type": "number",
+            "help": "依据研发专项审计报告填写金额；所属年度随本批指南确认。",
+            "evidence": "第十一条设上一年度研发投入300万元及以上分档。",
+            "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+            "placeholder": "待填：上一年度研发投入（万元）",
+            "required": true,
+            "unit": "万元",
+            "locator": "第十一条扶持标准"
+          },
+          {
+            "id": "revenue-amount",
+            "label": "研发比例计算对应营业收入（万元）",
+            "type": "number",
+            "help": "按适用路径和高企办法口径记录，不能与研发投入互换；生物医药例外需核验。",
+            "evidence": "第十一条要求适用路径满足研发投入占营业收入比例。",
+            "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+            "placeholder": "待填：研发比例计算对应营业收入（万元）",
+            "required": false,
+            "unit": "万元",
+            "locator": "第十一条扶持标准"
+          },
+          {
+            "id": "tax-deduction-filing",
+            "label": "研发加计扣除申报依据",
+            "type": "textarea",
+            "help": "记录已办理的年度、申报表行或回执，尚未办理就如实说明。",
+            "evidence": "第十一条要求已在税务部门办理研发费用加计扣除申报。",
+            "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+            "placeholder": "待填：研发加计扣除申报依据",
+            "required": true,
+            "locator": "第十一条扶持标准"
+          },
+          {
+            "id": "rd-audit-proof",
+            "label": "研发专项审计报告依据",
+            "type": "textarea",
+            "help": "记录报告名称、审计年度及相关金额页码；出具机构资质和格式待本批指南核实。",
+            "evidence": "第十一条审核方式明确研发专项审计报告。",
+            "sourceUrl": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+            "placeholder": "待填：研发专项审计报告依据",
+            "required": true,
+            "locator": "第十一条审核方式"
+          }
+        ],
+        "limitations": [
+          "现行细则未提供本批次申报书；这是核准依据整理，不是官方申请表。",
+          "适用2026细则的新批次窗口和完整材料清单仍未核验，不能据此提交。",
+          "填写研发或营业收入金额不会自动算出资助额；资格路径、比例例外和财政总量须另验。"
+        ]
+      }
+    },
+    {
+      "verifiedAt": "2026-10-10T09:36:33.1127683+00:00",
+      "sourceType": "official",
+      "id": "national-rd-tax-2023",
+      "title": "研发费用税前加计扣除",
+      "category": "税费优惠",
+      "region": "全国",
+      "authority": "财政部、国家税务总局",
+      "publishedAt": null,
+      "documentDate": "2023-03-26",
+      "version": "财政部 税务总局公告2023年第7号",
+      "policyStatus": "active",
+      "policyStatusLabel": "长期制度性政策",
+      "applicationStatus": "tax_filing",
+      "applicationStatusLabel": "按纳税申报期办理",
+      "window": {
+        "open": null,
+        "close": null,
+        "note": "非补贴项目集中窗口；按适用预缴和汇算清缴申报期享受。"
+      },
+      "validity": {
+        "from": "2023-01-01",
+        "to": null
+      },
+      "summary": "对符合规定的实际研发费用进行税前加计扣除，适用于符合核算与行业要求的居民企业。研发活动和费用归集是判断重点。",
+      "benefit": "一般企业费用化研发费用在据实扣除基础上再按100%加计扣除；资本化部分按无形资产成本200%税前摊销。该比例是税前扣除比例，不能当作现金补贴比例。",
+      "source": {
+        "id": "src-rd-tax",
+        "title": "财政部 税务总局关于进一步完善研发费用税前加计扣除政策的公告",
+        "url": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5201978/content.html",
+        "authority": "财政部、国家税务总局",
+        "publishedAt": null,
+        "documentDate": "2023-03-26",
+        "snapshotPath": "data/snapshots/national-rd-tax-2023.html",
+        "excerptPath": "data/snapshots/national-rd-tax-2023.txt",
+        "retrievedAt": "2026-10-10T09:18:03.6952177Z",
+        "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+      },
+      "tags": [
+        "全国",
+        "研发",
+        "企业所得税",
+        "加计扣除"
+      ],
+      "conditions": [
+        {
+          "id": "rd-resident",
+          "label": "居民企业、查账征收并准确归集研发费用",
+          "field": "compliant",
+          "operator": "manual",
+          "value": null,
+          "evidence": "官方政策指引要求会计核算健全、查账征收、可准确归集研发费用的居民企业；普通合规自评不能代替税务核算核验。",
+          "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+          "question": "请提供企业所得税居民企业身份、征收方式和研发费用核算依据，分别说明是否查账征收及准确归集研发费用。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "拟享受优惠的纳税年度"
+        },
+        {
+          "id": "rd-industry",
+          "label": "核验行业是否属于不适用范围",
+          "field": "industry",
+          "operator": "manual",
+          "value": null,
+          "evidence": "政策指引列明烟草制造、住宿餐饮、批发零售、房地产、租赁商务服务、娱乐及规定的其他行业不适用；须按实际行业口径判断。",
+          "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+          "question": "企业实际所属国民经济行业代码是什么？请核对烟草、住宿餐饮、批零、房地产、租赁商务、娱乐等不适用行业范围，并记录判断依据。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "拟享受优惠的纳税年度"
+        },
+        {
+          "id": "rd-activity",
+          "label": "属于符合税务定义的研发活动",
+          "field": "industry",
+          "operator": "manual",
+          "value": null,
+          "evidence": "研发须具有获得科学技术新知识或实质性改进技术、产品、工艺的明确目标和系统性；常规升级、简单改变、维护等活动不适用。",
+          "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+          "question": "逐个研发项目说明技术目标、实质创新及研发活动证据，排查常规升级、维护、技术支持等不适用活动。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "拟享受优惠的纳税年度及项目期间"
+        },
+        {
+          "id": "rd-accounting",
+          "label": "区分研发与生产经营费用并设置研发辅助账",
+          "field": "rdRatio",
+          "operator": "manual",
+          "value": null,
+          "evidence": "政策指引要求按项目归集研发费用，并分别核算研发及生产经营费用；划分不清的费用不得加计扣除。",
+          "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+          "question": "请提供按项目设置的研发辅助账及研发与经营费用分开核算的说明；记录费用划分依据和原始凭证，待财税人员核验。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "拟享受优惠的纳税年度"
+        },
+        {
+          "id": "rd-contract",
+          "label": "委托或合作研发合同认定登记及境外限额",
+          "field": "exporter",
+          "operator": "manual",
+          "value": null,
+          "evidence": "委托/合作研发需登记合同；委外费用通常按实际发生额80%归集，境外还有境内符合条件研发费用三分之二的限额。存在这些情形须逐项核验。",
+          "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+          "question": "是否存在委托、合作或境外研发？请分别记录合同登记、实际支出、80%归集和境外三分之二限额计算；不涉及时说明依据。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "拟享受优惠的纳税年度及合同期间"
+        }
+      ],
+      "materials": [
+        {
+          "id": "rd-aux-ledger",
+          "name": "研发费用辅助账及归集记录",
+          "note": "按研发项目分别设置；费用化与资本化分类、费用分配及原始凭证需可核对。",
+          "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+          "verified": true
+        },
+        {
+          "id": "rd-tax-return",
+          "name": "企业所得税适用申报表",
+          "note": "通过适用预缴或年度申报表相关项目自行申报；需使用当期税务系统表单。",
+          "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+          "verified": true
+        },
+        {
+          "id": "rd-contract-proof",
+          "name": "委托、合作研发合同及认定登记证明",
+          "note": "仅涉及委托/合作研发时适用；深圳登记按2026年版指南办理。",
+          "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+          "verified": true
+        }
+      ],
+      "steps": [
+        {
+          "title": "判断活动与行业",
+          "description": "先核实企业征收方式、行业、研发活动性质及费用范围。",
+          "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html"
+        },
+        {
+          "title": "建立项目辅助账",
+          "description": "区分研发费用和经营费用，归集实际发生的可扣除支出；委外、境外、合作、集中研发分别核算。",
+          "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html"
+        },
+        {
+          "title": "在适用申报期填报",
+          "description": "符合条件后自行填报企业所得税申报项目。申报前核对当期税务系统与适用申报日历。",
+          "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html"
+        },
+        {
+          "title": "留存备查",
+          "description": "整理和留存活动、归集、合同及申报依据；准备接受税务机关核验。",
+          "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html"
+        }
+      ],
+      "relatedDocuments": [
+        {
+          "id": "src-rd-guide",
+          "title": "一文了解：研发费用加计扣除政策",
+          "url": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+          "authority": "国家税务总局",
+          "publishedAt": "2024-04-12",
+          "snapshotPath": "data/snapshots/national-rd-guide-2024.html",
+          "retrievedAt": "2026-10-10T09:24:22.413071Z",
+          "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+        },
+        {
+          "id": "src-contract",
+          "title": "深圳市科技创新局关于发布《深圳市技术合同认定登记办理指南（2026年版）》的通知",
+          "url": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+          "authority": "深圳市科技创新局",
+          "publishedAt": "2026-06-29",
+          "documentDate": "2026-06-29",
+          "snapshotPath": "data/snapshots/sz-tech-contract-2026.html",
+          "excerptPath": "data/snapshots/sz-tech-contract-2026.txt",
+          "retrievedAt": "2026-10-10T09:18:03.4173755Z",
+          "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+        }
+      ],
+      "limitations": [
+        "本条仅覆盖一般100%/200%规则；集成电路、工业母机等更高比例专项政策及清单不在本样本覆盖范围。",
+        "不计算企业实际减税金额；亏损、其他优惠和实际可扣除基数均可能影响结果。",
+        "2024年指引引用的旧技术合同管理依据已更新；深圳合同登记操作使用本库关联2026年版指南。",
+        "原文仅独立显示成文日期2023-03-26，未将其冒充为网页发布日期。",
+        "具体留存备查全套材料和当期税务申报表需再按适用最新要求核实。"
+      ],
+      "audience": "会计核算健全、实行查账征收、能准确归集研发费用且不属规定不适用行业的居民企业。",
+      "summaryOrigin": "assistant_curated_from_official_sources",
+      "formGuide": {
+        "title": "研发加计扣除：项目归集资料整理",
+        "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+        "templateUrl": null,
+        "version": "国家税务总局2024-04-12政策指引；一般研发归集资料",
+        "kind": "preparation_fields",
+        "completeness": "partial",
+        "retrievedAt": "2026-10-10T09:24:22.413071Z",
+        "verifiedAt": "2026-10-10T10:08:54.545112Z",
+        "snapshotPath": "data/snapshots/national-rd-guide-2024.html",
+        "fields": [
+          {
+            "id": "rd-goal",
+            "label": "研发活动技术目标",
+            "type": "textarea",
+            "help": "以项目真实目标说明获得新知识或实质改进；活动是否合规定义待专业核验。",
+            "evidence": "政策指引申请条件1定义研发活动。",
+            "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+            "placeholder": "待填：研发活动技术目标",
+            "required": true,
+            "locator": "申请条件1"
+          },
+          {
+            "id": "rd-form",
+            "label": "研发组织形式",
+            "type": "select",
+            "help": "按实际项目选择；不同形式分别归集。",
+            "evidence": "政策指引优惠内容区分委外、合作、集中研发。",
+            "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+            "placeholder": "待填：研发组织形式",
+            "required": true,
+            "locator": "优惠内容",
+            "options": [
+              {
+                "value": "自主研发",
+                "label": "自主研发"
+              },
+              {
+                "value": "委托境内研发",
+                "label": "委托境内研发"
+              },
+              {
+                "value": "委托境外研发",
+                "label": "委托境外研发"
+              },
+              {
+                "value": "合作研发",
+                "label": "合作研发"
+              },
+              {
+                "value": "集中研发",
+                "label": "集中研发"
+              }
+            ]
+          },
+          {
+            "id": "payroll-cost",
+            "label": "人员人工费用（万元）",
+            "type": "number",
+            "help": "依据该项目辅助账及原始凭证；不要直接取企业全部人工费用。",
+            "evidence": "政策指引申请条件2列允许费用范围：人员人工费用。",
+            "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+            "placeholder": "待填：人员人工费用（万元）",
+            "required": true,
+            "unit": "万元",
+            "locator": "申请条件2"
+          },
+          {
+            "id": "direct-cost",
+            "label": "直接投入费用（万元）",
+            "type": "number",
+            "help": "依据可归集的实际研发投入，生产经营费用另记。",
+            "evidence": "政策指引申请条件2列直接投入费用；条件5要求分开核算。",
+            "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+            "placeholder": "待填：直接投入费用（万元）",
+            "required": true,
+            "unit": "万元",
+            "locator": "申请条件2、5"
+          },
+          {
+            "id": "depreciation-cost",
+            "label": "折旧费用（万元）",
+            "type": "number",
+            "help": "整理研发相关折旧和分配依据，是否可扣除须财税核验。",
+            "evidence": "政策指引申请条件2列折旧费用。",
+            "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+            "placeholder": "待填：折旧费用（万元）",
+            "required": true,
+            "unit": "万元",
+            "locator": "申请条件2"
+          },
+          {
+            "id": "amortization-cost",
+            "label": "无形资产摊销（万元）",
+            "type": "number",
+            "help": "整理研发使用的无形资产及摊销依据，不与资本化研发优惠混用。",
+            "evidence": "政策指引申请条件2列无形资产摊销。",
+            "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+            "placeholder": "待填：无形资产摊销（万元）",
+            "required": true,
+            "unit": "万元",
+            "locator": "申请条件2"
+          },
+          {
+            "id": "other-rd-cost",
+            "label": "其他相关费用（万元）",
+            "type": "number",
+            "help": "保留分项，适用限额、分配和费用范围需专业核验。",
+            "evidence": "政策指引申请条件2列其他相关费用。",
+            "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+            "placeholder": "待填：其他相关费用（万元）",
+            "required": true,
+            "unit": "万元",
+            "locator": "申请条件2"
+          },
+          {
+            "id": "contract-registration",
+            "label": "委托或合作研发合同登记依据",
+            "type": "textarea",
+            "help": "涉及委托或合作时填合同及登记证明；不涉及时记录项目形式，不虚构登记号。",
+            "evidence": "政策指引申请条件6要求委托、合作研发项目合同登记。",
+            "sourceUrl": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+            "placeholder": "待填：委托或合作研发合同登记依据",
+            "required": false,
+            "locator": "申请条件6"
+          }
+        ],
+        "limitations": [
+          "这是项目归集信息整理，未取得当期所得税申报表或完整留存备查资料清单，不是税务正式申报表。",
+          "仅覆盖已列费用类别的部分信息，不自动计算可加计扣除基数、税款或判定研发性质。",
+          "当期申报表、特殊行业、委外限额及其他费用限额须按最新适用法规和主管税务机关核验。"
+        ]
+      }
+    },
+    {
+      "verifiedAt": "2026-10-10T09:36:33.1127683+00:00",
+      "sourceType": "official",
+      "id": "national-smallprofit-tax-2023",
+      "title": "小型微利企业所得税优惠",
+      "category": "税费优惠",
+      "region": "全国",
+      "authority": "财政部、国家税务总局",
+      "publishedAt": null,
+      "documentDate": "2023-08-02",
+      "version": "财政部 税务总局公告2023年第12号 · 第三、五条",
+      "policyStatus": "active",
+      "policyStatusLabel": "执行至2027年底",
+      "applicationStatus": "tax_filing",
+      "applicationStatusLabel": "按季度预缴与年度汇缴",
+      "window": {
+        "open": null,
+        "close": null,
+        "note": "不是项目申报截止日；优惠执行至2027-12-31，申报按税期办理。"
+      },
+      "validity": {
+        "from": "2023-01-01",
+        "to": "2027-12-31"
+      },
+      "summary": "符合小型微利企业定义的企业，可在企业所得税预缴和年度汇算清缴时自行申报享受优惠。定义中的收入是应纳税所得额，不能用营业收入替代。",
+      "benefit": "减按25%计算应纳税所得额，再按20%税率纳税，折算名义实际税负为5%。实际税额需按应纳税所得额与适用申报规则核算。",
+      "source": {
+        "id": "src-smallprofit",
+        "title": "财政部 税务总局关于进一步支持小微企业和个体工商户发展有关税费政策的公告",
+        "url": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5210453/content.html",
+        "authority": "财政部、国家税务总局",
+        "publishedAt": null,
+        "documentDate": "2023-08-02",
+        "snapshotPath": "data/snapshots/national-smallprofit-2023.html",
+        "excerptPath": "data/snapshots/national-smallprofit-2023.txt",
+        "retrievedAt": "2026-10-10T09:18:03.9446982Z",
+        "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+      },
+      "tags": [
+        "全国",
+        "小微企业",
+        "所得税",
+        "降本"
+      ],
+      "conditions": [
+        {
+          "id": "small-tax-qualification",
+          "label": "符合税务小型微利企业定义",
+          "field": "smallProfit",
+          "operator": "manual",
+          "value": null,
+          "evidence": "公告第五条要求国家非限制禁止行业，且应纳税所得额≤300万元、从业人数≤300人、资产≤5000万元；用户勾选仅表示自报，三项数据仍须核验。",
+          "sourceUrl": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5210453/content.html",
+          "question": "请分别提供行业目录判断、年度应纳税所得额、从业人数和资产季度平均值；税务小型微利身份不能用一般“小微企业”自评代替。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "拟享受优惠的纳税年度"
+        },
+        {
+          "id": "small-employees",
+          "label": "从业人数全年季度平均值不超过300人",
+          "field": "employees",
+          "operator": "manual",
+          "value": null,
+          "evidence": "从业人数包含劳动关系职工和接受的劳务派遣人员，按全年季度平均值确定。表单人数须采用这个口径。",
+          "sourceUrl": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5210453/content.html",
+          "question": "按全年季度平均值计算并包含劳务派遣人员后，从业人数是否不超过300人？请记录四季度期初、期末人数及计算结果。",
+          "assessmentAllowed": true,
+          "inputType": "boolean",
+          "periodRequirement": "拟享受优惠的纳税年度；年度中间开业或终止按实际经营期"
+        },
+        {
+          "id": "small-income",
+          "label": "年度应纳税所得额不超过300万元",
+          "field": "revenue",
+          "operator": "manual",
+          "value": null,
+          "evidence": "公告第五条使用年度应纳税所得额，不是销售收入；本产品营业收入字段不足以判断此项。",
+          "sourceUrl": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5210453/content.html",
+          "question": "拟享受优惠年度的应纳税所得额是否不超过300万元？请记录纳税申报表金额、年度和表单行次；营业收入不能代替。",
+          "assessmentAllowed": true,
+          "inputType": "boolean",
+          "periodRequirement": "拟享受优惠的纳税年度"
+        },
+        {
+          "id": "small-assets",
+          "label": "资产总额全年季度平均值不超过5000万元",
+          "field": "revenue",
+          "operator": "manual",
+          "value": null,
+          "evidence": "公告第五条及计算规则要求资产总额不超过5000万元；本产品尚无资产总额事实字段。",
+          "sourceUrl": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5210453/content.html",
+          "question": "按全年季度平均值计算后，资产总额是否不超过5000万元？请记录四季度期初、期末资产和计算结果，单位万元。",
+          "assessmentAllowed": true,
+          "inputType": "boolean",
+          "periodRequirement": "拟享受优惠的纳税年度；年度中间开业或终止按实际经营期"
+        },
+        {
+          "id": "small-industry",
+          "label": "从事国家非限制和禁止行业",
+          "field": "industry",
+          "operator": "manual",
+          "value": null,
+          "evidence": "需依据真实经营行业及适用国家目录核实；行业关键词不能替代目录判断。",
+          "sourceUrl": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5210453/content.html",
+          "question": "请提供实际经营行业及对照的国家非限制、非禁止行业目录依据，记录目录版本、条目及判断理由。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "拟享受优惠的纳税年度"
+        }
+      ],
+      "materials": [
+        {
+          "id": "small-industry-note",
+          "name": "行业非限制和禁止的说明",
+          "note": "留存备查；以真实经营情况与适用目录为依据。",
+          "sourceUrl": "https://liaoning.chinatax.gov.cn/art/2025/9/30/art_782_156392.html",
+          "verified": true
+        },
+        {
+          "id": "small-employee-calc",
+          "name": "从业人数计算过程",
+          "note": "保存季初季末人数、劳务派遣人数及季度平均计算过程。",
+          "sourceUrl": "https://liaoning.chinatax.gov.cn/art/2025/9/30/art_782_156392.html",
+          "verified": true
+        },
+        {
+          "id": "small-asset-calc",
+          "name": "资产总额计算过程",
+          "note": "保存季初季末资产数据和季度平均计算过程。",
+          "sourceUrl": "https://liaoning.chinatax.gov.cn/art/2025/9/30/art_782_156392.html",
+          "verified": true
+        },
+        {
+          "id": "small-tax-form",
+          "name": "当期企业所得税申报表",
+          "note": "通过当前适用表单申报；不要套用旧年度A107040优惠表。",
+          "sourceUrl": "https://liaoning.chinatax.gov.cn/art/2025/9/30/art_782_156392.html",
+          "verified": true
+        }
+      ],
+      "steps": [
+        {
+          "title": "按税务口径计算指标",
+          "description": "核对应纳税所得额、季度平均人数和资产以及行业条件。",
+          "sourceUrl": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5210453/content.html"
+        },
+        {
+          "title": "填写适用申报表并确认优惠",
+          "description": "在预缴、年度申报中按当期适用系统填报并确认减免金额。",
+          "sourceUrl": "https://liaoning.chinatax.gov.cn/art/2025/9/30/art_782_156392.html"
+        },
+        {
+          "title": "年度汇缴复核与留存",
+          "description": "年度汇缴最终核验资格；如不符合需按规定补税。保存行业说明和计算过程备查。",
+          "sourceUrl": "https://liaoning.chinatax.gov.cn/art/2025/9/30/art_782_156392.html"
+        }
+      ],
+      "relatedDocuments": [
+        {
+          "id": "src-tax-faq",
+          "title": "税费政策可视答疑第二十四期热点问题",
+          "url": "https://liaoning.chinatax.gov.cn/art/2025/9/30/art_782_156392.html",
+          "authority": "国家税务总局辽宁省税务局",
+          "publishedAt": "2025-09-30",
+          "snapshotPath": "data/snapshots/national-tax-faq-2025.html",
+          "retrievedAt": "2026-10-10T09:24:23.2679874Z",
+          "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+        }
+      ],
+      "limitations": [
+        "小型微利企业与一般口语中的小微企业不是同一判断口径。",
+        "年度应纳税所得额、资产总额尚无结构化事实字段，系统保留人工核验。",
+        "2025辽宁税务答疑作为国家通用办理解释，不代表深圳特有申报界面；实际表单以深圳当期系统为准。",
+        "政策执行期限不是单次申请窗口。",
+        "原文只明确成文日期，publishedAt留空而不编造网页发布日。"
+      ],
+      "audience": "从事国家非限制和禁止行业，且同时符合年度应纳税所得额、从业人数及资产总额法定门槛的小型微利企业。",
+      "summaryOrigin": "assistant_curated_from_official_sources",
+      "formGuide": {
+        "title": "小型微利所得税：规模口径自查资料",
+        "sourceUrl": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5210453/content.html",
+        "templateUrl": null,
+        "version": "财政部 税务总局公告2023年第12号 · 第三、五条",
+        "kind": "preparation_fields",
+        "completeness": "partial",
+        "retrievedAt": "2026-10-10T09:18:03.9446982Z",
+        "verifiedAt": "2026-10-10T10:08:54.545112Z",
+        "snapshotPath": "data/snapshots/national-smallprofit-2023.html",
+        "fields": [
+          {
+            "id": "taxable-income",
+            "label": "年度应纳税所得额（万元）",
+            "type": "number",
+            "help": "从年度所得税申报依据取值；不使用销售收入替代。",
+            "evidence": "公告第五条明确年度应纳税所得额不超过300万元。",
+            "sourceUrl": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5210453/content.html",
+            "placeholder": "待填：年度应纳税所得额（万元）",
+            "required": true,
+            "unit": "万元",
+            "locator": "第五条"
+          },
+          {
+            "id": "employees-averaged",
+            "label": "从业人数全年季度平均值（人）",
+            "type": "number",
+            "help": "包含劳动关系职工与劳务派遣，按四季度平均计算；中途开业按实际经营期。",
+            "evidence": "公告第五条从业人数定义及季度、全年平均公式。",
+            "sourceUrl": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5210453/content.html",
+            "placeholder": "待填：从业人数全年季度平均值（人）",
+            "required": true,
+            "unit": "人",
+            "locator": "第五条"
+          },
+          {
+            "id": "employees-quarter-data",
+            "label": "从业人数季度期初期末依据",
+            "type": "textarea",
+            "help": "列四季度期初、期末人数及来源；请另记录所核算年度。",
+            "evidence": "公告第五条季度平均值=（季初值+季末值）÷2。",
+            "sourceUrl": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5210453/content.html",
+            "placeholder": "待填：从业人数季度期初期末依据",
+            "required": true,
+            "locator": "第五条"
+          },
+          {
+            "id": "assets-averaged",
+            "label": "资产总额全年季度平均值（万元）",
+            "type": "number",
+            "help": "从会计报表计算；不使用营业收入或单一期末值替代全年季度均值。",
+            "evidence": "公告第五条资产总额不超过5000万元，并按全年季度平均值。",
+            "sourceUrl": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5210453/content.html",
+            "placeholder": "待填：资产总额全年季度平均值（万元）",
+            "required": true,
+            "unit": "万元",
+            "locator": "第五条"
+          },
+          {
+            "id": "assets-quarter-data",
+            "label": "资产季度期初期末依据",
+            "type": "textarea",
+            "help": "列四季度期初、期末资产及来源报表，计算并留存。",
+            "evidence": "公告第五条季度及全年平均公式适用于资产总额。",
+            "sourceUrl": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5210453/content.html",
+            "placeholder": "待填：资产季度期初期末依据",
+            "required": true,
+            "locator": "第五条"
+          },
+          {
+            "id": "industry-catalog-proof",
+            "label": "非限制和禁止行业判断依据",
+            "type": "textarea",
+            "help": "记录实际行业、适用目录、条目和版本；不把行业关键词当成目录判断结果。",
+            "evidence": "公告第五条要求从事国家非限制和禁止行业。",
+            "sourceUrl": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5210453/content.html",
+            "placeholder": "待填：非限制和禁止行业判断依据",
+            "required": true,
+            "locator": "第五条"
+          }
+        ],
+        "limitations": [
+          "字段整理来自法定定义和计算公式，是自查数据表，不是电子税务局申报表。",
+          "本地填写与自报判断不能确认税务小型微利身份，适用年度、目录与税务机关核验仍需确认。",
+          "不自动按营业收入估算应纳税所得额或减税金额；完整申报行次以当期税务系统为准。"
+        ]
+      }
+    },
+    {
+      "verifiedAt": "2026-10-10T09:36:33.1127683+00:00",
+      "sourceType": "official",
+      "id": "sz-hightech-recognition-2026",
+      "title": "深圳高新技术企业认定（2026批次）",
+      "category": "资质认定",
+      "region": "深圳市",
+      "authority": "深圳市工业和信息化局",
+      "publishedAt": "2026-06-18",
+      "version": "2026年度认定通知 + 第三批延期通知",
+      "policyStatus": "active",
+      "policyStatusLabel": "认定制度有效，年度批次历史",
+      "applicationStatus": "closed",
+      "applicationStatusLabel": "2026年本批次已截止",
+      "window": {
+        "open": "2026-08-07",
+        "close": "2026-09-11T18:00:00+08:00",
+        "note": "展示最后一批新申请窗口，延期后9月11日18:00截止；受理期内退回修改的9月16日18:00截止。"
+      },
+      "summary": "面向在深圳注册的居民企业，认定高新技术企业资格。认定同时核对知识产权、技术领域、人员、研发及高新收入等条件，获得资格不等于自动获得补贴。",
+      "benefit": "取得高新技术企业资格认定；税收优惠或市区资金须分别满足对应制度和申报要求，本条不承诺现金奖励。",
+      "source": {
+        "id": "src-hightech",
+        "title": "深圳市工业和信息化局关于开展2026年高新技术企业认定工作的通知",
+        "url": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+        "authority": "深圳市工业和信息化局",
+        "publishedAt": "2026-06-18",
+        "documentDate": "2026-06-15",
+        "snapshotPath": "data/snapshots/sz-hightech-2026.html",
+        "excerptPath": "data/snapshots/sz-hightech-2026.txt",
+        "retrievedAt": "2026-10-10T09:18:02.5146629Z",
+        "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+      },
+      "tags": [
+        "深圳",
+        "高新技术",
+        "认定",
+        "知识产权"
+      ],
+      "conditions": [
+        {
+          "id": "high-region",
+          "label": "地区范围初筛：深圳市（含深汕）",
+          "field": "region",
+          "operator": "in",
+          "value": [
+            "深圳市",
+            "福田区",
+            "罗湖区",
+            "盐田区",
+            "南山区",
+            "宝安区",
+            "龙岗区",
+            "龙华区",
+            "光明区",
+            "坪山区",
+            "大鹏新区",
+            "深汕特别合作区"
+          ],
+          "evidence": "申请条件（一）要求深圳市（含深汕特别合作区）依法注册、独立法人居民企业；地区只做初筛，法人和税务居民属性待验。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+          "question": "企业注册地区是否在深圳市（含深汕）？请按营业执照确认；地区符合仍需另核验法人和居民企业身份。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "2026年度申请时"
+        },
+        {
+          "id": "high-age",
+          "label": "申请时注册成立一年以上",
+          "field": "ageYears",
+          "operator": "manual",
+          "value": null,
+          "evidence": "申请条件（一）为一年以上；需以成立日期和实际申请日期核验，粗略年数尤其临界值不足以判定。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+          "question": "在拟提交申请的当天，营业执照注册成立日期是否已经超过一年？请记录成立日期及拟申请日期，不能只填粗略年数。",
+          "assessmentAllowed": true,
+          "inputType": "boolean",
+          "periodRequirement": "拟提交申请的具体日期"
+        },
+        {
+          "id": "high-ip",
+          "label": "拥有支撑主要产品核心技术的知识产权所有权",
+          "field": "hasIp",
+          "operator": "manual",
+          "value": null,
+          "evidence": "申请条件（二）要求通过自主研发、受让、受赠、并购等获得核心支持知识产权所有权；任意知识产权不能替代核心支持核验。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+          "question": "请提供支撑主要产品核心技术的知识产权、授权/变更文件及有效期，并说明核心支持关系；任意知识产权不能代替。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "申请时；按2026通知核对知识产权取得和有效期"
+        },
+        {
+          "id": "high-field",
+          "label": "核心技术属于国家重点支持的高新技术领域",
+          "field": "industry",
+          "operator": "manual",
+          "value": null,
+          "evidence": "申请条件（三）要求技术属于指定领域；需按产品技术及领域目录判断。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+          "question": "主要产品核心技术对应国家重点支持高新技术领域的哪一具体条目？请记录目录条目及技术说明。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "2026年度申请时"
+        },
+        {
+          "id": "high-staff",
+          "label": "科技人员占当年职工总数不低于10%",
+          "field": "employees",
+          "operator": "manual",
+          "value": null,
+          "evidence": "申请条件（四）规定科技人员比例≥10%；仅有总职工人数不足以判断。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+          "question": "请提供当年职工总数、科技人员人数、统计口径和人员名单，计算科技人员比例是否达到10%，由专业人员核对。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "2026通知所指企业当年；对应统计口径须核验"
+        },
+        {
+          "id": "high-rd",
+          "label": "近三年研发费用比例及境内研发占比",
+          "field": "rdRatio",
+          "operator": "manual",
+          "value": null,
+          "evidence": "最近一年销售≤5000万元、≤2亿元、>2亿元分别对应近三年研发占比≥5%、≥4%、≥3%；境内研发占总研发≥60%。必须核对年度和分母。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+          "question": "请分别整理近三年研发费用和销售收入、最近一年销售收入档次、境内研发金额；经营不足三年按实际经营期，核验两个比例。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "2026申请对应近三个会计年度；不足三年按实际经营期"
+        },
+        {
+          "id": "high-income",
+          "label": "近一年高新产品服务收入占同期总收入不低于60%",
+          "field": "revenue",
+          "operator": "manual",
+          "value": null,
+          "evidence": "申请条件（六）为高新产品服务收入比例，不是营业收入绝对值。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+          "question": "请整理近一年高新产品服务收入和同期总收入、代表性合同及发票，计算是否达到60%，由专项报告核验收入归属。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "2026申请对应近一个会计年度"
+        },
+        {
+          "id": "high-innovation",
+          "label": "创新能力、事故环境及年度申报限制",
+          "field": "compliant",
+          "operator": "manual",
+          "value": null,
+          "evidence": "条件（七）（八）要求创新能力达标及申请前一年无重大安全质量事故或严重环境违法；有效2024/2025高企不能申报，并有更名迁移前置事项。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+          "question": "请分别提供创新能力评价证据、申请前一年安全质量环保记录、现有高企证书年份及更名迁移事项完成情况。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "申请前一年及2026年度申报限制"
+        },
+        {
+          "id": "high-sme",
+          "label": "符合科技型中小企业入库条件者取得本年度编号",
+          "field": "techSme",
+          "operator": "manual",
+          "value": null,
+          "evidence": "重要提示要求符合科技型中小企业评价入库条件的企业应获得本年度入库编号；不对不适用该条件的企业直接否决。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+          "question": "企业是否适用2026科技型中小企业入库要求？适用时请提供本年度入库编号；不适用需记录人数、销售及资产等判断依据。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "2026年度"
+        },
+        {
+          "id": "sz-hightech-recognition-2026-entity",
+          "label": "核验深圳依法注册、独立法人及居民企业属性",
+          "field": "compliant",
+          "operator": "manual",
+          "value": null,
+          "evidence": "申请条件（一）要求深圳依法注册、独立法人资格居民企业。自报所在地和地区范围初筛不能证明主体注册和税务属性。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+          "question": "请分别核对营业执照深圳注册地址、独立法人及税务居民身份，记录对应证明；单一所在地自报不足以确认。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "2026年度申请时"
+        }
+      ],
+      "materials": [
+        {
+          "id": "high-form",
+          "name": "高新技术企业认定申请书及企业承诺书",
+          "note": "系统填报下载后按要求签字、盖章、骑缝章并彩色扫描；使用官方系统版本。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+          "verified": true
+        },
+        {
+          "id": "high-license",
+          "name": "营业执照及申请书封皮盖章扫描件",
+          "note": "附件清单明确要求。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+          "verified": true
+        },
+        {
+          "id": "high-ip-proof",
+          "name": "知识产权证明及核心支撑说明",
+          "note": "包括权属、有效性、转让变更、共同权属承诺等适用证据。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+          "verified": true
+        },
+        {
+          "id": "high-rd-proof",
+          "name": "研发立项、结题及成果转化证明",
+          "note": "按实际研发项目提供立项证明；已结题项目附验收或结题材料。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+          "verified": true
+        },
+        {
+          "id": "high-finance",
+          "name": "近三年财务报告、所得税年度申报表",
+          "note": "财务报告需要规定二维码、报告编码及原件电子版。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+          "verified": true
+        },
+        {
+          "id": "high-audit",
+          "name": "研发费用与高新产品收入专项审计或鉴证报告",
+          "note": "核验事务所资质、报告二维码与报告编码；实际经营未满三年按实际经营期。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+          "verified": true
+        },
+        {
+          "id": "high-staff-proof",
+          "name": "企业职工、科技人员及上一年底社保汇总证明",
+          "note": "含人员结构、名单和适用学历证明；实际准备涉及个人信息，产品仅记录准备状态。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+          "verified": true
+        },
+        {
+          "id": "high-sales-proof",
+          "name": "高新产品服务合同发票及对应清单",
+          "note": "需要代表性合同发票及年度主要高新收入合同发票清单。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+          "verified": true
+        },
+        {
+          "id": "high-management",
+          "name": "研发组织管理及其他适用指标证明",
+          "note": "含活动汇总、费用结构、高新产品汇总及适用标准制定证明。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+          "verified": true
+        }
+      ],
+      "steps": [
+        {
+          "title": "查看下一年度通知",
+          "description": "2026本库记录的所有申请批次已截止；准备可以继续，但下一年度窗口须重新核验。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12970193.html"
+        },
+        {
+          "title": "注册核对两套系统信息",
+          "description": "全国高企认定工作网获取注册号，广东政务服务网核对企业名称和系统号。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+          "entryUrl": "https://hjrz.chinatorch.org.cn/",
+          "entryLabel": "打开全国高企认定工作网"
+        },
+        {
+          "title": "填报与上传材料",
+          "description": "在广东政务服务网完成申报、按要求签字盖章后上传；当年仅申报一个批次。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+          "entryUrl": "https://wsbs.sz.gov.cn/apply/ui/59070699331442003005000440300",
+          "entryLabel": "打开官方高企申报事项"
+        },
+        {
+          "title": "保存纸质完整档案",
+          "description": "2026通知采取无纸化申报；自行装订盖章保存纸质完整材料不少于六年并备核查。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html"
+        }
+      ],
+      "relatedDocuments": [
+        {
+          "id": "src-hightech-extension",
+          "title": "市工业和信息化局关于延长2026年第三批高新技术企业认定受理时间的通知",
+          "url": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12970193.html",
+          "authority": "深圳市工业和信息化局",
+          "publishedAt": "2026-09-07",
+          "documentDate": "2026-09-04",
+          "snapshotPath": "data/snapshots/sz-hightech-extension-2026.html",
+          "excerptPath": "data/snapshots/sz-hightech-extension-2026.txt",
+          "retrievedAt": "2026-10-10T09:18:02.7816848Z",
+          "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+        },
+        {
+          "id": "src-techsme",
+          "title": "市工业和信息化局关于组织开展2026年科技型中小企业评价工作的通知",
+          "url": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/mpost_12834874.html",
+          "authority": "深圳市工业和信息化局",
+          "publishedAt": "2026-06-10",
+          "snapshotPath": "data/snapshots/sz-techsme-2026.html",
+          "excerptPath": "data/snapshots/sz-techsme-2026.txt",
+          "retrievedAt": "2026-10-10T09:18:02.9493009Z",
+          "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+        }
+      ],
+      "limitations": [
+        "标记已截止依据2026年度通知及第三批延期通知；本库未接入实时受理系统。",
+        "这是资质认定，不是独立现金补贴机会；另项税惠或资金必须分别核对。",
+        "研发比例、科技人员、高新收入和创新能力等复合条件不能从简短企业档案自动确认。",
+        "材料为2026年度通知归纳，完整字段、模板、报告验证要求请回读原文和申报系统。"
+      ],
+      "audience": "在深圳依法注册、具有独立法人资格、申请时成立一年以上且符合知识产权、技术领域、人员、研发和高新收入等认定条件的居民企业。",
+      "summaryOrigin": "assistant_curated_from_official_sources",
+      "formGuide": {
+        "title": "高企认定：收入合同与发票资料整理",
+        "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+        "templateUrl": null,
+        "version": "2026年度认定通知 + 第三批延期通知",
+        "kind": "preparation_fields",
+        "completeness": "partial",
+        "retrievedAt": "2026-10-10T09:18:02.5146629Z",
+        "verifiedAt": "2026-10-10T10:08:54.545112Z",
+        "snapshotPath": "data/snapshots/sz-hightech-2026.html",
+        "fields": [
+          {
+            "id": "contract-number",
+            "label": "合同编号",
+            "type": "text",
+            "help": "逐份合同整理；多份请在官方清单中逐行填写。",
+            "evidence": "2026通知申请材料（二）8明确收入合同发票清单列合同编号。",
+            "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+            "placeholder": "待填：合同编号",
+            "required": true,
+            "locator": "三、申请材料（二）8"
+          },
+          {
+            "id": "party-a",
+            "label": "甲方主体",
+            "type": "text",
+            "help": "填写合同签署主体全称，与合同原件一致。",
+            "evidence": "通知申请材料（二）8列甲乙双方主体。",
+            "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+            "placeholder": "待填：甲方主体",
+            "required": true,
+            "locator": "三、申请材料（二）8"
+          },
+          {
+            "id": "party-b",
+            "label": "乙方主体",
+            "type": "text",
+            "help": "填写合同签署主体全称，不用品牌简称替代。",
+            "evidence": "通知申请材料（二）8列甲乙双方主体。",
+            "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+            "placeholder": "待填：乙方主体",
+            "required": true,
+            "locator": "三、申请材料（二）8"
+          },
+          {
+            "id": "contract-amount",
+            "label": "合同总金额",
+            "type": "number",
+            "help": "按合同币种和原件核对；本字段不自动换算为高新收入。",
+            "evidence": "通知申请材料（二）8列合同总金额。",
+            "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+            "placeholder": "待填：合同总金额",
+            "required": true,
+            "locator": "三、申请材料（二）8"
+          },
+          {
+            "id": "contract-date",
+            "label": "合同签订时间",
+            "type": "text",
+            "help": "使用原件签订日期，注明年月日。",
+            "evidence": "通知申请材料（二）8列合同签订时间。",
+            "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+            "placeholder": "待填：合同签订时间",
+            "required": true,
+            "locator": "三、申请材料（二）8"
+          },
+          {
+            "id": "performance-period",
+            "label": "履约期限",
+            "type": "text",
+            "help": "记录明确起止日期及补充协议，不能用企业成立年数替代。",
+            "evidence": "通知申请材料（二）8列履约期限。",
+            "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+            "placeholder": "待填：履约期限",
+            "required": true,
+            "locator": "三、申请材料（二）8"
+          },
+          {
+            "id": "invoice-code",
+            "label": "发票代码",
+            "type": "text",
+            "help": "从发票原件抄录；若当期票种没有此项，记录票种并按系统要求处理。",
+            "evidence": "通知申请材料（二）8列发票代码。",
+            "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+            "placeholder": "待填：发票代码",
+            "required": true,
+            "locator": "三、申请材料（二）8"
+          },
+          {
+            "id": "invoice-number",
+            "label": "发票号码",
+            "type": "text",
+            "help": "与合同对应，保留扫描件以核对。",
+            "evidence": "通知申请材料（二）8列发票号码。",
+            "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+            "placeholder": "待填：发票号码",
+            "required": true,
+            "locator": "三、申请材料（二）8"
+          },
+          {
+            "id": "invoice-amount",
+            "label": "发票金额",
+            "type": "number",
+            "help": "按发票原件取值，税额和收入口径另行核对。",
+            "evidence": "通知申请材料（二）8列发票金额。",
+            "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+            "placeholder": "待填：发票金额",
+            "required": true,
+            "locator": "三、申请材料（二）8"
+          },
+          {
+            "id": "recognized-hightech-income",
+            "label": "确认高新技术产品（服务）收入金额",
+            "type": "number",
+            "help": "需要确认归属上年度高新产品服务收入且反映知识产权核心支撑；留给专项报告核验。",
+            "evidence": "通知申请材料（二）8明确列确认高新产品服务收入金额。",
+            "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+            "placeholder": "待填：确认高新技术产品（服务）收入金额",
+            "required": true,
+            "locator": "三、申请材料（二）8"
+          }
+        ],
+        "limitations": [
+          "这是通知明确的收入合同及发票清单信息整理，未取得申报系统打印的高新技术企业认定申请书模板。",
+          "仅整理一条清单示例；多合同、多发票和其他申请材料须按当期系统完整填报。",
+          "金额币种、含税与收入确认口径需以原合同、发票和专项报告核验，不自动推算认定资格。"
+        ]
+      }
+    },
+    {
+      "verifiedAt": "2026-10-10T09:36:33.1127683+00:00",
+      "sourceType": "official",
+      "id": "sz-techsme-evaluation-2026",
+      "title": "深圳科技型中小企业评价入库（2026）",
+      "category": "资质认定",
+      "region": "深圳市",
+      "authority": "深圳市工业和信息化局",
+      "publishedAt": "2026-06-10",
+      "version": "2026年度评价通知",
+      "policyStatus": "active",
+      "policyStatusLabel": "评价制度有效，年度批次历史",
+      "applicationStatus": "closed",
+      "applicationStatusLabel": "通知窗口已于8月31日截止",
+      "window": {
+        "open": "2026-06-01",
+        "close": "2026-08-31",
+        "note": "以本库已核验2026年度通知为准；未核验其他补充或延期通知，不代表实时系统状态。"
+      },
+      "summary": "为符合规模、行业、信用和科技评价要求的中小企业办理年度评价入库。入库编号可用于衔接其他政策，本条不包含直接现金资助。",
+      "benefit": "通过公示后纳入全国科技型中小企业信息库，获得入库编号；相关税收、专精特新等政策仍须分别核对。",
+      "source": {
+        "id": "src-techsme",
+        "title": "市工业和信息化局关于组织开展2026年科技型中小企业评价工作的通知",
+        "url": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/mpost_12834874.html",
+        "authority": "深圳市工业和信息化局",
+        "publishedAt": "2026-06-10",
+        "snapshotPath": "data/snapshots/sz-techsme-2026.html",
+        "excerptPath": "data/snapshots/sz-techsme-2026.txt",
+        "retrievedAt": "2026-10-10T09:18:02.9493009Z",
+        "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+      },
+      "tags": [
+        "深圳",
+        "科技型中小企业",
+        "入库",
+        "研发"
+      ],
+      "conditions": [
+        {
+          "id": "sme-region",
+          "label": "地区范围初筛：深圳辖区",
+          "field": "region",
+          "operator": "in",
+          "value": [
+            "深圳市",
+            "福田区",
+            "罗湖区",
+            "盐田区",
+            "南山区",
+            "宝安区",
+            "龙岗区",
+            "龙华区",
+            "光明区",
+            "坪山区",
+            "大鹏新区",
+            "深汕特别合作区"
+          ],
+          "evidence": "深圳通知由各区审核辖区参评企业；境内居民企业且核算健全、查账征收、准确归集研发费用等税务条件需另验。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/mpost_12834874.html",
+          "question": "参评企业注册地区是否属深圳辖区？请按营业执照确认；居民企业与研发核算仍需另验。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "2026年度参评时"
+        },
+        {
+          "id": "sme-employees",
+          "label": "2025年度职工总数季度平均值不超过500人",
+          "field": "employees",
+          "operator": "manual",
+          "value": null,
+          "evidence": "2026通知申报条件（一）2要求职工总数≤500人；其引用的2022指引三（四）1、14及信息表填报说明6、7要求上一会计年度人数范围和全年季度平均值，基础档案人数不足以直接判断。",
+          "sourceUrl": "https://kjt.hunan.gov.cn/kjt/xxgk/tzgg/kjbtzgg/202503/t20250303_33599900.html",
+          "question": "2025年度职工总数按全年季度平均值计算是否不超过500人？请提供在职、兼职、临时聘用人数及季度计算；兼职临聘须全年累计工作六个月以上。",
+          "assessmentAllowed": true,
+          "inputType": "boolean",
+          "periodRequirement": "2025年度（2026参评的上一会计年度）",
+          "expectedPeriod": "2025年度",
+          "periodRequired": true
+        },
+        {
+          "id": "sme-revenue",
+          "label": "年销售收入不超过20000万元",
+          "field": "revenue",
+          "operator": "lte",
+          "value": 20000,
+          "evidence": "申报条件（一）2要求年销售收入不超过2亿元；此字段采用万元，需对应评价年度销售收入。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/mpost_12834874.html",
+          "question": "2025年度销售收入是否不超过20000万元？请按主营业务与其他业务收入之和及企业所得税申报口径核对，记录年度和来源表行。",
+          "assessmentAllowed": true,
+          "inputType": "boolean",
+          "periodRequirement": "2025年度（2026参评的上一会计年度）",
+          "expectedPeriod": "2025年度",
+          "periodRequired": true
+        },
+        {
+          "id": "sme-assets",
+          "label": "资产总额不超过2亿元",
+          "field": "revenue",
+          "operator": "manual",
+          "value": null,
+          "evidence": "通知同时要求资产总额≤2亿元；当前档案的营业收入不能代替资产事实。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/mpost_12834874.html",
+          "question": "请记录2025年末资产负债表期末数及全年季度平均资产总额，核对2亿元门槛；2022指引两处口径并列，应向评价机构确认本次系统口径。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "2025年度（2026参评的上一会计年度）"
+        },
+        {
+          "id": "sme-industry",
+          "label": "行业不属限制淘汰类或加计扣除不适用行业",
+          "field": "industry",
+          "operator": "manual",
+          "value": null,
+          "evidence": "通知要求不属产业结构目录限制淘汰类及财税〔2015〕119号不适用加计扣除的行业。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/mpost_12834874.html",
+          "question": "请提供实际行业及产业结构目录条目，并分别排查限制、淘汰及不适用研发加计扣除行业，记录目录版本和依据。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "2026年度参评及适用目录期间"
+        },
+        {
+          "id": "sme-credit",
+          "label": "上一会计年度及当年事故、环保和信用符合要求",
+          "field": "compliant",
+          "operator": "manual",
+          "value": null,
+          "evidence": "通知要求期间内无重大安全质量事故、严重环境违法、弄虚作假、科研严重失信及经营异常或严重违法失信名单记录。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/mpost_12834874.html",
+          "question": "请分别核查2025年度及2026年内安全、质量、环保、弄虚作假、科研信用和两类企业名单记录，记录查询时间及结果。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "2025年度及2026年当年"
+        },
+        {
+          "id": "sme-score",
+          "label": "科技指标达到60分且科技人员得分非零，或适用直通车",
+          "field": "highTech",
+          "operator": "manual",
+          "value": null,
+          "evidence": "有效国高、近五年国家科技奖励、省部级以上研发机构、近五年主导制定国际国家行业标准之一可免综合分值限制；其他评价条件仍须满足。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/mpost_12834874.html",
+          "question": "请填写科技人员、研发投入、科技成果三项评价分值及证据，或说明具体直通车资格和有效证书/文件；其他准入条件仍需满足。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "2025年度评价数据；直通车近五年包含2026年"
+        },
+        {
+          "id": "sz-techsme-evaluation-2026-entity",
+          "label": "核验居民企业、查账征收和研发核算属性",
+          "field": "compliant",
+          "operator": "manual",
+          "value": null,
+          "evidence": "申报条件（一）1要求境内居民企业、核算健全、查账征收、准确归集研发费用并缴纳企业所得税。地区范围不能证明税务属性。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/mpost_12834874.html",
+          "question": "请分别提供境内居民企业身份、查账征收、会计核算健全、准确归集研发费用和缴纳企业所得税的证明。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "2026年度参评及上一会计年度核算情况"
+        }
+      ],
+      "materials": [
+        {
+          "id": "sme-info",
+          "name": "评价系统企业信息及加盖公章的相关佐证材料",
+          "note": "通知要求上传盖章佐证材料；具体评价指标和说明在附件及系统中核对。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/mpost_12834874.html",
+          "verified": true
+        },
+        {
+          "id": "sme-direct",
+          "name": "直通车资格证明（仅适用企业）",
+          "note": "按企业选择的有效国高证书、科技奖励、研发机构或主导标准路径提供依据。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/mpost_12834874.html",
+          "verified": true
+        },
+        {
+          "id": "sme-complete-list",
+          "name": "评价系统本年度完整材料及指标附件",
+          "note": "本库尚未逐份核验通知附件1、2和系统全部字段，不据此宣称材料齐全。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/mpost_12834874.html",
+          "verified": false
+        }
+      ],
+      "steps": [
+        {
+          "title": "下一批次前准备指标",
+          "description": "本库2026通知窗口已截止；先归集评价年度规模、研发、科技人员和信用证据，再关注新年度通知。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/mpost_12834874.html"
+        },
+        {
+          "title": "在梯度培育平台自主评价",
+          "description": "受理期内登录优质中小企业梯度培育平台科技型中小企业板块填报、上传盖章证明。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/mpost_12834874.html",
+          "entryUrl": "https://zjtx.miit.gov.cn/",
+          "entryLabel": "打开优质中小企业梯度培育平台",
+          "entryPath": "科技型中小企业 → 评价系统"
+        },
+        {
+          "title": "区级审核和适用实地核查",
+          "description": "首次参评、职工≤5人、知识产权为0或年度研发<10万元等触发实地核查。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/mpost_12834874.html"
+        },
+        {
+          "title": "市级公示入库和后续核验",
+          "description": "符合要求经推荐、公示后公告入库；入库后仍可能随机核验，信息变更及时更新。",
+          "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/mpost_12834874.html"
+        }
+      ],
+      "relatedDocuments": [
+        {
+          "id": "src-techsme-attachments-2026",
+          "title": "深圳2026科技型中小企业评价通知附件1-2（公开ZIP）",
+          "url": "https://www.sz.gov.cn/attachment/1/1721/1721303/12834874.zip",
+          "authority": "深圳市工业和信息化局",
+          "publishedAt": "2026-06-10",
+          "snapshotPath": "data/templates/sz-techsme-2026-official-attachments.zip",
+          "retrievedAt": "2026-10-10T09:55:45.502287Z",
+          "verifiedAt": "2026-10-10T10:08:54.545112Z",
+          "sha256": "2451366e3a274ceafadf97e5513b4eebda6d6bbae3899b1cb84cf2602dc41042"
+        },
+        {
+          "id": "src-techsme-service-guide-2022",
+          "title": "科技型中小企业评价服务工作指引（国科火字〔2022〕67号；含附件1信息表）",
+          "url": "https://www.yima.gov.cn/backend/ueditor/jsp/upload/files/ymszf_data/attach/0/d7cdd7705fb24f58a2689f602e3e6305.pdf",
+          "authority": "科技部火炬中心；义马市政府公开转载PDF",
+          "publishedAt": null,
+          "documentDate": "2022-03-04",
+          "snapshotPath": "data/templates/techsme-service-guide-2022-official.pdf",
+          "excerptPath": "data/snapshots/techsme-service-guide-2022-fields.txt",
+          "retrievedAt": "2026-10-10T09:57:11.1007386Z",
+          "verifiedAt": "2026-10-10T10:08:54.545112Z",
+          "sha256": "87de2c01a2e8c350bbda5db6474f5c481ac9f6e361eb4cbd5d43f138126e3261"
+        },
+        {
+          "id": "src-techsme-guide-hunan",
+          "title": "科技型中小企业评价服务工作指引（湖南省科学技术厅公开正文）",
+          "url": "https://kjt.hunan.gov.cn/kjt/xxgk/tzgg/kjbtzgg/202503/t20250303_33599900.html",
+          "authority": "科技部火炬中心；湖南省科学技术厅转载",
+          "publishedAt": "2022-03-04",
+          "documentDate": "2022-03-04",
+          "snapshotPath": "data/snapshots/techsme-service-guide-2022-hunan.html",
+          "retrievedAt": "2026-10-10T09:57:11.1007386Z",
+          "verifiedAt": "2026-10-10T10:08:54.545112Z"
+        }
+      ],
+      "limitations": [
+        "依据本库已核验年度通知关闭窗口，未追踪全部补充通知或实时评价系统。",
+        "本条是评价入库事项，不能显示成确定现金奖励。",
+        "评价综合分值、科技人员指标和直通车资格仍需人工核对。",
+        "已下载2026通知附件和2022指引公开信息表，核验14个字段；完整动态系统及其余字段未全量接入。"
+      ],
+      "audience": "深圳辖区参评、满足居民企业核算要求、规模及行业信用条件，并通过科技指标评价或适用直通车条件的中小企业。",
+      "summaryOrigin": "assistant_curated_from_official_sources",
+      "formGuide": {
+        "title": "科技型中小企业信息表：已核验字段辅导",
+        "sourceUrl": "https://www.yima.gov.cn/backend/ueditor/jsp/upload/files/ymszf_data/attach/0/d7cdd7705fb24f58a2689f602e3e6305.pdf",
+        "templateUrl": "https://www.sz.gov.cn/attachment/1/1721/1721303/12834874.zip",
+        "version": "国科火字〔2022〕67号附件1；深圳2026评价通知引用",
+        "kind": "official_form",
+        "completeness": "verified_fields",
+        "retrievedAt": "2026-10-10T09:57:11.1007386Z",
+        "verifiedAt": "2026-10-10T10:08:54.545112Z",
+        "snapshotPath": "data/templates/techsme-service-guide-2022-official.pdf",
+        "fields": [
+          {
+            "id": "company-name",
+            "label": "企业名称",
+            "type": "text",
+            "help": "与营业执照及申报系统一致。",
+            "evidence": "2022指引附件1，PDF第21页封面和第25页企业主要数据表。",
+            "sourceUrl": "https://www.yima.gov.cn/backend/ueditor/jsp/upload/files/ymszf_data/attach/0/d7cdd7705fb24f58a2689f602e3e6305.pdf",
+            "placeholder": "待填：企业名称",
+            "required": true,
+            "profileField": "companyName",
+            "locator": "PDF第21、25页",
+            "sourceFieldLabel": "企业名称"
+          },
+          {
+            "id": "credit-code",
+            "label": "统一社会信用代码",
+            "type": "text",
+            "help": "依据营业执照填写，不填系统填报号。",
+            "evidence": "附件1封面和企业研发项目汇总表明确列此字段。",
+            "sourceUrl": "https://www.yima.gov.cn/backend/ueditor/jsp/upload/files/ymszf_data/attach/0/d7cdd7705fb24f58a2689f602e3e6305.pdf",
+            "placeholder": "待填：统一社会信用代码",
+            "required": true,
+            "locator": "PDF第21、26页",
+            "sourceFieldLabel": "统一社会信用代码"
+          },
+          {
+            "id": "registered-region",
+            "label": "企业注册地",
+            "type": "text",
+            "help": "记录省、市（区）；以营业执照为依据。",
+            "evidence": "附件1封面列企业注册地：省、市（区）。",
+            "sourceUrl": "https://www.yima.gov.cn/backend/ueditor/jsp/upload/files/ymszf_data/attach/0/d7cdd7705fb24f58a2689f602e3e6305.pdf",
+            "placeholder": "待填：企业注册地",
+            "required": true,
+            "profileField": "region",
+            "locator": "PDF第21页",
+            "sourceFieldLabel": "企业注册地"
+          },
+          {
+            "id": "industry",
+            "label": "企业所属行业",
+            "type": "text",
+            "help": "按实际经营和行业分类记录，不以宣传标签代替。",
+            "evidence": "附件1封面企业所属行业；企业主要数据表所属行业。",
+            "sourceUrl": "https://www.yima.gov.cn/backend/ueditor/jsp/upload/files/ymszf_data/attach/0/d7cdd7705fb24f58a2689f602e3e6305.pdf",
+            "placeholder": "待填：企业所属行业",
+            "required": true,
+            "profileField": "industry",
+            "locator": "PDF第21、25页",
+            "sourceFieldLabel": "企业所属行业"
+          },
+          {
+            "id": "sales-revenue",
+            "label": "上一会计年度销售收入（万元）",
+            "type": "number",
+            "help": "2026评价对应2025年度；主营业务与其他业务收入之和，对照所得税年度申报表，不沿用未注明年度的档案。",
+            "evidence": "附件1企业主要数据表及填报说明13。",
+            "sourceUrl": "https://www.yima.gov.cn/backend/ueditor/jsp/upload/files/ymszf_data/attach/0/d7cdd7705fb24f58a2689f602e3e6305.pdf",
+            "placeholder": "待填：上一会计年度销售收入（万元）",
+            "required": true,
+            "unit": "万元",
+            "locator": "PDF第22、25页",
+            "sourceFieldLabel": "销售收入（万元）"
+          },
+          {
+            "id": "assets-total",
+            "label": "上一会计年度资产总额（万元）",
+            "type": "number",
+            "help": "保留2025年末期末数及季度平均值计算；指引与填报说明同时出现两种口径，须向评价机构确认系统取值。",
+            "evidence": "企业主要数据表列资产总额；正文三（四）6、14和填报说明3、7涉及口径。",
+            "sourceUrl": "https://www.yima.gov.cn/backend/ueditor/jsp/upload/files/ymszf_data/attach/0/d7cdd7705fb24f58a2689f602e3e6305.pdf",
+            "placeholder": "待填：上一会计年度资产总额（万元）",
+            "required": true,
+            "unit": "万元",
+            "locator": "PDF第14、16、22、25页",
+            "sourceFieldLabel": "资产总额（万元）"
+          },
+          {
+            "id": "rd-expenses",
+            "label": "上一会计年度研发费用总额（万元）",
+            "type": "number",
+            "help": "依据辅助账归集；委托研发计入额与实际发生额区分，境外限额须再核验。",
+            "evidence": "附件1企业主要数据表列研发费用总额。",
+            "sourceUrl": "https://www.yima.gov.cn/backend/ueditor/jsp/upload/files/ymszf_data/attach/0/d7cdd7705fb24f58a2689f602e3e6305.pdf",
+            "placeholder": "待填：上一会计年度研发费用总额（万元）",
+            "required": true,
+            "unit": "万元",
+            "locator": "PDF第26页",
+            "sourceFieldLabel": "研发费用总额（万元）"
+          },
+          {
+            "id": "cost-expenses",
+            "label": "上一会计年度成本费用总额（万元）",
+            "type": "number",
+            "help": "按所得税申报口径整理组成项；正文与附件公式表述有差异，应记录各分项并核对当期口径。",
+            "evidence": "附件1企业主要数据表列成本费用总额，填报说明15说明组成。",
+            "sourceUrl": "https://www.yima.gov.cn/backend/ueditor/jsp/upload/files/ymszf_data/attach/0/d7cdd7705fb24f58a2689f602e3e6305.pdf",
+            "placeholder": "待填：上一会计年度成本费用总额（万元）",
+            "required": true,
+            "unit": "万元",
+            "locator": "PDF第22、26页",
+            "sourceFieldLabel": "成本费用总额（万元）"
+          },
+          {
+            "id": "staff-total",
+            "label": "企业职工总数（人）",
+            "type": "number",
+            "help": "2025年度全年季度平均值；包含在职、兼职和临时聘用，兼职临聘须全年累计工作六个月以上。",
+            "evidence": "附件1人力资源情况表总数；填报说明6、7。",
+            "sourceUrl": "https://www.yima.gov.cn/backend/ueditor/jsp/upload/files/ymszf_data/attach/0/d7cdd7705fb24f58a2689f602e3e6305.pdf",
+            "placeholder": "待填：企业职工总数（人）",
+            "required": true,
+            "unit": "人",
+            "locator": "PDF第22、27页",
+            "sourceFieldLabel": "总数（人）"
+          },
+          {
+            "id": "tech-staff",
+            "label": "科技人员数（人）",
+            "type": "number",
+            "help": "2025年度全年季度平均值；直接研发、相关技术创新、活动管理与直接服务人员，按说明核对。",
+            "evidence": "附件1人力资源情况表科技人员总数及填报说明5、7。",
+            "sourceUrl": "https://www.yima.gov.cn/backend/ueditor/jsp/upload/files/ymszf_data/attach/0/d7cdd7705fb24f58a2689f602e3e6305.pdf",
+            "placeholder": "待填：科技人员数（人）",
+            "required": true,
+            "unit": "人",
+            "locator": "PDF第22、27页",
+            "sourceFieldLabel": "科技人员"
+          },
+          {
+            "id": "rd-project-name",
+            "label": "研发项目名称",
+            "type": "text",
+            "help": "先整理一个项目；多个项目在官方汇总表逐行填写。",
+            "evidence": "附件1企业研发项目汇总表列项目名称。",
+            "sourceUrl": "https://www.yima.gov.cn/backend/ueditor/jsp/upload/files/ymszf_data/attach/0/d7cdd7705fb24f58a2689f602e3e6305.pdf",
+            "placeholder": "待填：研发项目名称",
+            "required": true,
+            "locator": "PDF第26页",
+            "sourceFieldLabel": "项目名称"
+          },
+          {
+            "id": "rd-project-form",
+            "label": "研发形式",
+            "type": "select",
+            "help": "按实际研发组织形式选择，不根据企业行业推断。",
+            "evidence": "附件1企业研发项目汇总表及填报说明9。",
+            "sourceUrl": "https://www.yima.gov.cn/backend/ueditor/jsp/upload/files/ymszf_data/attach/0/d7cdd7705fb24f58a2689f602e3e6305.pdf",
+            "placeholder": "待填：研发形式",
+            "required": true,
+            "locator": "PDF第22、26页",
+            "options": [
+              {
+                "value": "自主研发",
+                "label": "自主研发"
+              },
+              {
+                "value": "合作研发",
+                "label": "合作研发"
+              },
+              {
+                "value": "集中研发",
+                "label": "集中研发"
+              },
+              {
+                "value": "委托境内研发",
+                "label": "委托境内研发"
+              },
+              {
+                "value": "委托境外研发",
+                "label": "委托境外研发"
+              }
+            ],
+            "sourceFieldLabel": "研发形式"
+          },
+          {
+            "id": "ip-name",
+            "label": "知识产权名称",
+            "type": "text",
+            "help": "逐项核对权属、有效期及与主要产品关联；不把商标计入。无内容按官方当期要求处理，不自动填0。",
+            "evidence": "附件1企业知识产权情况表列名称。",
+            "sourceUrl": "https://www.yima.gov.cn/backend/ueditor/jsp/upload/files/ymszf_data/attach/0/d7cdd7705fb24f58a2689f602e3e6305.pdf",
+            "placeholder": "待填：知识产权名称",
+            "required": true,
+            "locator": "PDF第26页",
+            "sourceFieldLabel": "知识产权名称"
+          },
+          {
+            "id": "ip-authorization",
+            "label": "知识产权授权号",
+            "type": "text",
+            "help": "从授权证书或授权通知及变更证明抄录；数量不能代替授权号。",
+            "evidence": "附件1企业知识产权情况表列授权号。",
+            "sourceUrl": "https://www.yima.gov.cn/backend/ueditor/jsp/upload/files/ymszf_data/attach/0/d7cdd7705fb24f58a2689f602e3e6305.pdf",
+            "placeholder": "待填：知识产权授权号",
+            "required": true,
+            "locator": "PDF第26页",
+            "sourceFieldLabel": "授权号"
+          }
+        ],
+        "limitations": [
+          "已逐字段核验14个公开信息表字段；未覆盖全部表页、明细行和动态系统，不能作为完整官方申报书提交。",
+          "深圳2026通知引用本指引；2026申报入口已切换至优质中小企业梯度培育平台，2022指引旧系统路径不用作当前入口。",
+          "资产总额的期末数与季度平均值、成本费用组成在原文不同部分的口径表述有交叉，应保留分项并向当期评价机构确认；系统不自动判定这些项目。",
+          "本地“待填”是尚未录入，不表示企业数值为0；不生成虚构企业数据、评价得分或入库编号。"
+        ]
+      }
+    },
+    {
+      "verifiedAt": "2026-10-10T09:36:33.1127683+00:00",
+      "sourceType": "official",
+      "id": "sz-tech-contract-2026",
+      "title": "深圳技术合同认定登记",
+      "category": "办理服务",
+      "region": "深圳市",
+      "authority": "深圳市科技创新局",
+      "publishedAt": "2026-06-29",
+      "version": "深圳市技术合同认定登记办理指南（2026年版）",
+      "policyStatus": "active",
+      "policyStatusLabel": "2026版指南有效",
+      "applicationStatus": "open",
+      "applicationStatusLabel": "指南明确常年受理",
+      "window": {
+        "open": null,
+        "close": null,
+        "note": "官方指南明确常年受理；没有固定集中申报窗口，实际系统是否可用未做登录核验。"
+      },
+      "validity": {
+        "from": "2026-07-01",
+        "to": null
+      },
+      "summary": "对已签订的技术开发、转让、许可、咨询或服务合同进行认定登记。登记证明是衔接相应税费优惠的重要依据，税务优惠资格仍须单独核实。",
+      "benefit": "符合条件后取得技术合同登记证明。指南承诺一般6个工作日办结、法定30个自然日；大额及有争议合同不受登记时限限制。办理不收费。",
+      "source": {
+        "id": "src-contract",
+        "title": "深圳市科技创新局关于发布《深圳市技术合同认定登记办理指南（2026年版）》的通知",
+        "url": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+        "authority": "深圳市科技创新局",
+        "publishedAt": "2026-06-29",
+        "documentDate": "2026-06-29",
+        "snapshotPath": "data/snapshots/sz-tech-contract-2026.html",
+        "excerptPath": "data/snapshots/sz-tech-contract-2026.txt",
+        "retrievedAt": "2026-10-10T09:18:03.4173755Z",
+        "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+      },
+      "tags": [
+        "深圳",
+        "技术合同",
+        "成果转化",
+        "加计扣除",
+        "办理"
+      ],
+      "conditions": [
+        {
+          "id": "contract-region",
+          "label": "地区范围初筛：深圳市（含深汕）",
+          "field": "region",
+          "operator": "in",
+          "value": [
+            "深圳市",
+            "福田区",
+            "罗湖区",
+            "盐田区",
+            "南山区",
+            "宝安区",
+            "龙岗区",
+            "龙华区",
+            "光明区",
+            "坪山区",
+            "大鹏新区",
+            "深汕特别合作区"
+          ],
+          "evidence": "办理条件（一）要求深圳市（含深汕特别合作区）依法注册的法人、其他组织或自然人。企业法人资格需另验。",
+          "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+          "question": "申请主体注册地区是否在深圳市（含深汕）？请按注册证明确认；主体身份仍需另验。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "拟办理登记时"
+        },
+        {
+          "id": "contract-valid",
+          "label": "技术合同已生效且处于有效期内",
+          "field": "ageYears",
+          "operator": "manual",
+          "value": null,
+          "evidence": "办理条件（二）要求合同已生效并有效；企业年限字段不能代替合同起止时间。有效期不明确视为过期；仍执行的过期合同需合规延期补充协议。",
+          "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+          "question": "合同是否已经生效且在明确的起止日期内？请记录生效日、终止日、拟登记日；过期但仍履行的需记录延期补充协议。",
+          "assessmentAllowed": true,
+          "inputType": "boolean",
+          "periodRequirement": "拟办理登记的具体日期及合同有效期间"
+        },
+        {
+          "id": "contract-type",
+          "label": "核对属于五类技术合同及真实技术标的",
+          "field": "industry",
+          "operator": "manual",
+          "value": null,
+          "evidence": "指南列五类技术开发、转让、许可、咨询、服务；合同名称不足以认定技术性质，须查看标的和条款。",
+          "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+          "question": "合同对应开发、转让、许可、咨询或服务哪一类型？请说明真实技术标的及条款，合同名称不能直接决定认定。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "合同签订及拟登记时"
+        },
+        {
+          "id": "contract-applicant",
+          "label": "适用卖方登记或有依据的买方登记",
+          "field": "compliant",
+          "operator": "manual",
+          "value": null,
+          "evidence": "原则卖方登记；卖方怠于登记且各方协商一致可买方登记，技术进口由境内买方登记，国内买方需双方授权文件。",
+          "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+          "question": "申请人是卖方还是买方？请按合同角色核对；买方登记需协商授权，技术进口需核对境内买方及登记证明。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "拟办理登记时"
+        },
+        {
+          "id": "sz-tech-contract-2026-entity",
+          "label": "核验申请主体在深圳依法注册及适用身份",
+          "field": "compliant",
+          "operator": "manual",
+          "value": null,
+          "evidence": "办理条件（一）要求深圳依法注册法人、其他组织或自然人。地区范围只能初筛，还需核验主体注册和申请身份。",
+          "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+          "question": "申请人属于深圳依法注册法人、其他组织或自然人中的哪一身份？请记录主体注册证明和申请人身份。",
+          "assessmentAllowed": false,
+          "inputType": "evidence",
+          "periodRequirement": "拟办理登记时"
+        }
+      ],
+      "materials": [
+        {
+          "id": "contract-original",
+          "name": "合同书原件及相关附件",
+          "note": "合同书双方骑缝章；在系统上传原件彩色PDF，复印件加盖申请单位公章。",
+          "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+          "verified": true
+        },
+        {
+          "id": "contract-truth",
+          "name": "申报材料真实性承诺书",
+          "note": "使用指南及系统指定表格，不使用产品模拟草稿代替官方表格。",
+          "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+          "verified": true
+        },
+        {
+          "id": "contract-authorized-sign",
+          "name": "书面签约授权证明（适用时）",
+          "note": "非法定代表人或组织负责人签名的合同需要授权证明并盖章。",
+          "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+          "verified": true
+        },
+        {
+          "id": "contract-ip",
+          "name": "知识产权权属证明、著录变更等（适用时）",
+          "note": "知识产权转让或实施许可合同按指南提供对应证明。",
+          "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+          "verified": true
+        },
+        {
+          "id": "contract-settlement",
+          "name": "结算和非技术收入明细（适用时）",
+          "note": "提成/分期支付、涉外外币或非技术设备材料收入等需要相应财务依据；并非所有合同通用必交。",
+          "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+          "verified": true
+        },
+        {
+          "id": "contract-special",
+          "name": "涉外、进口、技术入股、买方登记等补充材料（适用时）",
+          "note": "包括中文副本一致性承诺、进口登记证、无形资产评估、授权登记文件等；按合同情形逐项回读第六条。",
+          "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+          "verified": true
+        }
+      ],
+      "steps": [
+        {
+          "title": "核对合同有效性与登记主体",
+          "description": "确认五类技术合同、起止日期、技术标的及卖方/买方登记依据。",
+          "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html"
+        },
+        {
+          "title": "在线申报",
+          "description": "深圳市科技业务管理系统进入其他业务—技术合同认定登记，按注册或经营地选对应行政区划。",
+          "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+          "entryUrl": "https://sticapply.sz.gov.cn/",
+          "entryLabel": "打开深圳市科技业务管理系统",
+          "entryPath": "业务申请 → 市科技创新局 → 其他业务 → 技术合同认定登记"
+        },
+        {
+          "title": "区预审、市审核并按要求补正",
+          "description": "各区预审、市科创局审核；专家要求补充材料时按5个工作日要求提交。",
+          "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html"
+        },
+        {
+          "title": "下载证明并衔接税务事项",
+          "description": "符合条件在线出具证明，自行下载。税收优惠另向税务主管部门按对应条件办理并留存资料。",
+          "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html"
+        }
+      ],
+      "relatedDocuments": [],
+      "limitations": [
+        "常年受理来自官方指南，产品未登录官方系统核实实时系统可用性。",
+        "登记本身不是补贴，也不自动保证免税或加计扣除资格。",
+        "材料需按合同类型和特殊情形选择，不能把条件性附件一律当作必交。",
+        "大额及争议合同的办理期限存在例外。"
+      ],
+      "audience": "符合指南要求的深圳依法注册法人、其他组织或自然人，持生效且在有效期内技术合同按适用卖方或买方制度申请登记。",
+      "summaryOrigin": "assistant_curated_from_official_sources",
+      "formGuide": {
+        "title": "技术合同登记：合同条款资料整理",
+        "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+        "templateUrl": null,
+        "version": "深圳市技术合同认定登记办理指南（2026年版）",
+        "kind": "preparation_fields",
+        "completeness": "partial",
+        "retrievedAt": "2026-10-10T09:18:03.4173755Z",
+        "verifiedAt": "2026-10-10T10:08:54.545112Z",
+        "snapshotPath": "data/snapshots/sz-tech-contract-2026.html",
+        "fields": [
+          {
+            "id": "project-name",
+            "label": "项目名称",
+            "type": "text",
+            "help": "与已签订合同一致，不在此生成新合同。",
+            "evidence": "指南第十二（二）明确合同一般包括项目名称。",
+            "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+            "placeholder": "待填：项目名称",
+            "required": true,
+            "locator": "十二、注意事项（二）"
+          },
+          {
+            "id": "party-a",
+            "label": "一方当事人名称",
+            "type": "text",
+            "help": "记录第一方完整主体名，与签章一致。",
+            "evidence": "指南第十二（二）列双方当事人名称。",
+            "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+            "placeholder": "待填：一方当事人名称",
+            "required": true,
+            "locator": "十二、注意事项（二）"
+          },
+          {
+            "id": "party-b",
+            "label": "另一方当事人名称",
+            "type": "text",
+            "help": "记录另一方完整主体名，与签章一致。",
+            "evidence": "指南第十二（二）列双方当事人名称。",
+            "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+            "placeholder": "待填：另一方当事人名称",
+            "required": true,
+            "locator": "十二、注意事项（二）"
+          },
+          {
+            "id": "subject-content",
+            "label": "技术标的内容",
+            "type": "textarea",
+            "help": "说明真实技术内容和解决的技术问题；不能只写合同名称。",
+            "evidence": "指南第十二（二）列标的内容，并要求主体清楚、标的明确。",
+            "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+            "placeholder": "待填：技术标的内容",
+            "required": true,
+            "locator": "十二、注意事项（二）"
+          },
+          {
+            "id": "quantity",
+            "label": "数量",
+            "type": "text",
+            "help": "按合同约定的数量和单位抄录；是否适用按实际合同注明。",
+            "evidence": "指南第十二（二）列数量条款。",
+            "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+            "placeholder": "待填：数量",
+            "required": true,
+            "locator": "十二、注意事项（二）"
+          },
+          {
+            "id": "quality",
+            "label": "质量",
+            "type": "textarea",
+            "help": "记录合同约定技术指标、验收标准等质量内容。",
+            "evidence": "指南第十二（二）列质量条款。",
+            "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+            "placeholder": "待填：质量",
+            "required": true,
+            "locator": "十二、注意事项（二）"
+          },
+          {
+            "id": "price-remuneration",
+            "label": "价款或者报酬",
+            "type": "text",
+            "help": "记录币种、金额和支付方式；外币、分期、非技术性价款按第六条另附材料。",
+            "evidence": "指南第十二（二）列价款或者报酬；第六（四）（八）（十一）说明特殊金额材料。",
+            "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+            "placeholder": "待填：价款或者报酬",
+            "required": true,
+            "locator": "十二（二）；六（四）（八）（十一）"
+          },
+          {
+            "id": "performance-period",
+            "label": "履行期限",
+            "type": "text",
+            "help": "抄录明确起止日期；过期仍执行须提供合规延期补充协议。",
+            "evidence": "指南第十二（二）（四）列履行期限并要求有效期明确。",
+            "sourceUrl": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+            "placeholder": "待填：履行期限",
+            "required": true,
+            "locator": "十二、注意事项（二）（四）"
+          }
+        ],
+        "limitations": [
+          "字段来自2026指南列明的合同内容，属于资料整理，不是深圳科技业务管理系统的在线登记表。",
+          "官方系统表格需登录在线填报；尚未取得公开完整系统模板，技术性质及金额认定仍由主管部门审核。",
+          "不在本地签署合同或办理登记；所有字段应依据现有真实合同填写。"
+        ],
+        "templateLandingUrl": "https://ctmht.chinatorch.org.cn/",
+        "templateLandingNote": "官方指南列明：进入全国技术合同认定登记系统“资料下载”页面获取示范合同，需自行确认适用类型。"
+      }
+    }
+  ],
+  "sources": [
+    {
+      "id": "src-rd-tax",
+      "title": "财政部 税务总局关于进一步完善研发费用税前加计扣除政策的公告",
+      "url": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5201978/content.html",
+      "authority": "财政部、国家税务总局",
+      "publishedAt": null,
+      "documentDate": "2023-03-26",
+      "snapshotPath": "data/snapshots/national-rd-tax-2023.html",
+      "excerptPath": "data/snapshots/national-rd-tax-2023.txt",
+      "retrievedAt": "2026-10-10T09:18:03.6952177Z",
+      "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+    },
+    {
+      "id": "src-rd-guide",
+      "title": "一文了解：研发费用加计扣除政策",
+      "url": "https://www.chinatax.gov.cn/chinatax/n810356/n3010387/c5222730/content.html",
+      "authority": "国家税务总局",
+      "publishedAt": "2024-04-12",
+      "snapshotPath": "data/snapshots/national-rd-guide-2024.html",
+      "retrievedAt": "2026-10-10T09:24:22.413071Z",
+      "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+    },
+    {
+      "id": "src-smallprofit",
+      "title": "财政部 税务总局关于进一步支持小微企业和个体工商户发展有关税费政策的公告",
+      "url": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5210453/content.html",
+      "authority": "财政部、国家税务总局",
+      "publishedAt": null,
+      "documentDate": "2023-08-02",
+      "snapshotPath": "data/snapshots/national-smallprofit-2023.html",
+      "excerptPath": "data/snapshots/national-smallprofit-2023.txt",
+      "retrievedAt": "2026-10-10T09:18:03.9446982Z",
+      "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+    },
+    {
+      "id": "src-tax-faq",
+      "title": "税费政策可视答疑第二十四期热点问题",
+      "url": "https://liaoning.chinatax.gov.cn/art/2025/9/30/art_782_156392.html",
+      "authority": "国家税务总局辽宁省税务局",
+      "publishedAt": "2025-09-30",
+      "snapshotPath": "data/snapshots/national-tax-faq-2025.html",
+      "retrievedAt": "2026-10-10T09:24:23.2679874Z",
+      "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+    },
+    {
+      "id": "src-hightech",
+      "title": "深圳市工业和信息化局关于开展2026年高新技术企业认定工作的通知",
+      "url": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12850471.html",
+      "authority": "深圳市工业和信息化局",
+      "publishedAt": "2026-06-18",
+      "documentDate": "2026-06-15",
+      "snapshotPath": "data/snapshots/sz-hightech-2026.html",
+      "excerptPath": "data/snapshots/sz-hightech-2026.txt",
+      "retrievedAt": "2026-10-10T09:18:02.5146629Z",
+      "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+    },
+    {
+      "id": "src-hightech-extension",
+      "title": "市工业和信息化局关于延长2026年第三批高新技术企业认定受理时间的通知",
+      "url": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/post_12970193.html",
+      "authority": "深圳市工业和信息化局",
+      "publishedAt": "2026-09-07",
+      "documentDate": "2026-09-04",
+      "snapshotPath": "data/snapshots/sz-hightech-extension-2026.html",
+      "excerptPath": "data/snapshots/sz-hightech-extension-2026.txt",
+      "retrievedAt": "2026-10-10T09:18:02.7816848Z",
+      "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+    },
+    {
+      "id": "src-techsme",
+      "title": "市工业和信息化局关于组织开展2026年科技型中小企业评价工作的通知",
+      "url": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tzgg/content/mpost_12834874.html",
+      "authority": "深圳市工业和信息化局",
+      "publishedAt": "2026-06-10",
+      "snapshotPath": "data/snapshots/sz-techsme-2026.html",
+      "excerptPath": "data/snapshots/sz-techsme-2026.txt",
+      "retrievedAt": "2026-10-10T09:18:02.9493009Z",
+      "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+    },
+    {
+      "id": "src-lg-innovation",
+      "title": "深圳市龙岗区科技创新局关于印发《深圳市龙岗区科技创新专项资金实施细则》的通知",
+      "url": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12599313.html",
+      "authority": "深圳市龙岗区科技创新局",
+      "publishedAt": "2026-01-13",
+      "documentDate": "2026-01-13",
+      "snapshotPath": "data/snapshots/lg-rd-2026.html",
+      "excerptPath": "data/snapshots/lg-rd-2026.txt",
+      "retrievedAt": "2026-10-10T09:18:02.1579658Z",
+      "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+    },
+    {
+      "id": "src-lg-management",
+      "title": "深圳市龙岗区科技创新局 深圳市龙岗区财政局关于印发《深圳市龙岗区科技创新专项资金管理办法》的通知",
+      "url": "https://www.lg.gov.cn/xxgk/zwgk/flfg/bmgfxwj/content/post_12595209.html",
+      "authority": "深圳市龙岗区科技创新局、深圳市龙岗区财政局",
+      "publishedAt": "2026-01-09",
+      "snapshotPath": "data/snapshots/lg-management-2026.html",
+      "retrievedAt": "2026-10-10T09:24:23.4103398Z",
+      "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+    },
+    {
+      "id": "src-contract",
+      "title": "深圳市科技创新局关于发布《深圳市技术合同认定登记办理指南（2026年版）》的通知",
+      "url": "https://stic.sz.gov.cn/xxgk/tzgg/content/post_12866821.html",
+      "authority": "深圳市科技创新局",
+      "publishedAt": "2026-06-29",
+      "documentDate": "2026-06-29",
+      "snapshotPath": "data/snapshots/sz-tech-contract-2026.html",
+      "excerptPath": "data/snapshots/sz-tech-contract-2026.txt",
+      "retrievedAt": "2026-10-10T09:18:03.4173755Z",
+      "verifiedAt": "2026-10-10T09:36:33.1127683+00:00"
+    },
+    {
+      "id": "src-techsme-attachments-2026",
+      "title": "深圳2026科技型中小企业评价通知附件1-2（公开ZIP）",
+      "url": "https://www.sz.gov.cn/attachment/1/1721/1721303/12834874.zip",
+      "authority": "深圳市工业和信息化局",
+      "publishedAt": "2026-06-10",
+      "snapshotPath": "data/templates/sz-techsme-2026-official-attachments.zip",
+      "retrievedAt": "2026-10-10T09:55:45.502287Z",
+      "verifiedAt": "2026-10-10T10:08:54.545112Z",
+      "sha256": "2451366e3a274ceafadf97e5513b4eebda6d6bbae3899b1cb84cf2602dc41042"
+    },
+    {
+      "id": "src-techsme-service-guide-2022",
+      "title": "科技型中小企业评价服务工作指引（国科火字〔2022〕67号；含附件1信息表）",
+      "url": "https://www.yima.gov.cn/backend/ueditor/jsp/upload/files/ymszf_data/attach/0/d7cdd7705fb24f58a2689f602e3e6305.pdf",
+      "authority": "科技部火炬中心；义马市政府公开转载PDF",
+      "publishedAt": null,
+      "documentDate": "2022-03-04",
+      "snapshotPath": "data/templates/techsme-service-guide-2022-official.pdf",
+      "excerptPath": "data/snapshots/techsme-service-guide-2022-fields.txt",
+      "retrievedAt": "2026-10-10T09:57:11.1007386Z",
+      "verifiedAt": "2026-10-10T10:08:54.545112Z",
+      "sha256": "87de2c01a2e8c350bbda5db6474f5c481ac9f6e361eb4cbd5d43f138126e3261"
+    },
+    {
+      "id": "src-techsme-guide-hunan",
+      "title": "科技型中小企业评价服务工作指引（湖南省科学技术厅公开正文）",
+      "url": "https://kjt.hunan.gov.cn/kjt/xxgk/tzgg/kjbtzgg/202503/t20250303_33599900.html",
+      "authority": "科技部火炬中心；湖南省科学技术厅转载",
+      "publishedAt": "2022-03-04",
+      "documentDate": "2022-03-04",
+      "snapshotPath": "data/snapshots/techsme-service-guide-2022-hunan.html",
+      "retrievedAt": "2026-10-10T09:57:11.1007386Z",
+      "verifiedAt": "2026-10-10T10:08:54.545112Z"
+    }
+  ],
+  "evidenceStyle": "条件evidence为依据官方原文的摘记，不是逐字引文；由助手归纳，完整原文和选段在snapshots中。",
+  "guideVerifiedAt": "2026-10-10T10:08:54.545112Z"
+}

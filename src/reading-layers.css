@@ -1,0 +1,105 @@
+/* Page structure stays still. Supporting information belongs to its own plane. */
+html {scrollbar-gutter:stable}
+.reading-trigger {gap:12px;min-height:44px;flex-shrink:0;color:#355d87;font-size:12px;font-weight:550}
+.reading-trigger .disclosure-chevron {width:16px;height:16px;flex:none;margin:0;color:#50759a}
+.reading-trigger[aria-expanded=true] .disclosure-chevron {transform:rotate(180deg)}
+.reading-trigger:not(.subtle):not(.menu-trigger),.reading-trigger[aria-expanded=true]:not(.subtle):not(.menu-trigger) {border-color:var(--glass-line);background:linear-gradient(180deg,#fff,#f0f6fd);color:#355d87;box-shadow:var(--control-shadow)}
+.understanding {align-items:center}
+.retrieval-trigger {align-self:flex-start;margin-top:0;min-width:112px}
+.context-trigger {min-width:154px}
+.candidate-detail-trigger {width:100%;justify-content:space-between;margin:3px 0 14px;padding:12px 16px;text-align:left;white-space:normal}
+.candidate-detail-trigger:not(.subtle):not(.menu-trigger) {border-radius:16px;background:linear-gradient(180deg,#f8fbff,#edf5fd);color:#1766aa;border-color:#d6e5f5;box-shadow:inset 0 1px 0 #fff,0 3px 9px rgba(35,77,123,.035)}
+.candidate-detail-trigger[aria-expanded=true]:not(.subtle):not(.menu-trigger) {background:linear-gradient(180deg,#f8fbff,#edf5fd);color:#1766aa;border-color:#d6e5f5;box-shadow:inset 0 1px 0 #fff,0 3px 9px rgba(35,77,123,.035)}
+.policy-card {position:relative;overflow:visible}
+.policy-card.selected .candidate-region {color:#2e6da6}
+.policy-card.selected .check-select {color:#125c9e}
+.candidate-source {margin-top:auto}
+.policy-context {border-left:3px solid #b6d4ee;padding-left:21px}
+.view-workspace .journey {margin-bottom:18px}
+.view-workspace .journey+.page-title .eyebrow {display:none}
+.view-workspace .journey+.page-title {margin-bottom:22px}
+.view-workspace .preparation-flow {margin-top:18px}
+
+.modal-backdrop.reading-backdrop {z-index:100;width:100vw;background:rgba(27,48,75,.22);padding:24px;backdrop-filter:blur(12px) saturate(.9);-webkit-backdrop-filter:blur(12px) saturate(.9)}
+.reading-backdrop .dialog {width:min(820px,100%);padding:0;max-height:calc(100dvh - 48px);border-radius:30px;overflow-y:auto;overflow-x:hidden;background:#fafdff;border:1px solid rgba(255,255,255,.92);box-shadow:inset 0 1px 0 #fff,0 30px 100px rgba(18,41,72,.26),0 6px 24px rgba(18,41,72,.12);outline:none;scrollbar-width:thin}
+.reading-backdrop .dialog-heading {position:sticky;top:0;z-index:2;align-items:flex-start;margin:0;padding:25px 28px 21px;gap:20px;background:rgba(249,252,255,.97);border-bottom:1px solid #e5edf6;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+.reading-backdrop .dialog-heading h2 {font-size:24px;line-height:1.45;color:#17334f;font-weight:650;letter-spacing:-.025em;min-width:0;padding-top:3px}
+.reading-backdrop .dialog-heading .icon-button {flex:none;min-width:44px;width:44px;height:44px;margin-top:0}
+.reading-overview {padding:22px 25px;border-radius:21px;margin:24px 28px 0;color:#f0f7ff;background:radial-gradient(ellipse at 95% 0,rgba(78,145,208,.24),transparent 68%),linear-gradient(130deg,#18334e,#143858);border:1px solid #285078;box-shadow:inset 0 1px 0 rgba(214,235,255,.16),0 7px 20px rgba(27,62,98,.1)}
+.reading-overview .eyebrow {color:#b3cfe9;font-size:11px;margin-bottom:10px}
+.reading-overview p,.reading-backdrop .reading-overview p {font-size:15px;line-height:1.85;color:#edf6ff;margin:0}
+.reading-time {display:flex;align-items:center;gap:7px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(195,220,243,.19);font-size:12px;color:#c4d9ec;line-height:1.8}
+.reading-time .icon {width:15px;height:15px}
+.reading-time.ended,.reading-time.uncertain {color:#efdbb0}
+.reading-sections {padding:3px 28px 20px}
+.reading-sections>section {padding:21px 0 2px}
+.reading-sections>section+section {border-top:1px solid #e5edf6;margin-top:19px}
+.reading-sections h3 {font-size:14px;line-height:1.6;color:#294a69;font-weight:600;margin:0 0 8px}
+.reading-sections p {font-size:13px;line-height:1.9;color:#4b6177;margin:0}
+.reading-sections p+p {margin-top:8px}
+.reading-sections p.meta {font-size:12px;color:#6a7e92;line-height:1.85}
+.reading-source .button-row {margin:12px 0 6px;gap:8px}
+.reading-source .btn {font-size:12px}
+.reading-actions {position:sticky;bottom:0;z-index:2;display:flex;justify-content:flex-end;align-items:center;gap:10px;flex-wrap:wrap;margin:0;padding:18px 28px 22px;border-top:1px solid rgba(189,209,230,.6);background:rgba(246,251,255,.94);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);box-shadow:0 -6px 22px rgba(36,72,110,.035)}
+.reading-actions .btn {font-size:13px}
+.scope-overview {padding:24px 25px}
+.scope-stat {display:flex;align-items:center;flex-wrap:wrap;gap:12px 26px;margin:0 0 12px}
+.scope-stat>strong {font-size:46px;font-weight:650;line-height:1.1;letter-spacing:-.04em;display:flex;align-items:baseline;gap:10px;color:#fff}
+.scope-stat small {font-size:13px;letter-spacing:0;font-weight:500;color:#c0d8ef}
+.scope-stat>span {font-size:12px;color:#c4d9ec}
+.scope-stat b {font-size:18px;font-weight:600;color:#fff;margin:0 3px}
+.reading-backdrop .scope-overview p {font-size:12px;color:#c0d6eb}
+.scope-facts {margin:13px 0 0;padding:0}
+.scope-facts>div {display:grid;grid-template-columns:80px minmax(0,1fr);align-items:baseline;gap:14px;padding:9px 0;font-size:12px}
+.scope-facts dt {color:#73869a}
+.scope-facts dd {margin:0;color:#355875;overflow-wrap:anywhere}
+.scope-sections strong {font-weight:600;color:#294a69}
+
+@media(hover:hover) and (pointer:fine) {
+ .reading-trigger:not(.subtle):not(.menu-trigger):hover,.reading-trigger[aria-expanded=true]:not(.subtle):not(.menu-trigger):hover {background:linear-gradient(180deg,#fff,#f0f6fd);border-color:var(--glass-line);color:#355d87}
+ .candidate-detail-trigger:not(.subtle):not(.menu-trigger):hover {background:linear-gradient(180deg,#f8fbff,#edf5fd);color:#1766aa;border-color:#b8d4ee}
+}
+@media(max-width:760px) {
+ .retrieval-trigger {margin-left:46px;align-self:flex-start;padding:10px 14px;min-width:112px}
+ .context-trigger {font-size:12px;min-width:154px;margin-top:2px}
+ .policy-context,.view-workspace .policy-context {padding-left:17px;border-left:3px solid #b6d4ee}
+ .view-workspace .journey {margin-bottom:16px}
+ .view-workspace .journey+.page-title {margin-bottom:18px}
+ .reading-backdrop .dialog {max-height:calc(100dvh - 32px);border-radius:24px}
+ .modal-backdrop.reading-backdrop {padding:16px}
+ .reading-backdrop .dialog-heading {padding:19px 19px 17px;gap:12px}
+ .reading-backdrop .dialog-heading h2 {font-size:20px}
+ .reading-overview {margin:19px 19px 0;padding:18px 19px;border-radius:18px}
+ .reading-overview p,.reading-backdrop .reading-overview p {font-size:13px}
+ .reading-sections {padding:0 19px 17px}
+ .reading-sections>section {padding-top:19px}
+ .reading-sections p {font-size:12px}
+ .reading-sections p.meta {font-size:11px}
+ .reading-actions {padding:14px 19px 17px;gap:8px}
+ .reading-actions .btn {font-size:12px;padding:9px 12px}
+ .scope-stat>strong {font-size:38px}
+ .scope-stat {gap:10px}
+ .scope-stat small {font-size:12px}
+ .scope-facts>div {grid-template-columns:65px minmax(0,1fr);gap:10px;font-size:12px}
+}
+@media(max-width:350px) {
+ .modal-backdrop.reading-backdrop {padding:16px}
+ .reading-backdrop .dialog {max-height:calc(100dvh - 32px)}
+ .reading-backdrop .dialog-heading {padding:17px 16px 15px;gap:8px}
+ .reading-backdrop .dialog-heading h2 {font-size:18px}
+ .reading-overview {margin:16px 16px 0;padding:16px}
+ .reading-sections {padding-inline:16px}
+ .reading-actions {padding:13px 16px 16px}
+ .reading-actions .btn {flex:1;white-space:normal}
+ .scope-stat {align-items:flex-start;flex-direction:column}
+}
+@media(prefers-reduced-motion:reduce) {.reading-trigger .disclosure-chevron {transition:none}}
+@media(prefers-reduced-transparency:reduce),(prefers-contrast:more) {
+ .modal-backdrop.reading-backdrop {backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(36,59,85,.65)}
+ .reading-backdrop .dialog,.reading-backdrop .dialog-heading,.reading-actions {background:#fff;backdrop-filter:none;-webkit-backdrop-filter:none}
+ .reading-overview {background:#143858}
+}
+@media(prefers-contrast:more) {
+ .reading-trigger:not(.subtle):not(.menu-trigger),.reading-trigger[aria-expanded=true]:not(.subtle):not(.menu-trigger) {background:#fff;color:#154a7a;border-color:#71869d;box-shadow:none}
+ .reading-backdrop .dialog {border-color:#577595;box-shadow:none}
+}
