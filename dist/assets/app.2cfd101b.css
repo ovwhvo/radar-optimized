@@ -1076,6 +1076,45 @@ html {scrollbar-gutter:stable}
 }
 
 /* ===== polish.css ===== */
+.home-stage {
+  background: #0c2948 !important;
+  color: #eaf2fb;
+  min-height: min(560px, 74vh) !important;
+  padding: 60px 48px 52px !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+.home-content { width: 100% !important; max-width: none !important; padding-left: 0 !important; padding-right: 0 !important; }
+.home-stage .home-heading h1 {
+  color: #fff;
+  font-size: clamp(38px, 5.4vw, 66px) !important;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+.home-stage .home-heading p { color: #b9cee7; font-size: 17px; }
+.home-stage .home-composer { background: #fff !important; border: none !important; border-radius: 18px; }
+.home-stage .home-compose-actions span { color: #5a6b7f; }
+.home-stage .home-start > span { color: #9db9d6; }
+.home-stage .home-starter {
+  background: transparent; border: 1px solid #2c5480; color: #cfe0f2;
+}
+.home-stage .home-starter:hover { border-color: #4da3ff; color: #fff; }
+.home-stage .home-coverage { color: #9db9d6; }
+.home-stage .home-coverage .text-link { color: #8fc2ff; }
+.home-stage .home-guidance { background: #fff; color: #1c2b3a; border-radius: 14px; padding: 20px 22px; }
+.home-stage .home-resume { background: #0f3257; border-color: #2c5480; color: #dcebfb; }
+.home-ambient::before { width: 640px; height: 640px; right: -160px; top: -160px; border-color: #173a5f; }
+.home-ambient::after { width: 400px; height: 400px; right: -40px; top: -20px; border-color: #1d4a7a; }
+.home-ambient { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+@keyframes hero-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.home-stage .home-heading h1 { animation: hero-rise .45s cubic-bezier(.23,1,.32,1) both; }
+.home-stage .home-heading p { animation: hero-rise .45s .08s cubic-bezier(.23,1,.32,1) both; }
+.home-stage .home-composer { animation: hero-rise .45s .16s cubic-bezier(.23,1,.32,1) both; }
+.home-stage .home-start { animation: hero-rise .45s .24s cubic-bezier(.23,1,.32,1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .home-stage .home-heading h1, .home-stage .home-heading p,
+  .home-stage .home-composer, .home-stage .home-start { animation: none; }
+}
 *, *::before, *::after { box-sizing: border-box; }
 .topbar { max-width: 100%; }
 .navigation-material::before, .top-menu, .stage-actions, .dialog, .dialog-frame,

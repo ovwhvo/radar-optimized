@@ -133,7 +133,10 @@ async function fingerprint(value) {
 const REGION_RULES = [
   ['龙岗区', ['龙岗']], ['南山区', ['南山']], ['福田区', ['福田']], ['宝安区', ['宝安']],
   ['龙华区', ['龙华']], ['坪山区', ['坪山']], ['光明区', ['光明']], ['大鹏新区', ['大鹏']],
-  ['深汕特别合作区', ['深汕']], ['深圳市', ['深圳']], ['长沙市', ['长沙']], ['全国', ['全国']]
+  ['深汕特别合作区', ['深汕']], ['深圳市', ['深圳']], ['北京市', ['北京']], ['上海市', ['上海']],
+  ['广州市', ['广州']], ['杭州市', ['杭州']], ['成都市', ['成都']], ['武汉市', ['武汉']],
+  ['西安市', ['西安']], ['南京市', ['南京']], ['苏州市', ['苏州']], ['天津市', ['天津']],
+  ['重庆市', ['重庆']], ['长沙市', ['长沙']], ['全国', ['全国']]
 ];
 const TOPIC_RULES = [
   { id: 'contract', label: '技术合同认定登记', task: 'steps', primary: true, aliases: ['技术合同', '合同登记', '技术登记'] },
@@ -144,6 +147,8 @@ const TOPIC_RULES = [
   { id: 'techsme', label: '科技型中小企业评价入库', task: 'eligibility', primary: true, aliases: ['科技型中小企业'] },
   { id: 'hightech', label: '高新技术企业认定', task: 'eligibility', primary: true, aliases: ['高新技术企业', '高企'] },
   { id: 'software', label: '软件与信息技术方向', task: 'eligibility', primary: true, aliases: ['软件', '信息技术'] },
+  { id: 'vat', label: '小规模纳税人增值税减免', task: 'eligibility', primary: true, aliases: ['增值税', '小规模纳税人'] },
+  { id: 'taxfees', label: '小微企业六税两费减免', task: 'eligibility', primary: true, aliases: ['六税两费', '税费减免'] },
   { id: 'recognition', label: '企业资质认定', task: 'eligibility', primary: false, aliases: ['认定', '认证', '资质'] }
 ];
 // 区→市归属（用于"地区覆盖"加分：龙岗区问题下的深圳市政策算覆盖）
@@ -262,16 +267,16 @@ async function discover(body) {
     if (r.score > 0) scored.push({ policy: p, retrieval: r });
   }
   scored.sort((a, b) => b.retrieval.score - a.retrieval.score || (a.policy.id < b.policy.id ? -1 : 1));
-  // F2 前置拦截：识别到未覆盖地区时立即说明，不返回弱相关结果。
+  // F2 拦截升级：未覆盖地区 → 保留可全国适用的政策，并明示地区覆盖缺口。
   const uncovered = regions.length > 0 && regions.every(r => !COVERED_REGIONS.has(r));
-  if (uncovered) scored.length = 0;
+  if (uncovered) { for (let i = scored.length - 1; i >= 0; i--) if (scored[i].policy.region !== '全国') scored.splice(i, 1); }
   const items = scored.map(s => ({ ...s.policy, retrieval: s.retrieval }));
   const status = items.length ? 'ready' : (topics.length || regions.length ? 'no_candidates' : 'needs_clarification');
   const closed = items.filter(i => i.applicationStatus === 'closed').length;
   const unknown = items.filter(i => (i.applicationStatus || 'unknown') === 'unknown').length;
   const primaryLabels = topics.filter(t => t.primary).map(t => t.label);
   let summary;
-  if (uncovered) summary = `已识别检索地区为${regions.join('、')}，当前样本暂未覆盖该地区。已收录的覆盖范围：深圳市（含各区）与全国政策。`;
+  if (uncovered) summary = `已识别检索地区为${regions.join('、')}，当前样本暂未收录该地区的专属政策；已为你保留可全国适用的政策${items.length ? `（${items.length} 项）` : ''}。地方专属政策以当地政务平台为准。`;
   else if (!topics.length) summary = '还需要说明你想解决的具体业务问题，才能提供有依据的候选事项。';
   else {
     summary = `你想了解${primaryLabels.join('、')}${region ? `，检索地区为${region}` : ''}。已找到 ${items.length} 个有真实来源的候选，请选择要进一步核对的事项。`;
@@ -280,7 +285,7 @@ async function discover(body) {
   }
   const followUpQuestions = [];
   if (unresolvedTerms.length) followUpQuestions.push(`描述中的“${unresolvedTerms.join('、')}”尚未准确对应规则；可补充业务目的或事项名称，数字和年度不会自动成为企业事实。`);
-  if (uncovered) followUpQuestions.push('当前样本只覆盖深圳市（含各区）与全国政策。可以改问这两类范围的事项，或前往当地政务服务平台查询办理。');
+  if (uncovered) followUpQuestions.push('地方专属政策（如各地高企奖励）请以当地科技/政务平台为准；这里展示的是全国适用的政策样本。');
   else if (!regions.length && topics.length) followUpQuestions.push('你希望查哪个城市或区的事项？这个地区只用于发现范围，后续仍需提供真实注册或经营依据。');
   if (!items.length && topics.length && !uncovered) {
     // F3 无结果兜底：给出标签最接近的样本方向，而不是沉默或弱相关结果。
