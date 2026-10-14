@@ -743,28 +743,28 @@
           "id": "small-industry-note",
           "name": "行业非限制和禁止的说明",
           "note": "留存备查；以真实经营情况与适用目录为依据。",
-          "sourceUrl": "https://liaoning.chinatax.gov.cn/art/2025/9/30/art_782_156392.html",
+          "sourceUrl": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5210453/content.html",
           "verified": true
         },
         {
           "id": "small-employee-calc",
           "name": "从业人数计算过程",
           "note": "保存季初季末人数、劳务派遣人数及季度平均计算过程。",
-          "sourceUrl": "https://liaoning.chinatax.gov.cn/art/2025/9/30/art_782_156392.html",
+          "sourceUrl": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5210453/content.html",
           "verified": true
         },
         {
           "id": "small-asset-calc",
           "name": "资产总额计算过程",
           "note": "保存季初季末资产数据和季度平均计算过程。",
-          "sourceUrl": "https://liaoning.chinatax.gov.cn/art/2025/9/30/art_782_156392.html",
+          "sourceUrl": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5210453/content.html",
           "verified": true
         },
         {
           "id": "small-tax-form",
           "name": "当期企业所得税申报表",
           "note": "通过当前适用表单申报；不要套用旧年度A107040优惠表。",
-          "sourceUrl": "https://liaoning.chinatax.gov.cn/art/2025/9/30/art_782_156392.html",
+          "sourceUrl": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5210453/content.html",
           "verified": true
         }
       ],
@@ -777,12 +777,12 @@
         {
           "title": "填写适用申报表并确认优惠",
           "description": "在预缴、年度申报中按当期适用系统填报并确认减免金额。",
-          "sourceUrl": "https://liaoning.chinatax.gov.cn/art/2025/9/30/art_782_156392.html"
+          "sourceUrl": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5210453/content.html"
         },
         {
           "title": "年度汇缴复核与留存",
           "description": "年度汇缴最终核验资格；如不符合需按规定补税。保存行业说明和计算过程备查。",
-          "sourceUrl": "https://liaoning.chinatax.gov.cn/art/2025/9/30/art_782_156392.html"
+          "sourceUrl": "https://fgk.chinatax.gov.cn/zcfgk/c102416/c5210453/content.html"
         }
       ],
       "relatedDocuments": [

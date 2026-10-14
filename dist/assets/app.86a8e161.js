@@ -84,6 +84,462 @@ function newWork(storage=globalThis.localStorage){S.work=emptyWork();S.query='';
 return {ACCOUNT_SCOPE, SESSION_KEY, PREVIOUS_WORK_KEY, emptyWork, S, clone, selected, profileForWork, activePolicy, policyForWork, policyChanges, analysisBasis, invalidateAnalysis, choosePolicy, compactPolicy, rememberSources, recordPayload, recordSaveState, restoreRecord, saveSession, restoreSession, newWork};
 })();
 
+/* ===== ./local-api.js ===== */
+const __m___local_api_js = (() => {
+// ============================================================================
+// local-api.js —— 浏览器内本地 API（完全脱离原站 radar.huixiang17.cn 的运行时依赖）
+// 端点：GET /health /sources；POST /discover /analyze /assistant
+// 契约对拍基准：tests/reference/（原站 2026-10-14 捕获）；等价性测试：tests/
+// 指纹算法与 local-store.js fingerprint() 完全同构，保证记录保存校验互通。
+// ============================================================================
+const LIMITATIONS = [
+  '仅搜索本地已收录政策样本；不代表全部政策或匹配资格。',
+  '语义别名与排除词使用可解释规则，未调用大模型。',
+  '自然语言理解为本地规则模拟，未调用大模型。',
+  '候选中的历史批次和未知窗口不表示当前可办理，须核对主管部门最新通知。',
+  '地区与主题仅为你描述的检索范围，未确认企业注册地、行业、人数、收入、年度或任何资格。'
+];
+const DISCLAIMER = '原型演示：企业事实由用户或示例提供，分析和问答是确定性模拟结果，不是官方审核结论。来源中的历史批次与未核验窗口不代表当前开放。';
+const ASSIST_LIMITATIONS = [DISCLAIMER, '仅依据已选政策样本回答；不核验附件真伪、不抓取最新通知、不推测审批结果。'];
+const UNSUPPORTED_ANSWER = '这份模拟问答无法可靠回答该问题。你可以改问所选政策的解释、申报条件、材料、填写、卡点、流程或办理窗口，并通过官方来源核验。';
+
+// ---------------------------------------------------------------- 数据加载
+let datasetPromise = null;
+async function dataset() {
+  if (!datasetPromise) {
+    datasetPromise = Promise.all([
+      fetch('data/policies.json', { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error('dataset unavailable'); return r.json(); }),
+      fetch('data/sources.json', { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error('sources unavailable'); return r.json(); })
+    ]).then(([pol, src]) => {
+      if (!Array.isArray(pol?.policies)) throw new Error('invalid dataset');
+      return { policies: pol.policies, datasetDate: pol.datasetDate, sources: Array.isArray(src?.items) ? src.items : [] };
+    }).catch(e => { datasetPromise = undefined; throw e; });
+  }
+  return datasetPromise;
+}
+function canonical(value) {
+  return Array.isArray(value) ? value.map(canonical)
+    : value && typeof value === 'object'
+      ? Object.fromEntries(Object.keys(value).sort().filter(k => value[k] !== undefined).map(k => [k, canonical(value[k])]))
+      : value;
+}
+async function fingerprint(value) {
+  const bytes = new TextEncoder().encode(JSON.stringify(canonical(value)));
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// ------------------------------------------------------------------ 词典
+const REGION_RULES = [
+  ['龙岗区', ['龙岗']], ['南山区', ['南山']], ['福田区', ['福田']], ['宝安区', ['宝安']],
+  ['龙华区', ['龙华']], ['坪山区', ['坪山']], ['光明区', ['光明']], ['大鹏新区', ['大鹏']],
+  ['深汕特别合作区', ['深汕']], ['深圳市', ['深圳']], ['长沙市', ['长沙']], ['全国', ['全国']]
+];
+const TOPIC_RULES = [
+  { id: 'contract', label: '技术合同认定登记', task: 'steps', primary: true, aliases: ['技术合同', '合同登记', '技术登记'] },
+  { id: 'income-tax', label: '企业所得税优惠', task: 'eligibility', primary: true, aliases: ['企业所得税', '所得税优惠'] },
+  { id: 'small', label: '小型微利企业所得税优惠', task: 'eligibility', primary: true, aliases: ['小微企业', '小型微利'] },
+  { id: 'rdtax', label: '研发费用税前加计扣除', task: 'eligibility', primary: true, aliases: ['加计扣除', '研发费用'] },
+  { id: 'rd', label: '研发投入支持', task: 'eligibility', primary: true, aliases: ['研发投入', '研发扶持'] },
+  { id: 'techsme', label: '科技型中小企业评价入库', task: 'eligibility', primary: true, aliases: ['科技型中小企业'] },
+  { id: 'hightech', label: '高新技术企业认定', task: 'eligibility', primary: true, aliases: ['高新技术企业', '高企'] },
+  { id: 'software', label: '软件与信息技术方向', task: 'eligibility', primary: true, aliases: ['软件', '信息技术'] },
+  { id: 'recognition', label: '企业资质认定', task: 'eligibility', primary: false, aliases: ['认定', '认证', '资质'] }
+];
+// 区→市归属（用于"地区覆盖"加分：龙岗区问题下的深圳市政策算覆盖）
+const DISTRICT_CITY = { '龙岗区': '深圳市', '南山区': '深圳市', '福田区': '深圳市', '宝安区': '深圳市', '龙华区': '深圳市', '坪山区': '深圳市', '光明区': '深圳市', '大鹏新区': '深圳市', '深汕特别合作区': '深圳市' };
+const STOPWORDS = new Set(['我们', '你们', '他们', '大家', '企业', '公司', '想', '了解', '怎么', '如何', '请问', '一下', '一个', '哪些', '什么', '这个', '那个', '的', '了', '是', '和', '与', '及', '或', '在', '做', '有', '到', '要', '能', '可以', '能不能', '可不可以', '申请', '办理', '支持', '政策', '查找', '帮助']);
+
+function detectRegions(question) {
+  const hits = [];
+  for (const [label, aliases] of REGION_RULES) {
+    let idx = -1;
+    for (const a of aliases) { const i = question.indexOf(a); if (i >= 0 && (idx < 0 || i < idx)) idx = i; }
+    if (idx >= 0) hits.push({ label, idx });
+  }
+  hits.sort((a, b) => a.idx - b.idx);
+  return hits.map(h => h.label);
+}
+function detectTopics(question) {
+  // 输出顺序 = 词典顺序（对齐原站：live [rd, software]、q2 [techsme, hightech, recognition]、q3 [income-tax, small]）
+  const hits = [];
+  const used = [];
+  for (const t of TOPIC_RULES) {
+    for (const alias of [...t.aliases].sort((a, b) => b.length - a.length)) {
+      let idx = question.indexOf(alias);
+      while (idx >= 0 && used.some(u => !(idx + alias.length <= u.start || idx >= u.start + u.end))) idx = question.indexOf(alias, idx + 1);
+      if (idx >= 0) { hits.push({ ...t, matchedText: alias, idx }); used.push({ start: idx, end: alias.length }); break; }
+    }
+  }
+  return hits;
+}
+function unmatchedFragments(question, reserved) {
+  const fragments = [];
+  const re = /[\u4e00-\u9fa5]+/g;
+  let m;
+  while ((m = re.exec(question))) {
+    let seg = m[0];
+    for (const r of reserved) seg = seg.split(r).join(' ');
+    for (const s of STOPWORDS) while (seg.includes(s)) seg = seg.split(s).join(' ');
+    for (const piece of seg.split(' ')) if (piece) fragments.push(piece);
+  }
+  return fragments;
+}
+function detectExcluded(question) {
+  const out = [];
+  const re = /(?:不含|不涉及|排除|不要|不是)([\u4e00-\u9fa5]{2,8})/g;
+  let m; while ((m = re.exec(question))) out.push(m[1]);
+  return out;
+}
+
+// ------------------------------------------------------------------ 检索
+// 可匹配字段 = 标题/标签/概要/适用范围/支持内容/填写指引帮助（对齐原站：
+// 条件问答中出现的词不参与打分，例如 techsme 的"企业所得税"只在条件里，不命中 q3）。
+// 权重经 tests/reference 四组问题反解标定：q2 需要 概要(10) > 标签(8) 时
+// hightech(标题+概要) 才排在 techsme(标题+标签) 之前。
+const FIELDS_BY_WEIGHT = [
+  ['title', 15, t => `标题匹配“${t}”`],
+  ['tags', 8, t => `方向标签匹配“${t}”`],
+  ['summary', 10, t => `政策概要匹配“${t}”`],
+  ['audience', 4, t => `适用范围匹配“${t}”`],
+  ['benefit', 4, t => `支持内容匹配“${t}”`],
+  ['formGuideHelp', 4, t => `填写指引匹配“${t}”`]
+];
+// 词干白名单：概要级词干模糊仅对显式登记的语义别名生效（原站 limitations 亦声明
+// "语义别名使用可解释规则"）。通用两字词干（企业/技术/所得…）会误伤，不做模糊。
+const STEM_WHITELIST = { '研发投入': '研发', '研发费用': '研发', '研发扶持': '研发' };
+function fieldText(policy, key) {
+  if (key === 'tags') return Array.isArray(policy.tags) ? policy.tags.join(' ') : '';
+  if (key === 'formGuideHelp') return (policy.formGuide?.fields ?? []).map(f => f.help ?? '').join(' ');
+  const v = policy[key];
+  return typeof v === 'string' ? v : '';
+}
+function scorePolicy(policy, terms, regionLabel) {
+  let score = 0;
+  const matched = [], reasons = [];
+  for (const term of terms) {
+    let hit = false;
+    const stem = STEM_WHITELIST[term] ?? null;
+    const tags = Array.isArray(policy.tags) ? policy.tags : [];
+    for (const [key, weight, fmt] of FIELDS_BY_WEIGHT) {
+      const text = fieldText(policy, key);
+      if (!text) continue;
+      if (text.includes(term)) { score += weight; hit = true; if (reasons.length < 5) reasons.push(fmt(term)); continue; }
+      if (key === 'tags') {
+        // 标签前缀包含（如标签"高新技术" ← 词"高新技术企业"）
+        const tagPrefix = tags.find(tag => tag.length >= 2 && term.startsWith(tag));
+        if (tagPrefix) { score += 6; hit = true; if (reasons.length < 5) reasons.push(`方向标签匹配“${tagPrefix}”`); continue; }
+      }
+      if (stem && key === 'tags' && tags.some(tag => tag === stem)) { score += 6; hit = true; if (reasons.length < 5) reasons.push(`方向标签匹配“${stem}”`); continue; }
+      if (stem && key === 'summary' && text.includes(stem)) { score += 4; hit = true; if (reasons.length < 5) reasons.push(`政策概要匹配“${stem}”`); continue; }
+      if (term.length >= 4 && text.includes(term.slice(0, -1))) { score += Math.ceil(weight * 0.5); hit = true; if (reasons.length < 5) reasons.push(fmt(term.slice(0, -1))); }
+    }
+    if (hit) matched.push(term);
+  }
+  if (regionLabel && score > 0) {
+    const city = DISTRICT_CITY[regionLabel] ?? null;
+    const covers = policy.region === '全国' || policy.region === regionLabel || (city && policy.region === city);
+    if (covers) { score += policy.region === '全国' ? 4 : 2; reasons.push(`地区覆盖：${policy.region}覆盖${regionLabel}`); }
+  }
+  if (score > 0) reasons.push('部分语句未识别，已按明确主题检索；未识别片段没有作为资格或数值条件');
+  return { score, matchedTerms: matched, reasons };
+}
+async function discover(body) {
+  const question = String(body?.question ?? '').trim();
+  const { policies, datasetDate } = await dataset();
+  const regions = detectRegions(question);
+  const region = regions[0] ?? null;
+  const topics = detectTopics(question);
+  const excludedTerms = detectExcluded(question);
+  const positiveTerms = [...topics.map(t => t.matchedText), ...regions.map(r => REGION_RULES.find(([label]) => label === r)[1][0])];
+  const topicTerms = topics.filter(t => t.primary).map(t => t.matchedText);
+  const unresolvedTerms = question ? unmatchedFragments(question, [...new Set([...positiveTerms, ...excludedTerms])]).filter(f => !excludedTerms.includes(f)) : [];
+  const matchTerms = topicTerms; // 仅主题词参与打分（非 primary 的"认定"等泛主题只进解释）
+  const scored = [];
+  for (const p of policies) {
+    if (excludedTerms.some(term => fieldText(p, 'title').includes(term) || fieldText(p, 'summary').includes(term))) continue;
+    const r = scorePolicy(p, matchTerms, region);
+    if (r.score > 0) scored.push({ policy: p, retrieval: r });
+  }
+  scored.sort((a, b) => b.retrieval.score - a.retrieval.score || (a.policy.id < b.policy.id ? -1 : 1));
+  // F2 前置拦截：识别到未覆盖地区时立即说明，不返回弱相关结果。
+  const uncovered = regions.length > 0 && regions.every(r => !COVERED_REGIONS.has(r));
+  if (uncovered) scored.length = 0;
+  const items = scored.map(s => ({ ...s.policy, retrieval: s.retrieval }));
+  const status = items.length ? 'ready' : (topics.length || regions.length ? 'no_candidates' : 'needs_clarification');
+  const closed = items.filter(i => i.applicationStatus === 'closed').length;
+  const unknown = items.filter(i => (i.applicationStatus || 'unknown') === 'unknown').length;
+  const primaryLabels = topics.filter(t => t.primary).map(t => t.label);
+  let summary;
+  if (uncovered) summary = `已识别检索地区为${regions.join('、')}，当前样本暂未覆盖该地区。已收录的覆盖范围：深圳市（含各区）与全国政策。`;
+  else if (!topics.length) summary = '还需要说明你想解决的具体业务问题，才能提供有依据的候选事项。';
+  else {
+    summary = `你想了解${primaryLabels.join('、')}${region ? `，检索地区为${region}` : ''}。已找到 ${items.length} 个有真实来源的候选，请选择要进一步核对的事项。`;
+    if (closed) summary += ` 其中 ${closed} 项对应已截止历史批次，只能作为后续准备参考。`;
+    if (unknown) summary += ` 其中 ${unknown} 项办理窗口尚未核验。`;
+  }
+  const followUpQuestions = [];
+  if (unresolvedTerms.length) followUpQuestions.push(`描述中的“${unresolvedTerms.join('、')}”尚未准确对应规则；可补充业务目的或事项名称，数字和年度不会自动成为企业事实。`);
+  if (uncovered) followUpQuestions.push('当前样本只覆盖深圳市（含各区）与全国政策。可以改问这两类范围的事项，或前往当地政务服务平台查询办理。');
+  else if (!regions.length && topics.length) followUpQuestions.push('你希望查哪个城市或区的事项？这个地区只用于发现范围，后续仍需提供真实注册或经营依据。');
+  if (!items.length && topics.length && !uncovered) {
+    // F3 无结果兜底：给出标签最接近的样本方向，而不是沉默或弱相关结果。
+    const near = policies.filter(p => (p.tags ?? []).some(tag => topics.some(tp => tp.aliases.some(a => tag.includes(a) || a.includes(tag))))).slice(0, 2);
+    followUpQuestions.push(near.length
+      ? `暂时没有直接匹配的事项。相近的样本方向：${near.map(p => p.title).join('、')}，可以就这些方向继续提问。`
+      : '可以换一个支持方向或事项名称再试，或先查看当前资料的覆盖范围。');
+  }
+  return {
+    mode: 'mock',
+    question,
+    interpretation: {
+      summary, status,
+      suggestedTask: (topics.find(t => t.primary) ?? topics[0] ?? { task: 'eligibility' }).task,
+      topics: topics.map(({ id, label, matchedText }) => ({ id, label, matchedText })),
+      region, regions, excludedTerms, unresolvedTerms, companyFactsInferred: false
+    },
+    items,
+    meta: {
+      mode: 'deterministic',
+      query: { positiveTerms, excludedTerms, unresolvedTerms, residualHandling: topics.length ? 'soft' : 'literal', topicTerms, message: topics.length ? '已按明确主题检索；未识别片段未参与地区、资格、行业或数值判断。' : null },
+      totalAvailable: policies.length,
+      excluded: excludedTerms.map(term => ({ term })),
+      limitations: LIMITATIONS,
+      modelUsed: false, understanding: 'dictionary_rules', totalReturned: items.length,
+      catalogueSuppressed: false, selectionRequired: true, companyFactsInferred: false
+    },
+    followUpQuestions,
+    sources: items.map(p => ({ policyId: p.id, ...(p.source ?? {}), version: p.version ?? null })),
+    datasetDate,
+    generatedAt: new Date().toISOString()
+  };
+}
+
+// ------------------------------------------------------------------ 核对
+const FACT_MISSING = '尚未提供本条专项事实与期间';
+const FACT_VERIFY = '需专项资料核验（已有基础字段不能替代）';
+const REASON_MISSING = '请补充本条要求的具体资料、专项事实及对应期间；基础档案不能替代原文的专项口径。';
+const REASON_VERIFY = '该条件需要材料或人工核验，模拟服务无法确认；基础档案不能替代原文要求的专项事实、统计期间和口径。';
+const REASON_USER_MET = '用户自报的具体资料及期间提供了初步满足依据；未经材料验证或官方审核，不代表取得资格。';
+const REASON_USER_UNMET = '用户自报该项暂未满足，保留具体资料及期间；应回读原文并核实，不是官方审核结论。';
+const REASON_USER_UNKNOWN = '已保留用户自报资料；该条件涉及复合规则或专项审核，答案不能替代材料、适用路径和官方核验。';
+const REASON_PROFILE_MET = '所填企业事实满足这一结构化条件；仍需官方材料验证。';
+const REASON_PROFILE_UNMET = '所填企业事实与这一结构化条件不一致。';
+const REASON_PROFILE_MISSING = '企业档案缺少这项事实，请补充后再评估。';
+
+function matchStructured(value, operator, expected) {
+  switch (operator) {
+    case 'in': {
+      const list = Array.isArray(expected) ? expected : String(expected).split(/[,，、]/);
+      return list.some(item => String(value) === String(item) || String(value).includes(String(item)));
+    }
+    case 'lte': return Number(value) <= Number(expected);
+    case 'gte': return Number(value) >= Number(expected);
+    case 'lt': return Number(value) < Number(expected);
+    case 'gt': return Number(value) > Number(expected);
+    case 'eq': return String(value) === String(expected);
+    default: return false;
+  }
+}
+function evaluateCondition(cond, profile, assessment) {
+  const structured = cond.operator && cond.operator !== 'manual' && cond.field && cond.value !== undefined && cond.value !== null;
+  if (structured) {
+    const value = profile?.[cond.field];
+    const missing = value === undefined || value === null || value === '';
+    const ok = !missing && matchStructured(value, cond.operator, cond.value);
+    return {
+      fact: missing ? null : value,
+      status: missing ? 'missing' : (ok ? 'met' : 'unmet'),
+      reason: missing ? REASON_PROFILE_MISSING : (ok ? REASON_PROFILE_MET : REASON_PROFILE_UNMET),
+      evidenceOrigin: 'user_profile', assessment: null, fromAssessment: false,
+      fieldMissing: missing ? cond.field : null, requires: null
+    };
+  }
+  if (assessment && ['yes', 'no', 'unknown'].includes(assessment.answer)) {
+    const note = assessment.note ?? '', period = assessment.period ?? '';
+    const joined = [note, period ? `期间：${period}` : ''].filter(Boolean).join('；');
+    const yes = assessment.answer === 'yes', no = assessment.answer === 'no';
+    return {
+      fact: yes ? `是（用户自报）：${joined}` : no ? `否（用户自报）：${joined}` : '用户暂未确认',
+      status: yes ? 'met' : no ? 'unmet' : 'verify',
+      reason: yes ? REASON_USER_MET : no ? REASON_USER_UNMET : REASON_USER_UNKNOWN,
+      evidenceOrigin: 'user_report', fieldMissing: null, fromAssessment: true,
+      assessment: { period, source: assessment.source ?? 'user', note, answer: assessment.answer },
+      requires: null
+    };
+  }
+  if (cond.assessmentAllowed) {
+    return { fact: FACT_MISSING, status: 'missing', reason: REASON_MISSING, evidenceOrigin: 'unverified', assessment: null, fromAssessment: false, fieldMissing: null, requires: 'assessment' };
+  }
+  return { fact: FACT_VERIFY, status: 'verify', reason: REASON_VERIFY, evidenceOrigin: 'unverified', assessment: null, fromAssessment: false, fieldMissing: null, requires: null };
+}
+function windowStatusOf(policy) { return policy.applicationStatus || 'unknown'; }
+function windowSentence(status) {
+  if (status === 'closed') return '此历史申报批次已截止，不能视为当前可申报。';
+  if (status === 'tax_filing') return '办理时间需按原文及主管部门最新要求确认。';
+  if (status === 'open') return '当前显示的办理状态来自已收录资料，仍需以官方最新通知为准。';
+  if (status === 'active') return '办理窗口与批次状态以官方最新通知为准。';
+  return '当前申报窗口未核验。';
+}
+async function analyze(body) {
+  const policyIds = Array.isArray(body?.policyIds) ? body.policyIds : [];
+  const profile = body?.profile ?? {};
+  const assessments = body?.assessments ?? {};
+  const { policies } = await dataset();
+  const byId = new Map(policies.map(p => [p.id, p]));
+  const inputFingerprint = await fingerprint({ profile, policyIds: [...policyIds].sort(), assessments });
+  const assessmentsFingerprint = await fingerprint(assessments);
+  const results = [], policyVersions = [];
+  for (const id of policyIds) {
+    const p = byId.get(id);
+    if (!p) continue;
+    policyVersions.push({ policyId: id, version: p.version ?? null, verifiedAt: p.verifiedAt ?? null });
+    const evaluated = (p.conditions ?? []).map(c => {
+      const ev = evaluateCondition(c, profile, assessments[id]?.[c.id]);
+      const ordered = {
+        conditionId: c.id, label: c.label, field: c.field ?? null,
+        fact: ev.fact, status: ev.status, reason: ev.reason,
+        evidence: c.evidence ?? null, sourceUrl: c.sourceUrl ?? null, question: c.question ?? null,
+        inputType: c.inputType ?? 'evidence', assessmentAllowed: !!c.assessmentAllowed,
+        evidenceOrigin: ev.evidenceOrigin, periodRequired: !!c.periodRequired,
+        expectedPeriod: c.expectedPeriod ?? null
+      };
+      if (ev.assessment) ordered.assessment = ev.assessment;
+      if (ev.requires === 'assessment') { ordered.missingFields = []; ordered.requiredInput = 'assessment'; }
+      return { ...ordered, __fromAssessment: ev.fromAssessment, __fieldMissing: ev.fieldMissing };
+    });
+    const counts = { met: 0, unmet: 0, missing: 0, verify: 0 };
+    let assessmentBacked = 0;
+    const fieldMissingList = [];
+    for (const c of evaluated) {
+      counts[c.status] += 1;
+      if (c.__fromAssessment && (c.status === 'met' || c.status === 'unmet')) assessmentBacked += 1;
+      if (c.__fieldMissing) fieldMissingList.push(c.__fieldMissing);
+    }
+    const wstatus = windowStatusOf(p);
+    const segs = [];
+    if (counts.unmet > 0) segs.push(`已填写信息中有 ${counts.unmet} 项未满足条件。`);
+    else if (counts.met > 0) segs.push('已提供事实未发现明确不匹配；已满足项仅为初步依据。');
+    else segs.push('尚未提供足够事实完成初筛。');
+    if (counts.missing > 0) segs.push(`还有 ${counts.missing} 项企业事实或期间缺失。`);
+    if (counts.verify > 0) segs.push(`${counts.verify} 项条件需要人工核验。`);
+    if (assessmentBacked > 0) segs.push(`${assessmentBacked} 项依据用户专项自报，尚未审核证明材料。`);
+    segs.push(windowSentence(wstatus));
+    const nextSteps = [];
+    if (counts.missing > 0) nextSteps.push('补充缺失的具体企业事实、资料依据和指定数据期间。');
+    if (counts.unmet > 0) nextSteps.push('核对不匹配条件及企业事实，必要时调整申报方向。');
+    nextSteps.push('逐项准备材料，并由经办人确认人工核验条件。');
+    nextSteps.push(wstatus === 'closed' ? '等待或查阅主管部门下一批正式通知；不沿用历史截止日期。' : '打开官方来源，核验当前办理窗口、材料版本和申报渠道。');
+    const followUpQuestions = evaluated.filter(c => c.status === 'missing' || c.status === 'verify').map(c => ({
+      policyId: id, conditionId: c.conditionId, question: c.question, inputType: c.inputType,
+      assessmentAllowed: c.assessmentAllowed, expectedPeriod: c.expectedPeriod, reason: c.reason
+    }));
+    results.push({
+      policyId: id, title: p.title, policyVersion: p.version ?? null, source: p.source ?? null,
+      verifiedAt: p.verifiedAt ?? null, applicationStatus: p.applicationStatus ?? 'unknown',
+      conditions: evaluated.map(({ __fromAssessment, __fieldMissing, ...c }) => c),
+      summary: segs.join(' '), counts, nextSteps,
+      missingFields: [...new Set(fieldMissingList)], followUpQuestions,
+      window: { open: p.window?.open ?? null, close: p.window?.close ?? null, note: p.window?.note ?? null, status: wstatus },
+      sourceUrl: p.source?.url ?? null, mode: 'mock'
+    });
+  }
+  return {
+    mode: 'mock', contractVersion: 2, inputFingerprint, assessmentsFingerprint,
+    policyVersions, results, task: body?.task || 'eligibility',
+    generatedAt: new Date().toISOString(), disclaimer: DISCLAIMER
+  };
+}
+
+// ------------------------------------------------------------------ 问答
+function explainAnswer(p) {
+  const conds = (p.conditions ?? []).slice(0, 4);
+  return `${p.title}：以下为依据公开样本的整理说明，请对照原文理解。政策概要：${p.summary ?? ''}支持内容：${p.benefit ?? ''}关键依据：${conds.map(c => `${c.label}：${c.evidence ?? ''}`).join('；')}整理说明不构成资格、材料完整性或获批确认。`;
+}
+function explainEvidence(p) {
+  const out = [{ policyId: p.id, title: p.title, sourceUrl: p.source?.url ?? null, anchor: 'summary', evidence: p.summary ?? '' }];
+  for (const c of (p.conditions ?? []).slice(0, 4)) out.push({ policyId: p.id, title: p.title, sourceUrl: c.sourceUrl ?? null, anchor: `condition:${c.id}`, evidence: c.evidence ?? '' });
+  return out.slice(0, 5);
+}
+async function assistant(body) {
+  const task = body?.task || 'explain';
+  const { policies } = await dataset();
+  const byId = new Map(policies.map(p => [p.id, p]));
+  const picked = (Array.isArray(body?.policyIds) ? body.policyIds : []).map(id => byId.get(id)).filter(Boolean);
+  const stamp = { mode: 'mock', limitations: ASSIST_LIMITATIONS, generatedAt: new Date().toISOString() };
+  if (!picked.length || !['explain', 'materials', 'steps', 'review', 'forms'].includes(task)) {
+    return { ...stamp, task: 'unsupported', answer: UNSUPPORTED_ANSWER, evidence: [] };
+  }
+  const p = picked[0];
+  if (task === 'explain') return { ...stamp, task, answer: explainAnswer(p), evidence: explainEvidence(p) };
+  if (task === 'materials') {
+    const mats = (p.materials ?? []).slice(0, 8);
+    return {
+      ...stamp, task,
+      answer: `${p.title}：以下为依据公开样本整理的材料清单，请对照本批官方指南核对。${mats.map(m => `${m.name}：${m.note ?? ''}`).join('；')}。材料清单以官方最新指南为准，本整理不构成完整性确认。`,
+      evidence: mats.slice(0, 5).map(m => ({ policyId: p.id, title: p.title, sourceUrl: m.sourceUrl ?? null, anchor: `material:${m.id}`, evidence: m.note ?? '' }))
+    };
+  }
+  if (task === 'steps') {
+    const steps = (p.steps ?? []).slice(0, 6);
+    return {
+      ...stamp, task,
+      answer: `${p.title}：办理流程按公开样本整理如下。${steps.map((s, i) => `第${i + 1}步 ${s.title}：${s.description ?? ''}`).join('；')}。流程以官方最新通知为准，本整理不构成办理承诺。`,
+      evidence: steps.slice(0, 5).map((s, i) => ({ policyId: p.id, title: p.title, sourceUrl: s.sourceUrl ?? null, anchor: `step:${i}`, evidence: s.description ?? '' }))
+    };
+  }
+  if (task === 'forms') {
+    const fields = (p.formGuide?.fields ?? []).slice(0, 6);
+    return {
+      ...stamp, task,
+      answer: `${p.title}：填写口径按现行指引样本整理。${fields.map(f => `${f.label}：${f.help ?? ''}`).join('；')}。填写不代表获批，须以官方表格和本批指南为准。`,
+      evidence: fields.map(f => ({ policyId: p.id, title: p.title, sourceUrl: f.sourceUrl ?? p.formGuide?.sourceUrl ?? null, anchor: `field:${f.id}`, evidence: f.help ?? '' }))
+    };
+  }
+  return {
+    ...stamp, task,
+    answer: `${p.title}：复查提示。${(p.limitations ?? []).slice(0, 3).join('')}请按官方原文逐项确认条件、材料、窗口与版本后再提交，本模拟不构成审核结论。`,
+    evidence: (p.relatedDocuments ?? []).slice(0, 5).map(d => ({ policyId: p.id, title: p.title, sourceUrl: d.url ?? null, anchor: `related:${d.id}`, evidence: d.title ?? '' }))
+  };
+}
+
+// ------------------------------------------------------------------ 入口
+const HANDLED = ['/health', '/sources', '/discover', '/analyze', '/assistant'];
+// 供应用层复用：从问题中识别地区（I1 信息复用）。
+function regionsOf(question) { return detectRegions(String(question ?? '')); }
+// 当前样本的覆盖范围（F2 前置拦截）：全部政策的 region 取值集合。
+const COVERED_REGIONS = new Set(['深圳市', '龙岗区', '南山区', '福田区', '宝安区', '龙华区', '坪山区', '光明区', '大鹏新区', '深汕特别合作区', '全国']);
+function handlesLocalApi(endpoint) {
+  return typeof endpoint === 'string' && HANDLED.includes(endpoint.split('?')[0]);
+}
+async function localApiRequest(endpoint, options = {}) {
+  if (options.signal?.aborted) throw new DOMException('已取消过期请求', 'AbortError');
+  const path = endpoint.split('?')[0];
+  const method = (options.method ?? 'GET').toUpperCase();
+  if (path === '/health' && method === 'GET') {
+    const origin = location.origin;
+    return {
+      status: 'ok', mode: 'mock', configuredLlmMode: 'mock', localOnly: false,
+      hosting: 'static_bundle', authentication: 'none', storage: 'visitor_browser',
+      services: { web: { baseUrl: origin }, api: { baseUrl: origin + '/api/v1', sameOriginPath: '/api/v1', contract: '/openapi.json' } },
+      capabilities: { retrieval: 'deterministic', naturalLanguageDiscovery: true, conditionAssessments: true, recordRevision: true, workflowPersistence: 'browser_only', llm: 'mock', sourceUpdates: 'mock_queue', maxRequestBytes: 393216 },
+      privacy: { serverPersistence: false, crossDeviceSync: false, analysisInputs: 'processed transiently; never saved by this service' },
+      time: new Date().toISOString()
+    };
+  }
+  const body = typeof options.body === 'string' ? JSON.parse(options.body) : (options.body ?? {});
+  if (path === '/sources' && method === 'GET') return { items: (await dataset()).sources };
+  if (path === '/discover' && method === 'POST') return discover(body);
+  if (path === '/analyze' && method === 'POST') return analyze(body);
+  if (path === '/assistant' && method === 'POST') return assistant(body);
+  const err = new Error('本地 API 路由不存在。');
+  err.status = 404; err.code = 'ROUTE_NOT_FOUND';
+  throw err;
+}
+
+return {HANDLED, regionsOf, handlesLocalApi, localApiRequest};
+})();
+
 /* ===== ./local-lib/validation.mjs ===== */
 const __m___local_lib_validation_mjs = (() => {
 class HttpError extends Error {
@@ -540,447 +996,6 @@ const localRequest = (endpoint, options = {}) => defaultStore.request(endpoint, 
 return {STORAGE_SCOPE, STORE_KEY, MAX_RECORD_BYTES, BrowserStoreError, handlesLocal, createBrowserStore, localRequest};
 })();
 
-/* ===== ./local-api.js ===== */
-const __m___local_api_js = (() => {
-// ============================================================================
-// local-api.js —— 浏览器内本地 API（完全脱离原站 radar.huixiang17.cn 的运行时依赖）
-// 端点：GET /health /sources；POST /discover /analyze /assistant
-// 契约对拍基准：tests/reference/（原站 2026-10-14 捕获）；等价性测试：tests/
-// 指纹算法与 local-store.js fingerprint() 完全同构，保证记录保存校验互通。
-// ============================================================================
-const LIMITATIONS = [
-  '仅搜索本地已收录政策样本；不代表全部政策或匹配资格。',
-  '语义别名与排除词使用可解释规则，未调用大模型。',
-  '自然语言理解为本地规则模拟，未调用大模型。',
-  '候选中的历史批次和未知窗口不表示当前可办理，须核对主管部门最新通知。',
-  '地区与主题仅为你描述的检索范围，未确认企业注册地、行业、人数、收入、年度或任何资格。'
-];
-const DISCLAIMER = '原型演示：企业事实由用户或示例提供，分析和问答是确定性模拟结果，不是官方审核结论。来源中的历史批次与未核验窗口不代表当前开放。';
-const ASSIST_LIMITATIONS = [DISCLAIMER, '仅依据已选政策样本回答；不核验附件真伪、不抓取最新通知、不推测审批结果。'];
-const UNSUPPORTED_ANSWER = '这份模拟问答无法可靠回答该问题。你可以改问所选政策的解释、申报条件、材料、填写、卡点、流程或办理窗口，并通过官方来源核验。';
-
-// ---------------------------------------------------------------- 数据加载
-let datasetPromise = null;
-async function dataset() {
-  if (!datasetPromise) {
-    datasetPromise = Promise.all([
-      fetch('data/policies.json', { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error('dataset unavailable'); return r.json(); }),
-      fetch('data/sources.json', { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error('sources unavailable'); return r.json(); })
-    ]).then(([pol, src]) => {
-      if (!Array.isArray(pol?.policies)) throw new Error('invalid dataset');
-      return { policies: pol.policies, datasetDate: pol.datasetDate, sources: Array.isArray(src?.items) ? src.items : [] };
-    }).catch(e => { datasetPromise = undefined; throw e; });
-  }
-  return datasetPromise;
-}
-function canonical(value) {
-  return Array.isArray(value) ? value.map(canonical)
-    : value && typeof value === 'object'
-      ? Object.fromEntries(Object.keys(value).sort().filter(k => value[k] !== undefined).map(k => [k, canonical(value[k])]))
-      : value;
-}
-async function fingerprint(value) {
-  const bytes = new TextEncoder().encode(JSON.stringify(canonical(value)));
-  const digest = await crypto.subtle.digest('SHA-256', bytes);
-  return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-// ------------------------------------------------------------------ 词典
-const REGION_RULES = [
-  ['龙岗区', ['龙岗']], ['南山区', ['南山']], ['福田区', ['福田']], ['宝安区', ['宝安']],
-  ['龙华区', ['龙华']], ['坪山区', ['坪山']], ['光明区', ['光明']], ['大鹏新区', ['大鹏']],
-  ['深汕特别合作区', ['深汕']], ['深圳市', ['深圳']], ['长沙市', ['长沙']], ['全国', ['全国']]
-];
-const TOPIC_RULES = [
-  { id: 'contract', label: '技术合同认定登记', task: 'steps', primary: true, aliases: ['技术合同', '合同登记', '技术登记'] },
-  { id: 'income-tax', label: '企业所得税优惠', task: 'eligibility', primary: true, aliases: ['企业所得税', '所得税优惠'] },
-  { id: 'small', label: '小型微利企业所得税优惠', task: 'eligibility', primary: true, aliases: ['小微企业', '小型微利'] },
-  { id: 'rdtax', label: '研发费用税前加计扣除', task: 'eligibility', primary: true, aliases: ['加计扣除', '研发费用'] },
-  { id: 'rd', label: '研发投入支持', task: 'eligibility', primary: true, aliases: ['研发投入', '研发扶持'] },
-  { id: 'techsme', label: '科技型中小企业评价入库', task: 'eligibility', primary: true, aliases: ['科技型中小企业'] },
-  { id: 'hightech', label: '高新技术企业认定', task: 'eligibility', primary: true, aliases: ['高新技术企业', '高企'] },
-  { id: 'software', label: '软件与信息技术方向', task: 'eligibility', primary: true, aliases: ['软件', '信息技术'] },
-  { id: 'recognition', label: '企业资质认定', task: 'eligibility', primary: false, aliases: ['认定', '认证', '资质'] }
-];
-// 区→市归属（用于"地区覆盖"加分：龙岗区问题下的深圳市政策算覆盖）
-const DISTRICT_CITY = { '龙岗区': '深圳市', '南山区': '深圳市', '福田区': '深圳市', '宝安区': '深圳市', '龙华区': '深圳市', '坪山区': '深圳市', '光明区': '深圳市', '大鹏新区': '深圳市', '深汕特别合作区': '深圳市' };
-const STOPWORDS = new Set(['我们', '你们', '他们', '大家', '企业', '公司', '想', '了解', '怎么', '如何', '请问', '一下', '一个', '哪些', '什么', '这个', '那个', '的', '了', '是', '和', '与', '及', '或', '在', '做', '有', '到', '要', '能', '可以', '能不能', '可不可以', '申请', '办理', '支持', '政策', '查找', '帮助']);
-
-function detectRegions(question) {
-  const hits = [];
-  for (const [label, aliases] of REGION_RULES) {
-    let idx = -1;
-    for (const a of aliases) { const i = question.indexOf(a); if (i >= 0 && (idx < 0 || i < idx)) idx = i; }
-    if (idx >= 0) hits.push({ label, idx });
-  }
-  hits.sort((a, b) => a.idx - b.idx);
-  return hits.map(h => h.label);
-}
-function detectTopics(question) {
-  // 输出顺序 = 词典顺序（对齐原站：live [rd, software]、q2 [techsme, hightech, recognition]、q3 [income-tax, small]）
-  const hits = [];
-  const used = [];
-  for (const t of TOPIC_RULES) {
-    for (const alias of [...t.aliases].sort((a, b) => b.length - a.length)) {
-      let idx = question.indexOf(alias);
-      while (idx >= 0 && used.some(u => !(idx + alias.length <= u.start || idx >= u.start + u.end))) idx = question.indexOf(alias, idx + 1);
-      if (idx >= 0) { hits.push({ ...t, matchedText: alias, idx }); used.push({ start: idx, end: alias.length }); break; }
-    }
-  }
-  return hits;
-}
-function unmatchedFragments(question, reserved) {
-  const fragments = [];
-  const re = /[\u4e00-\u9fa5]+/g;
-  let m;
-  while ((m = re.exec(question))) {
-    let seg = m[0];
-    for (const r of reserved) seg = seg.split(r).join(' ');
-    for (const s of STOPWORDS) while (seg.includes(s)) seg = seg.split(s).join(' ');
-    for (const piece of seg.split(' ')) if (piece) fragments.push(piece);
-  }
-  return fragments;
-}
-function detectExcluded(question) {
-  const out = [];
-  const re = /(?:不含|不涉及|排除|不要|不是)([\u4e00-\u9fa5]{2,8})/g;
-  let m; while ((m = re.exec(question))) out.push(m[1]);
-  return out;
-}
-
-// ------------------------------------------------------------------ 检索
-// 可匹配字段 = 标题/标签/概要/适用范围/支持内容/填写指引帮助（对齐原站：
-// 条件问答中出现的词不参与打分，例如 techsme 的"企业所得税"只在条件里，不命中 q3）。
-// 权重经 tests/reference 四组问题反解标定：q2 需要 概要(10) > 标签(8) 时
-// hightech(标题+概要) 才排在 techsme(标题+标签) 之前。
-const FIELDS_BY_WEIGHT = [
-  ['title', 15, t => `标题匹配“${t}”`],
-  ['tags', 8, t => `方向标签匹配“${t}”`],
-  ['summary', 10, t => `政策概要匹配“${t}”`],
-  ['audience', 4, t => `适用范围匹配“${t}”`],
-  ['benefit', 4, t => `支持内容匹配“${t}”`],
-  ['formGuideHelp', 4, t => `填写指引匹配“${t}”`]
-];
-// 词干白名单：概要级词干模糊仅对显式登记的语义别名生效（原站 limitations 亦声明
-// "语义别名使用可解释规则"）。通用两字词干（企业/技术/所得…）会误伤，不做模糊。
-const STEM_WHITELIST = { '研发投入': '研发', '研发费用': '研发', '研发扶持': '研发' };
-function fieldText(policy, key) {
-  if (key === 'tags') return Array.isArray(policy.tags) ? policy.tags.join(' ') : '';
-  if (key === 'formGuideHelp') return (policy.formGuide?.fields ?? []).map(f => f.help ?? '').join(' ');
-  const v = policy[key];
-  return typeof v === 'string' ? v : '';
-}
-function scorePolicy(policy, terms, regionLabel) {
-  let score = 0;
-  const matched = [], reasons = [];
-  for (const term of terms) {
-    let hit = false;
-    const stem = STEM_WHITELIST[term] ?? null;
-    const tags = Array.isArray(policy.tags) ? policy.tags : [];
-    for (const [key, weight, fmt] of FIELDS_BY_WEIGHT) {
-      const text = fieldText(policy, key);
-      if (!text) continue;
-      if (text.includes(term)) { score += weight; hit = true; if (reasons.length < 5) reasons.push(fmt(term)); continue; }
-      if (key === 'tags') {
-        // 标签前缀包含（如标签"高新技术" ← 词"高新技术企业"）
-        const tagPrefix = tags.find(tag => tag.length >= 2 && term.startsWith(tag));
-        if (tagPrefix) { score += 6; hit = true; if (reasons.length < 5) reasons.push(`方向标签匹配“${tagPrefix}”`); continue; }
-      }
-      if (stem && key === 'tags' && tags.some(tag => tag === stem)) { score += 6; hit = true; if (reasons.length < 5) reasons.push(`方向标签匹配“${stem}”`); continue; }
-      if (stem && key === 'summary' && text.includes(stem)) { score += 4; hit = true; if (reasons.length < 5) reasons.push(`政策概要匹配“${stem}”`); continue; }
-      if (term.length >= 4 && text.includes(term.slice(0, -1))) { score += Math.ceil(weight * 0.5); hit = true; if (reasons.length < 5) reasons.push(fmt(term.slice(0, -1))); }
-    }
-    if (hit) matched.push(term);
-  }
-  if (regionLabel && score > 0) {
-    const city = DISTRICT_CITY[regionLabel] ?? null;
-    const covers = policy.region === '全国' || policy.region === regionLabel || (city && policy.region === city);
-    if (covers) { score += policy.region === '全国' ? 4 : 2; reasons.push(`地区覆盖：${policy.region}覆盖${regionLabel}`); }
-  }
-  if (score > 0) reasons.push('部分语句未识别，已按明确主题检索；未识别片段没有作为资格或数值条件');
-  return { score, matchedTerms: matched, reasons };
-}
-async function discover(body) {
-  const question = String(body?.question ?? '').trim();
-  const { policies, datasetDate } = await dataset();
-  const regions = detectRegions(question);
-  const region = regions[0] ?? null;
-  const topics = detectTopics(question);
-  const excludedTerms = detectExcluded(question);
-  const positiveTerms = [...topics.map(t => t.matchedText), ...regions.map(r => REGION_RULES.find(([label]) => label === r)[1][0])];
-  const topicTerms = topics.filter(t => t.primary).map(t => t.matchedText);
-  const unresolvedTerms = question ? unmatchedFragments(question, [...new Set([...positiveTerms, ...excludedTerms])]).filter(f => !excludedTerms.includes(f)) : [];
-  const matchTerms = topicTerms; // 仅主题词参与打分（非 primary 的"认定"等泛主题只进解释）
-  const scored = [];
-  for (const p of policies) {
-    if (excludedTerms.some(term => fieldText(p, 'title').includes(term) || fieldText(p, 'summary').includes(term))) continue;
-    const r = scorePolicy(p, matchTerms, region);
-    if (r.score > 0) scored.push({ policy: p, retrieval: r });
-  }
-  scored.sort((a, b) => b.retrieval.score - a.retrieval.score || (a.policy.id < b.policy.id ? -1 : 1));
-  const items = scored.map(s => ({ ...s.policy, retrieval: s.retrieval }));
-  const status = items.length ? 'ready' : (topics.length || regions.length ? 'no_candidates' : 'needs_clarification');
-  const closed = items.filter(i => i.applicationStatus === 'closed').length;
-  const unknown = items.filter(i => (i.applicationStatus || 'unknown') === 'unknown').length;
-  const primaryLabels = topics.filter(t => t.primary).map(t => t.label);
-  let summary;
-  if (!topics.length) summary = '还需要说明你想解决的具体业务问题，才能提供有依据的候选事项。';
-  else {
-    summary = `你想了解${primaryLabels.join('、')}${region ? `，检索地区为${region}` : ''}。已找到 ${items.length} 个有真实来源的候选，请选择要进一步核对的事项。`;
-    if (closed) summary += ` 其中 ${closed} 项对应已截止历史批次，只能作为后续准备参考。`;
-    if (unknown) summary += ` 其中 ${unknown} 项办理窗口尚未核验。`;
-  }
-  const followUpQuestions = [];
-  if (unresolvedTerms.length) followUpQuestions.push(`描述中的“${unresolvedTerms.join('、')}”尚未准确对应规则；可补充业务目的或事项名称，数字和年度不会自动成为企业事实。`);
-  if (!regions.length && topics.length) followUpQuestions.push('你希望查哪个城市或区的事项？这个地区只用于发现范围，后续仍需提供真实注册或经营依据。');
-  if (!items.length && topics.length) followUpQuestions.push('可以换一个支持方向或事项名称再试，或先查看当前资料的覆盖范围。');
-  return {
-    mode: 'mock',
-    question,
-    interpretation: {
-      summary, status,
-      suggestedTask: (topics.find(t => t.primary) ?? topics[0] ?? { task: 'eligibility' }).task,
-      topics: topics.map(({ id, label, matchedText }) => ({ id, label, matchedText })),
-      region, regions, excludedTerms, unresolvedTerms, companyFactsInferred: false
-    },
-    items,
-    meta: {
-      mode: 'deterministic',
-      query: { positiveTerms, excludedTerms, unresolvedTerms, residualHandling: topics.length ? 'soft' : 'literal', topicTerms, message: topics.length ? '已按明确主题检索；未识别片段未参与地区、资格、行业或数值判断。' : null },
-      totalAvailable: policies.length,
-      excluded: excludedTerms.map(term => ({ term })),
-      limitations: LIMITATIONS,
-      modelUsed: false, understanding: 'dictionary_rules', totalReturned: items.length,
-      catalogueSuppressed: false, selectionRequired: true, companyFactsInferred: false
-    },
-    followUpQuestions,
-    sources: items.map(p => ({ policyId: p.id, ...(p.source ?? {}), version: p.version ?? null })),
-    datasetDate,
-    generatedAt: new Date().toISOString()
-  };
-}
-
-// ------------------------------------------------------------------ 核对
-const FACT_MISSING = '尚未提供本条专项事实与期间';
-const FACT_VERIFY = '需专项资料核验（已有基础字段不能替代）';
-const REASON_MISSING = '请补充本条要求的具体资料、专项事实及对应期间；基础档案不能替代原文的专项口径。';
-const REASON_VERIFY = '该条件需要材料或人工核验，模拟服务无法确认；基础档案不能替代原文要求的专项事实、统计期间和口径。';
-const REASON_USER_MET = '用户自报的具体资料及期间提供了初步满足依据；未经材料验证或官方审核，不代表取得资格。';
-const REASON_USER_UNMET = '用户自报该项暂未满足，保留具体资料及期间；应回读原文并核实，不是官方审核结论。';
-const REASON_USER_UNKNOWN = '已保留用户自报资料；该条件涉及复合规则或专项审核，答案不能替代材料、适用路径和官方核验。';
-const REASON_PROFILE_MET = '所填企业事实满足这一结构化条件；仍需官方材料验证。';
-const REASON_PROFILE_UNMET = '所填企业事实与这一结构化条件不一致。';
-const REASON_PROFILE_MISSING = '企业档案缺少这项事实，请补充后再评估。';
-
-function matchStructured(value, operator, expected) {
-  switch (operator) {
-    case 'in': {
-      const list = Array.isArray(expected) ? expected : String(expected).split(/[,，、]/);
-      return list.some(item => String(value) === String(item) || String(value).includes(String(item)));
-    }
-    case 'lte': return Number(value) <= Number(expected);
-    case 'gte': return Number(value) >= Number(expected);
-    case 'lt': return Number(value) < Number(expected);
-    case 'gt': return Number(value) > Number(expected);
-    case 'eq': return String(value) === String(expected);
-    default: return false;
-  }
-}
-function evaluateCondition(cond, profile, assessment) {
-  const structured = cond.operator && cond.operator !== 'manual' && cond.field && cond.value !== undefined && cond.value !== null;
-  if (structured) {
-    const value = profile?.[cond.field];
-    const missing = value === undefined || value === null || value === '';
-    const ok = !missing && matchStructured(value, cond.operator, cond.value);
-    return {
-      fact: missing ? null : value,
-      status: missing ? 'missing' : (ok ? 'met' : 'unmet'),
-      reason: missing ? REASON_PROFILE_MISSING : (ok ? REASON_PROFILE_MET : REASON_PROFILE_UNMET),
-      evidenceOrigin: 'user_profile', assessment: null, fromAssessment: false,
-      fieldMissing: missing ? cond.field : null, requires: null
-    };
-  }
-  if (assessment && ['yes', 'no', 'unknown'].includes(assessment.answer)) {
-    const note = assessment.note ?? '', period = assessment.period ?? '';
-    const joined = [note, period ? `期间：${period}` : ''].filter(Boolean).join('；');
-    const yes = assessment.answer === 'yes', no = assessment.answer === 'no';
-    return {
-      fact: yes ? `是（用户自报）：${joined}` : no ? `否（用户自报）：${joined}` : '用户暂未确认',
-      status: yes ? 'met' : no ? 'unmet' : 'verify',
-      reason: yes ? REASON_USER_MET : no ? REASON_USER_UNMET : REASON_USER_UNKNOWN,
-      evidenceOrigin: 'user_report', fieldMissing: null, fromAssessment: true,
-      assessment: { period, source: assessment.source ?? 'user', note, answer: assessment.answer },
-      requires: null
-    };
-  }
-  if (cond.assessmentAllowed) {
-    return { fact: FACT_MISSING, status: 'missing', reason: REASON_MISSING, evidenceOrigin: 'unverified', assessment: null, fromAssessment: false, fieldMissing: null, requires: 'assessment' };
-  }
-  return { fact: FACT_VERIFY, status: 'verify', reason: REASON_VERIFY, evidenceOrigin: 'unverified', assessment: null, fromAssessment: false, fieldMissing: null, requires: null };
-}
-function windowStatusOf(policy) { return policy.applicationStatus || 'unknown'; }
-function windowSentence(status) {
-  if (status === 'closed') return '此历史申报批次已截止，不能视为当前可申报。';
-  if (status === 'tax_filing') return '办理时间需按原文及主管部门最新要求确认。';
-  if (status === 'open') return '当前显示的办理状态来自已收录资料，仍需以官方最新通知为准。';
-  if (status === 'active') return '办理窗口与批次状态以官方最新通知为准。';
-  return '当前申报窗口未核验。';
-}
-async function analyze(body) {
-  const policyIds = Array.isArray(body?.policyIds) ? body.policyIds : [];
-  const profile = body?.profile ?? {};
-  const assessments = body?.assessments ?? {};
-  const { policies } = await dataset();
-  const byId = new Map(policies.map(p => [p.id, p]));
-  const inputFingerprint = await fingerprint({ profile, policyIds: [...policyIds].sort(), assessments });
-  const assessmentsFingerprint = await fingerprint(assessments);
-  const results = [], policyVersions = [];
-  for (const id of policyIds) {
-    const p = byId.get(id);
-    if (!p) continue;
-    policyVersions.push({ policyId: id, version: p.version ?? null, verifiedAt: p.verifiedAt ?? null });
-    const evaluated = (p.conditions ?? []).map(c => {
-      const ev = evaluateCondition(c, profile, assessments[id]?.[c.id]);
-      const ordered = {
-        conditionId: c.id, label: c.label, field: c.field ?? null,
-        fact: ev.fact, status: ev.status, reason: ev.reason,
-        evidence: c.evidence ?? null, sourceUrl: c.sourceUrl ?? null, question: c.question ?? null,
-        inputType: c.inputType ?? 'evidence', assessmentAllowed: !!c.assessmentAllowed,
-        evidenceOrigin: ev.evidenceOrigin, periodRequired: !!c.periodRequired,
-        expectedPeriod: c.expectedPeriod ?? null
-      };
-      if (ev.assessment) ordered.assessment = ev.assessment;
-      if (ev.requires === 'assessment') { ordered.missingFields = []; ordered.requiredInput = 'assessment'; }
-      return { ...ordered, __fromAssessment: ev.fromAssessment, __fieldMissing: ev.fieldMissing };
-    });
-    const counts = { met: 0, unmet: 0, missing: 0, verify: 0 };
-    let assessmentBacked = 0;
-    const fieldMissingList = [];
-    for (const c of evaluated) {
-      counts[c.status] += 1;
-      if (c.__fromAssessment && (c.status === 'met' || c.status === 'unmet')) assessmentBacked += 1;
-      if (c.__fieldMissing) fieldMissingList.push(c.__fieldMissing);
-    }
-    const wstatus = windowStatusOf(p);
-    const segs = [];
-    if (counts.unmet > 0) segs.push(`已填写信息中有 ${counts.unmet} 项未满足条件。`);
-    else if (counts.met > 0) segs.push('已提供事实未发现明确不匹配；已满足项仅为初步依据。');
-    else segs.push('尚未提供足够事实完成初筛。');
-    if (counts.missing > 0) segs.push(`还有 ${counts.missing} 项企业事实或期间缺失。`);
-    if (counts.verify > 0) segs.push(`${counts.verify} 项条件需要人工核验。`);
-    if (assessmentBacked > 0) segs.push(`${assessmentBacked} 项依据用户专项自报，尚未审核证明材料。`);
-    segs.push(windowSentence(wstatus));
-    const nextSteps = [];
-    if (counts.missing > 0) nextSteps.push('补充缺失的具体企业事实、资料依据和指定数据期间。');
-    if (counts.unmet > 0) nextSteps.push('核对不匹配条件及企业事实，必要时调整申报方向。');
-    nextSteps.push('逐项准备材料，并由经办人确认人工核验条件。');
-    nextSteps.push(wstatus === 'closed' ? '等待或查阅主管部门下一批正式通知；不沿用历史截止日期。' : '打开官方来源，核验当前办理窗口、材料版本和申报渠道。');
-    const followUpQuestions = evaluated.filter(c => c.status === 'missing' || c.status === 'verify').map(c => ({
-      policyId: id, conditionId: c.conditionId, question: c.question, inputType: c.inputType,
-      assessmentAllowed: c.assessmentAllowed, expectedPeriod: c.expectedPeriod, reason: c.reason
-    }));
-    results.push({
-      policyId: id, title: p.title, policyVersion: p.version ?? null, source: p.source ?? null,
-      verifiedAt: p.verifiedAt ?? null, applicationStatus: p.applicationStatus ?? 'unknown',
-      conditions: evaluated.map(({ __fromAssessment, __fieldMissing, ...c }) => c),
-      summary: segs.join(' '), counts, nextSteps,
-      missingFields: [...new Set(fieldMissingList)], followUpQuestions,
-      window: { open: p.window?.open ?? null, close: p.window?.close ?? null, note: p.window?.note ?? null, status: wstatus },
-      sourceUrl: p.source?.url ?? null, mode: 'mock'
-    });
-  }
-  return {
-    mode: 'mock', contractVersion: 2, inputFingerprint, assessmentsFingerprint,
-    policyVersions, results, task: body?.task || 'eligibility',
-    generatedAt: new Date().toISOString(), disclaimer: DISCLAIMER
-  };
-}
-
-// ------------------------------------------------------------------ 问答
-function explainAnswer(p) {
-  const conds = (p.conditions ?? []).slice(0, 4);
-  return `${p.title}：以下为依据公开样本的整理说明，请对照原文理解。政策概要：${p.summary ?? ''}支持内容：${p.benefit ?? ''}关键依据：${conds.map(c => `${c.label}：${c.evidence ?? ''}`).join('；')}整理说明不构成资格、材料完整性或获批确认。`;
-}
-function explainEvidence(p) {
-  const out = [{ policyId: p.id, title: p.title, sourceUrl: p.source?.url ?? null, anchor: 'summary', evidence: p.summary ?? '' }];
-  for (const c of (p.conditions ?? []).slice(0, 4)) out.push({ policyId: p.id, title: p.title, sourceUrl: c.sourceUrl ?? null, anchor: `condition:${c.id}`, evidence: c.evidence ?? '' });
-  return out.slice(0, 5);
-}
-async function assistant(body) {
-  const task = body?.task || 'explain';
-  const { policies } = await dataset();
-  const byId = new Map(policies.map(p => [p.id, p]));
-  const picked = (Array.isArray(body?.policyIds) ? body.policyIds : []).map(id => byId.get(id)).filter(Boolean);
-  const stamp = { mode: 'mock', limitations: ASSIST_LIMITATIONS, generatedAt: new Date().toISOString() };
-  if (!picked.length || !['explain', 'materials', 'steps', 'review', 'forms'].includes(task)) {
-    return { ...stamp, task: 'unsupported', answer: UNSUPPORTED_ANSWER, evidence: [] };
-  }
-  const p = picked[0];
-  if (task === 'explain') return { ...stamp, task, answer: explainAnswer(p), evidence: explainEvidence(p) };
-  if (task === 'materials') {
-    const mats = (p.materials ?? []).slice(0, 8);
-    return {
-      ...stamp, task,
-      answer: `${p.title}：以下为依据公开样本整理的材料清单，请对照本批官方指南核对。${mats.map(m => `${m.name}：${m.note ?? ''}`).join('；')}。材料清单以官方最新指南为准，本整理不构成完整性确认。`,
-      evidence: mats.slice(0, 5).map(m => ({ policyId: p.id, title: p.title, sourceUrl: m.sourceUrl ?? null, anchor: `material:${m.id}`, evidence: m.note ?? '' }))
-    };
-  }
-  if (task === 'steps') {
-    const steps = (p.steps ?? []).slice(0, 6);
-    return {
-      ...stamp, task,
-      answer: `${p.title}：办理流程按公开样本整理如下。${steps.map((s, i) => `第${i + 1}步 ${s.title}：${s.description ?? ''}`).join('；')}。流程以官方最新通知为准，本整理不构成办理承诺。`,
-      evidence: steps.slice(0, 5).map((s, i) => ({ policyId: p.id, title: p.title, sourceUrl: s.sourceUrl ?? null, anchor: `step:${i}`, evidence: s.description ?? '' }))
-    };
-  }
-  if (task === 'forms') {
-    const fields = (p.formGuide?.fields ?? []).slice(0, 6);
-    return {
-      ...stamp, task,
-      answer: `${p.title}：填写口径按现行指引样本整理。${fields.map(f => `${f.label}：${f.help ?? ''}`).join('；')}。填写不代表获批，须以官方表格和本批指南为准。`,
-      evidence: fields.map(f => ({ policyId: p.id, title: p.title, sourceUrl: f.sourceUrl ?? p.formGuide?.sourceUrl ?? null, anchor: `field:${f.id}`, evidence: f.help ?? '' }))
-    };
-  }
-  return {
-    ...stamp, task,
-    answer: `${p.title}：复查提示。${(p.limitations ?? []).slice(0, 3).join('')}请按官方原文逐项确认条件、材料、窗口与版本后再提交，本模拟不构成审核结论。`,
-    evidence: (p.relatedDocuments ?? []).slice(0, 5).map(d => ({ policyId: p.id, title: p.title, sourceUrl: d.url ?? null, anchor: `related:${d.id}`, evidence: d.title ?? '' }))
-  };
-}
-
-// ------------------------------------------------------------------ 入口
-const HANDLED = ['/health', '/sources', '/discover', '/analyze', '/assistant'];
-function handlesLocalApi(endpoint) {
-  return typeof endpoint === 'string' && HANDLED.includes(endpoint.split('?')[0]);
-}
-async function localApiRequest(endpoint, options = {}) {
-  if (options.signal?.aborted) throw new DOMException('已取消过期请求', 'AbortError');
-  const path = endpoint.split('?')[0];
-  const method = (options.method ?? 'GET').toUpperCase();
-  if (path === '/health' && method === 'GET') {
-    const origin = location.origin;
-    return {
-      status: 'ok', mode: 'mock', configuredLlmMode: 'mock', localOnly: false,
-      hosting: 'static_bundle', authentication: 'none', storage: 'visitor_browser',
-      services: { web: { baseUrl: origin }, api: { baseUrl: origin + '/api/v1', sameOriginPath: '/api/v1', contract: '/openapi.json' } },
-      capabilities: { retrieval: 'deterministic', naturalLanguageDiscovery: true, conditionAssessments: true, recordRevision: true, workflowPersistence: 'browser_only', llm: 'mock', sourceUpdates: 'mock_queue', maxRequestBytes: 393216 },
-      privacy: { serverPersistence: false, crossDeviceSync: false, analysisInputs: 'processed transiently; never saved by this service' },
-      time: new Date().toISOString()
-    };
-  }
-  const body = typeof options.body === 'string' ? JSON.parse(options.body) : (options.body ?? {});
-  if (path === '/sources' && method === 'GET') return { items: (await dataset()).sources };
-  if (path === '/discover' && method === 'POST') return discover(body);
-  if (path === '/analyze' && method === 'POST') return analyze(body);
-  if (path === '/assistant' && method === 'POST') return assistant(body);
-  const err = new Error('本地 API 路由不存在。');
-  err.status = 404; err.code = 'ROUTE_NOT_FOUND';
-  throw err;
-}
-
-return {HANDLED, handlesLocalApi, localApiRequest};
-})();
-
 /* ===== ./api.js ===== */
 const __m___api_js = (() => {
 const {handlesLocal, localRequest} = __m___local_store_js;
@@ -1286,7 +1301,7 @@ const empty=(h,t)=>`<div class="empty">${icon('search')}<h2>${h}</h2><p>${t}</p>
 
 function shell(content){
   const home=S.view==='radar'&&!S.hasSearched&&!S.searching;
-  return `<div class="shell view-${S.view} ${home?'is-home':''}"><div class="navigation-material"><header class="topbar"><button class="brand" data-nav="radar" aria-label="政策补贴雷达，返回问题页"><img src="favicon.svg" alt=""><span>政策补贴雷达</span></button><div class="top-actions">${S.work.selected.length||S.hasSearched?'<button class="btn subtle" data-action="new-work">'+icon('spark')+'新问题</button>':''}<button class="btn menu-trigger ${S.menuOpen?'active':''}" data-action="menu" aria-expanded="${S.menuOpen}" aria-controls="top-menu">${icon('menu')}<span>工作菜单</span></button></div><nav id="top-menu" class="top-menu" aria-label="工作菜单" ${S.menuOpen?'':'hidden'}><span class="menu-label">当前任务</span>${navs.slice(0,3).map(([v,i,l])=>`<button class="menu-item ${S.view===v?'active':''}" data-nav="${v}" ${v!=='radar'&&!selected().length?'disabled':''}>${icon(i)}<span>${l}</span>${S.view===v?icon('check'):''}</button>`).join('')}<div class="menu-divider"></div><span class="menu-label">资料与记录</span>${navs.slice(3).map(([v,i,l])=>`<button class="menu-item ${S.view===v?'active':''}" data-nav="${v}">${icon(i)}<span>${l}</span>${v==='records'&&S.records.length?`<small>${S.records.length}</small>`:''}</button>`).join('')}<p class="menu-foot">所有记录只保存在本浏览器</p></nav></header></div><main id="main" tabindex="-1" class="content ${home?'home-content':''}">${S.error?hint(esc(S.error)+' '+btn('重新连接','retry'),'warning'):''}${!S.autosaveOk?hint('自动保存暂不可用，请保存当前过程。','warning'):''}${S.restored&&S.work.selected.length&&!home?`<div class="restore-line">${icon('clock')}已恢复上次工作${btn('继续准备','continue-work','subtle')}${btn('收起','dismiss-restore','subtle')}</div>`:''}${['analyze','workspace'].includes(S.view)||(S.view==='radar'&&S.hasSearched)?journey():''}${content}</main><footer class="site-footer"><span>官方资料有据可查</span><span>展示原型 · 助手为模拟模式</span><button class="text-link" data-action="feedback">反馈</button><a class="text-link" href="https://radar.huixiang17.cn/" target="_blank" rel="noopener noreferrer">原站出处</a><a class="text-link" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">京ICP备2026063004号</a><span id="autosave-status" class="sr-only">${S.autosaveOk?'当前编辑自动缓冲在本浏览器':'自动保存不可用'}</span></footer></div>`;
+  return `<div class="shell view-${S.view} ${home?'is-home':''}"><div class="demo-banner" role="note">演示原型 · 政策为 2026-10 样本快照，问答为确定性模拟，不构成官方依据。</div><div class="navigation-material"><header class="topbar"><button class="brand" data-nav="radar" aria-label="政策补贴雷达，返回问题页"><img src="favicon.svg" alt=""><span>政策补贴雷达</span></button><div class="top-actions">${S.work.selected.length||S.hasSearched?'<button class="btn subtle" data-action="new-work">'+icon('spark')+'新问题</button>':''}<button class="btn menu-trigger ${S.menuOpen?'active':''}" data-action="menu" aria-expanded="${S.menuOpen}" aria-controls="top-menu">${icon('menu')}<span>工作菜单</span></button></div><nav id="top-menu" class="top-menu" aria-label="工作菜单" ${S.menuOpen?'':'hidden'}><span class="menu-label">当前任务</span>${navs.slice(0,3).map(([v,i,l])=>`<button class="menu-item ${S.view===v?'active':''}" data-nav="${v}" ${v!=='radar'&&!selected().length?'disabled':''}>${icon(i)}<span>${l}</span>${S.view===v?icon('check'):''}</button>`).join('')}<div class="menu-divider"></div><span class="menu-label">资料与记录</span>${navs.slice(3).map(([v,i,l])=>`<button class="menu-item ${S.view===v?'active':''}" data-nav="${v}">${icon(i)}<span>${l}</span>${v==='records'&&S.records.length?`<small>${S.records.length}</small>`:''}</button>`).join('')}<button class="menu-item" data-action="about">${icon('info')}<span>关于本演示</span></button><p class="menu-foot">所有记录只保存在本浏览器</p></nav></header></div><main id="main" tabindex="-1" class="content ${home?'home-content':''}">${S.error?hint(esc(S.error)+' '+btn('重新连接','retry'),'warning'):''}${!S.autosaveOk?hint('自动保存暂不可用，请保存当前过程。','warning'):''}${S.restored&&S.work.selected.length&&!home?`<div class="restore-line">${icon('clock')}已恢复上次工作${btn('继续准备','continue-work','subtle')}${btn('收起','dismiss-restore','subtle')}</div>`:''}${['analyze','workspace'].includes(S.view)||(S.view==='radar'&&S.hasSearched)?journey():''}${content}</main><footer class="site-footer"><span>官方资料有据可查</span><span>展示原型 · 助手为模拟模式</span><button class="text-link" data-action="feedback">反馈</button><a class="text-link" href="https://radar.huixiang17.cn/" target="_blank" rel="noopener noreferrer">原站出处</a><a class="text-link" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">京ICP备2026063004号</a><span id="autosave-status" class="sr-only">${S.autosaveOk?'当前编辑自动缓冲在本浏览器':'自动保存不可用'}</span></footer></div>`;
 }
 function journey(){return `<nav class="journey segmented-track" data-segment-context="journey" aria-label="当前任务流程"><span class="segmented-indicator" aria-hidden="true"></span>${[['radar','选择政策'],['analyze','核对条件'],['workspace','准备资料']].map(([v,l],i)=>`<button data-nav="${v}" ${v!=='radar'&&!selected().length?'disabled':''} ${S.view===v?'aria-current="step"':''}><span>${i+1}</span>${l}</button>${i<2?'<span class="journey-divider" aria-hidden="true"></span>':''}`).join('')}</nav>`;}
 function composer(compact=false){return `<form id="search-form" class="composer ${compact?'compact':''}"><label for="query" class="${compact?'sr-only':'composer-label'}">${compact?'修改你的需求':'说说你想解决的经营问题'}</label><textarea id="query" name="q" rows="${compact?2:3}" maxlength="4000" placeholder="例如：我们在龙岗做软件研发，今年投入不少，想了解能用的扶持或税收优惠。" aria-describedby="prompt-hint">${esc(S.query)}</textarea><div class="composer-bottom"><span id="prompt-hint">${compact?'补充地区、业务或暂不考虑的方向':'不知道政策名称也没关系'}</span><button class="btn primary" type="submit" ${S.searching?'disabled':''}>${S.searching?'正在理解需求…':'查找相关政策'}${S.searching?'<span class="spinner"></span>':icon('arrow')}</button></div></form>`;}
@@ -1296,7 +1311,7 @@ function examples(){return `<div class="examples"><span>试试这样问</span>${
 function radar(){
   if(!S.hasSearched&&!S.searching&&!S.searchError)return home();
   const d=S.discovery,interpretation=d?.interpretation;
-  return title('选择政策','这些政策可能帮到你','先看看能解决什么问题，选择感兴趣的一项继续。')+queryPanel()+`${S.searching?'<div class="search-loading" role="status"><span class="spinner"></span><div><strong>正在理解你的问题</strong><p>查找相关事项与官方依据…</p></div></div>':S.searchError?hint(`${esc(S.searchError)} ${btn('重试','search')}`,'warning'):d&&S.visible.length?`<section class="understanding"><div class="understanding-icon">${icon('spark')}</div><div><h2>我理解你想…</h2><p>${esc((interpretation?.summary||'了解与当前经营问题相关的政策。').split('。')[0]+'。')}</p><div class="scope-tags">${interpretation?.region?`<span>${esc(interpretation.region)}</span>`:''}${(interpretation?.topics||[]).map(t=>`<span>${esc(t.label)}</span>`).join('')}</div></div><button class="btn reading-trigger retrieval-trigger" data-action="search-scope" aria-haspopup="dialog" aria-expanded="false"><span>检索范围</span>${icon('chevron','disclosure-chevron')}</button></section>`:''}${!S.searching&&!S.searchError?S.visible.length?`<div class="section-heading candidate-heading"><h2>相关政策 <span class="count">${S.visible.length}</span></h2><span>勾选想继续了解的事项</span></div><div class="policy-grid">${S.visible.map(card).join('')}</div>`:`<section class="no-candidates"><div class="empty-symbol">${icon('search')}</div><h2>${interpretation?.status==='needs_clarification'?'再说具体一点，就能帮你找。':'已覆盖资料中，暂未找到相关事项。'}</h2><p>${esc(d?.followUpQuestions?.[0]||(interpretation?.status==='no_candidates'?'这类需求暂未收录。可以换个支持方向，或查看当前资料范围。':'补充企业所在地区，以及想解决的业务问题。'))}</p><div class="quick-queries">${(d?.followUpQuestions||[]).slice(1).map(q=>`<span class="meta">${esc(q)}</span>`).join('')}</div>${examples()}<p class="meta">当前资料覆盖有限，结果不代表完整政策范围。</p><button class="text-link" data-nav="sources">查看当前资料范围</button></section>`:''}${S.searchNotice&&!S.searching?hint(esc(S.searchNotice)):''}${S.work.selected.length&&!S.searching&&!S.searchError?`<div class="selection-summary"><span>已选 ${selected().length} 项</span>${selected().map(p=>`<button class="selection-chip" data-remove-policy="${esc(p.id)}" aria-label="取消选择 ${esc(p.title)}">${esc(short(p))}${icon('cross')}</button>`).join('')}${selected().length>1?'<button class="text-link" data-action="compare">对照所选事项</button>':''}</div>`:''}${selectionActions()}`;
+  return title('选择政策','这些政策可能帮到你','先看看能解决什么问题，选择感兴趣的一项继续。')+queryPanel()+`${S.searching?'<div class="search-loading" role="status"><span class="spinner"></span><div><strong>正在理解你的问题</strong><p>查找相关事项与官方依据…</p></div></div>':S.searchError?hint(`${esc(S.searchError)} ${btn('重试','search')}`,'warning'):d&&S.visible.length?`<section class="understanding"><div class="understanding-icon">${icon('spark')}</div><div><h2>我理解你想…</h2><p>${esc((interpretation?.summary||'了解与当前经营问题相关的政策。').split('。')[0]+'。')}</p><div class="scope-tags">${interpretation?.region?`<span>${esc(interpretation.region)}</span>`:''}${(interpretation?.topics||[]).map(t=>`<span>${esc(t.label)}</span>`).join('')}</div></div><button class="btn reading-trigger retrieval-trigger" data-action="search-scope" aria-haspopup="dialog" aria-expanded="false"><span>检索范围</span>${icon('chevron','disclosure-chevron')}</button></section>`:''}${!S.searching&&!S.searchError?S.visible.length?`<div class="section-heading candidate-heading"><h2>相关政策 <span class="count">${S.visible.length}</span></h2><span>勾选想继续了解的事项</span></div><div class="policy-grid">${[...S.visible].sort((a,b)=>Number(a.applicationStatus==='closed')-Number(b.applicationStatus==='closed')).map(card).join('')}</div>`:`<section class="no-candidates"><div class="empty-symbol">${icon('search')}</div><h2>${interpretation?.status==='needs_clarification'?'再说具体一点，就能帮你找。':'已覆盖资料中，暂未找到相关事项。'}</h2><p>${esc(d?.followUpQuestions?.[0]||(interpretation?.status==='no_candidates'?'这类需求暂未收录。可以换个支持方向，或查看当前资料范围。':'补充企业所在地区，以及想解决的业务问题。'))}</p><div class="quick-queries">${(d?.followUpQuestions||[]).slice(1).map(q=>`<span class="meta">${esc(q)}</span>`).join('')}</div>${examples()}<p class="meta">当前资料覆盖有限，结果不代表完整政策范围。</p><button class="text-link" data-nav="sources">查看当前资料范围</button></section>`:''}${S.searchNotice&&!S.searching?hint(esc(S.searchNotice)):''}${S.work.selected.length&&!S.searching&&!S.searchError?`<div class="selection-summary"><span>已选 ${selected().length} 项</span>${selected().map(p=>`<button class="selection-chip" data-remove-policy="${esc(p.id)}" aria-label="取消选择 ${esc(p.title)}">${esc(short(p))}${icon('cross')}</button>`).join('')}${selected().length>1?'<button class="text-link" data-action="compare">对照所选事项</button>':''}</div>`:''}${selectionActions()}`;
 }
 function selectionActions(){
  if(!S.visible.length||S.searching||S.searchError)return '';
@@ -1306,7 +1321,7 @@ function selectionActions(){
 function candidateReason(p){const regions=S.discovery?.interpretation?.regions||[],terms=(p.retrieval?.matchedTerms||[]).filter(t=>!regions.some(r=>r.includes(t))).slice(0,3);return (terms.length?'与你提到的“'+terms.join('、')+'”相关':'与当前业务方向相关')+'；'+(p.region==='全国'?'全国政策范围':p.region+'事项')+'，适用条件仍需核对。';}
 function card(p){
  const chosen=S.work.selected.includes(p.id),w=windowCopy(p);
- return `<article id="policy-${esc(p.id)}" data-policy-card="${esc(p.id)}" class="policy-card ${chosen?'selected':''}"><div class="candidate-main"><div class="candidate-title"><span class="candidate-region">${esc(p.region)}</span><h2>${esc(p.title)}</h2></div><label class="check-select"><input type="checkbox" data-select="${esc(p.id)}" aria-label="选择 ${esc(p.title)}" ${chosen?'checked':''}><span>${chosen?'已选择':'选择'}</span></label></div><p class="card-purpose">${esc(policyPurpose(p))}</p><div class="candidate-window ${w.kind}">${icon('clock')}<span>${esc(w.label)}</span></div><button class="btn candidate-detail-trigger reading-trigger" data-detail="${esc(p.id)}" aria-haspopup="dialog" aria-expanded="false"><span>查看适用要求与依据</span>${icon('chevron','disclosure-chevron')}</button><div class="candidate-source">${link(p.source?.url,'官方原文')}<span>核验 ${date(p.verifiedAt)}</span></div></article>`;
+ return `<article id="policy-${esc(p.id)}" data-policy-card="${esc(p.id)}" class="policy-card ${chosen?'selected':''}"><div class="candidate-main"><div class="candidate-title"><span class="candidate-region">${esc(p.region)}</span>${p.applicationStatus==='closed'?'<span class="pill closed">已截止</span>':''}<h2>${esc(p.title)}</h2></div><label class="check-select"><input type="checkbox" data-select="${esc(p.id)}" aria-label="选择 ${esc(p.title)}" ${chosen?'checked':''}><span>${chosen?'已选择':'选择'}</span></label></div><p class="card-purpose">${esc(policyPurpose(p))}</p><div class="candidate-window ${w.kind}">${icon('clock')}<span>${esc(w.label)}</span></div><button class="btn candidate-detail-trigger reading-trigger" data-detail="${esc(p.id)}" aria-haspopup="dialog" aria-expanded="false"><span>查看适用要求与依据</span>${icon('chevron','disclosure-chevron')}</button><div class="candidate-source">${link(p.source?.url,'官方原文')}<span>核验 ${date(p.verifiedAt)}</span></div></article>`;
 }
 const policyDetail=renderPolicyDetails;
 function policyPicker(){return selected().length>1?`<div class="policy-picker segmented-track" data-segment-context="policy-picker-${esc(S.view)}-${esc(S.work.selected.join('-'))}" role="group" aria-label="切换当前政策"><span class="segmented-indicator" aria-hidden="true"></span>${selected().map(p=>`<button data-active-policy="${esc(p.id)}" class="${activePolicy()?.id===p.id?'active':''}" aria-pressed="${activePolicy()?.id===p.id}">${esc(short(p))}</button>`).join('')}</div>`:'';}
@@ -1318,7 +1333,7 @@ function analysis(){
   const p=activePolicy();if(!p)return title('核对条件','先选择要了解的政策。','核对会根据所选事项，按需追问企业信息。')+empty('还没有选择政策','描述业务问题后，在相关政策上点击“选择”。');
   const r=S.work.analysis?.results?.find(x=>x.policyId===p.id),stale=S.work.analysisStale;
   const pending=(r?.conditions.filter(c=>c.status!=='met')||[]).sort((a,b)=>({unmet:0,missing:1,verify:2}[a.status])-({unmet:0,missing:1,verify:2}[b.status])),missing=pending.filter(c=>c.status==='missing'),unmet=pending.filter(c=>c.status==='unmet'),verify=pending.filter(c=>c.status==='verify');
-  return title('核对条件','核对适用条件','先确认关键信息，未知信息可暂时跳过。',btn(icon('spark')+'问助手','assistant-toggle','subtle'))+policyPicker()+policyContext(p)+windowNote(p)+`${S.work.historical?hint('正在使用保存时的政策快照。 '+btn('比较当前资料','refresh-sources','subtle'),'warning'):''}${stale?hint('事实或资料有变化，需要重新核对。 '+btn('重新核对','analyze','subtle'),'warning'):''}${r?`<section class="analysis-focus"><div class="focus-summary focus-overview"><span class="eyebrow">当前判断 · ${stale?'待更新':'根据已提供的事实'}</span><h2>${unmet.length?`有 ${unmet.length} 条信息初步不符合。`:missing.length?`还需要补充 ${missing.length} 条企业信息。`:verify.length?`有 ${verify.length} 条规则需要进一步核实。`:'已提供信息支持初步满足。'}</h2><p>${unmet.length?'先查看不符原因，判断是否值得继续准备。':missing.length?'从能确认的信息开始；不会把缺失信息当成不符合。':verify.length?'可先记录材料线索，复杂规则仍需人工核验。':'提交前仍需核验正式材料、办理时间与完整要求。'}</p><div class="counts">${Object.entries({met:'初步满足',unmet:'初步不符',missing:'待补信息',verify:'待核规则'}).map(([k,l])=>`<span><strong>${r.conditions.filter(c=>c.status===k).length}</strong> ${l}</span>`).join('')}</div></div>${pending.length?`<div class="section-heading"><h2>优先处理</h2><span>${S.showAllConditions?pending.length:Math.min(3,pending.length)}/${pending.length} 条</span></div><div class="condition-list">${(S.showAllConditions?pending:pending.slice(0,3)).map(c=>condition(c,p.id)).join('')}</div>${pending.length>3?btn(S.showAllConditions?'收起其他条件':'查看其余 '+(pending.length-3)+' 条条件','all-conditions','subtle expand-conditions'):''}`:''}${r.conditions.some(c=>c.status==='met')?`<details class="fulfilled-conditions"><summary class="disclosure-summary"><span class="disclosure-label">已初步满足的 ${r.conditions.filter(c=>c.status==='met').length} 条条件</span>${icon('chevron','disclosure-chevron')}</summary><div class="disclosure-body">${r.conditions.filter(c=>c.status==='met').map(c=>condition(c,p.id)).join('')}</div></details>`:''}</section>`:`<div class="empty-analysis"><h2>从已有事实开始核对。</h2><p>无需先填写整份企业档案，缺什么再补什么。</p>${btn('开始核对','analyze','primary',S.busy.has('analyze'))}</div>`}<div class="stage-actions"><div><strong>${missing.length?'下一步：补充能确认的事实':'下一步：整理材料与办理路径'}</strong><small>能确认的先补充；暂不清楚也可以继续准备，未确认条件会保留。</small></div><div class="button-row">${missing[0]&&!stale?`<button class="btn" data-followup="${esc(p.id)}" data-condition="${esc(missing[0].conditionId)}">${esc(missing[0].field&&fields[missing[0].field]?'补充'+fields[missing[0].field]:'补充首项企业事实')}</button>`:''}<button class="btn primary" data-work="${esc(p.id)}">准备这项政策 ${icon('arrow')}</button></div></div>${assistant()}`;
+  return title('核对条件','核对适用条件','先确认关键信息，未知信息可暂时跳过。',btn(icon('spark')+'问助手','assistant-toggle','subtle'))+policyPicker()+policyContext(p)+windowNote(p)+`${S.work.historical?hint('正在使用保存时的政策快照。 '+btn('比较当前资料','refresh-sources','subtle'),'warning'):''}${stale?hint('事实或资料有变化，需要重新核对。 '+btn('重新核对','analyze','subtle'),'warning'):''}${r?`<section class="analysis-focus"><div class="focus-summary focus-overview"><span class="eyebrow">当前判断 · ${stale?'待更新':'根据已提供的事实'}</span><h2>${unmet.length?`有 ${unmet.length} 条信息初步不符合。`:missing.length?`还需要补充 ${missing.length} 条企业信息。`:verify.length?`有 ${verify.length} 条规则需要进一步核实。`:'已提供信息支持初步满足。'}</h2><p>${unmet.length?'先查看不符原因，判断是否值得继续准备。':missing.length?'从能确认的信息开始；不会把缺失信息当成不符合。':verify.length?'可先记录材料线索，复杂规则仍需人工核验。':'提交前仍需核验正式材料、办理时间与完整要求。'}</p><div class="counts">${Object.entries({met:'初步满足',unmet:'初步不符',missing:'待补信息',verify:'待核规则'}).map(([k,l])=>`<span class="count-${k}"><strong>${r.conditions.filter(c=>c.status===k).length}</strong> ${l}</span>`).join('')}</div></div>${pending.length?`<div class="section-heading"><h2>优先处理</h2><span>${S.showAllConditions?pending.length:Math.min(3,pending.length)}/${pending.length} 条</span></div><div class="condition-list">${(S.showAllConditions?pending:pending.slice(0,3)).map(c=>condition(c,p.id)).join('')}</div>${pending.length>3?btn(S.showAllConditions?'收起其他条件':'查看其余 '+(pending.length-3)+' 条条件','all-conditions','subtle expand-conditions'):''}`:''}${r.conditions.some(c=>c.status==='met')?`<details class="fulfilled-conditions"><summary class="disclosure-summary"><span class="disclosure-label">已初步满足的 ${r.conditions.filter(c=>c.status==='met').length} 条条件</span>${icon('chevron','disclosure-chevron')}</summary><div class="disclosure-body">${r.conditions.filter(c=>c.status==='met').map(c=>condition(c,p.id)).join('')}</div></details>`:''}</section>`:`<div class="empty-analysis"><h2>从已有事实开始核对。</h2><p>无需先填写整份企业档案，缺什么再补什么。</p>${btn('开始核对','analyze','primary',S.busy.has('analyze'))}</div>`}<div class="stage-actions"><div><strong>${missing.length?'下一步：补充能确认的事实':'下一步：整理材料与办理路径'}</strong><small>能确认的先补充；暂不清楚也可以继续准备，未确认条件会保留。</small></div><div class="button-row">${missing[0]&&!stale?`<button class="btn" data-followup="${esc(p.id)}" data-condition="${esc(missing[0].conditionId)}">${esc(missing[0].field&&fields[missing[0].field]?'补充'+fields[missing[0].field]:'补充首项企业事实')}</button>`:''}<button class="btn primary" data-work="${esc(p.id)}">准备这项政策 ${icon('arrow')}</button></div></div>${assistant()}`;
 }
 function condition(c,id){return `<article class="condition" data-condition-card="${esc(id)}-${esc(c.conditionId)}"><div class="condition-main"><div class="condition-heading"><h3>${esc(c.label)}</h3>${stateBadge(c.status)}</div><p>${esc(c.status==='missing'?c.question||c.reason:c.reason)}</p><details><summary class="disclosure-summary"><span class="disclosure-label">企业事实与官方依据</span>${icon('chevron','disclosure-chevron')}</summary><div class="disclosure-body"><p>企业事实：${esc(String(c.fact).startsWith('需专项资料')?'尚未记录专项事实':formatFact(c.fact))}${c.assessment?.period?' · '+esc(c.assessment.period):''}</p><p>${esc(c.evidence)}</p>${c.assessment?.note?`<p>资料说明：${esc(c.assessment.note)}</p>`:''}${link(c.sourceUrl,'官方原文')}</div></details></div><button class="btn small" data-followup="${esc(id)}" data-condition="${esc(c.conditionId)}">${c.status==='missing'?'补充信息':c.status==='verify'?'记录核验线索':'查看 / 修改事实'}</button></article>`;}
 function workSaveStatus(){const saved=recordSaveState();return `<div class="work-save-status" aria-live="polite" aria-atomic="true"><span data-buffer-state="${S.autosaveOk?'saved':'failed'}">${S.autosaveOk?'本浏览器已暂存':'浏览器暂存失败，请保存记录'}</span><span data-save-state="${esc(saved.kind)}">${esc(saved.label)}</span></div>`;}
@@ -1820,6 +1835,7 @@ return {activeLayer, finishLayerClose, openLayer, closeLayer, handleLayerHistory
 
 /* ===== app.js（入口，保留顶层 await） ===== */
 const {S, SESSION_KEY, PREVIOUS_WORK_KEY, clone, selected, activePolicy, profileForWork, policyForWork, analysisBasis, invalidateAnalysis, choosePolicy, rememberSources, policyChanges, recordPayload, restoreRecord, saveSession, restoreSession, newWork, recordSaveState} = __m___state_js;
+const {regionsOf} = __m___local_api_js;
 const {request, ApiError} = __m___api_js;
 const {esc, link, icon, date, formatFact, fields, download, badge} = __m___utils_js;
 const {shell, views, recStatus, policyDetail} = __m___views_js;
@@ -1898,7 +1914,7 @@ function render({focus=false}={}){
  window.scrollTo(0,scroll);
  installFieldFocus(app);
 }
-function go(view,{replace=false}={}){if(!views[view])return;const previousView=S.view;S.view=view;S.menuOpen=false;if(view==='analyze')S.work.task='eligibility';else if(view==='workspace'&&!(S.work.task==='explain'&&S.assistantOpen&&S.tab==='steps'))S.work.task=S.tab==='fields'?'forms':S.tab;S.work.stage=({radar:'discover',analyze:'evaluate',workspace:S.tab==='review'?'review':'prepare'}[view])||S.work.stage;if(location.hash!=='#'+view)history[replace?'replaceState':'pushState'](null,'','#'+view);persist();render({focus:true});if(previousView!==view)taskEntrance();}
+function go(view,{replace=false}={}){if(!views[view])return;const previousView=S.view;S.view=view;S.menuOpen=false;if(view==='analyze')S.work.task='eligibility';else if(view==='workspace'&&!(S.work.task==='explain'&&S.assistantOpen&&S.tab==='steps'))S.work.task=S.tab==='fields'?'forms':S.tab;S.work.stage=({radar:'discover',analyze:'evaluate',workspace:S.tab==='review'?'review':((S.work.analysis&&!S.work.analysisStale)||S.work.historical?'prepare':'evaluate')}[view])||S.work.stage;if(location.hash!=='#'+view)history[replace?'replaceState':'pushState'](null,'','#'+view);persist();render({focus:true});if(previousView!==view)taskEntrance();}
 function prepareView(tab){S.tab=preparationOrder.includes(tab)?tab:'steps';S.work.task=S.tab==='fields'?'forms':S.tab;go('workspace');}
 function openReviewGap(kind){
  const p=activePolicy();if(!p)return;
@@ -1933,7 +1949,7 @@ async function search(){
     S.visible=data.items;S.discovery=data;S.editingQuery=false;S.searchMeta=data.meta||null;S.searchNotice='';
     const removed=S.work.selected.filter(id=>!data.items.some(p=>p.id===id));
     if(removed.length){localStorage.setItem(PREVIOUS_WORK_KEY,JSON.stringify(S.work));for(const id of removed)choosePolicy(id,false);S.searchNotice=`已移出本次候选之外的 ${removed.length} 项。之前的准备已备份，可在工作设置恢复。`;if(!S.work.selected.length){S.work.recordId=null;S.work.recordRevision=null;S.work.recordTitle='';}}
-    if(S.work.question!==question)invalidateAnalysis();S.work.question=question;persist();
+    if(S.work.question!==question)invalidateAnalysis();S.work.question=question;persist();const identified=regionsOf(question).find(r=>r!=='全国');if(identified&&!profileForWork().region){S.profileDraft.region=identified;S.profileDirty=true;laterPersist();setTimeout(()=>toast('已从问题中识别地区：'+identified+'，已暂存到企业档案；可在“企业资料”确认或修改。'),80);}
   }catch(e){if(e.name!=='AbortError'&&serial===searchSerial){S.searchError=e.message;S.visible=[];S.discovery=null;S.searchMeta=null;persist();}}
   finally{if(serial===searchSerial){S.searching=false;render();if(S.view==='radar'&&!S.searchError)taskEntrance();}}
 }
@@ -1945,7 +1961,8 @@ async function detail(id,trigger){
 }
 async function scopeDialog(){await finishLayerClose();dialog('检索范围与资料覆盖',renderSearchScope(),{kind:'scope-dialog',historyEntry:true,trigger:document.activeElement});}
 async function contextDialog(){const p=activePolicy();if(!p)return;await finishLayerClose();dialog(p.title,policyDetail(p,{context:true}),{kind:'policy-context-dialog',historyEntry:true,trigger:document.activeElement});}
-function followUp(id,cid){if(S.work.historical){refreshSources();return;}const p=policyForWork(id),c=p?.conditions?.find(c=>c.id===cid);if(!c)return;const a=S.work.assessments[id]?.[cid]||{};const basic=c.operator!=='manual'&&c.field;const fact=profileForWork()[c.field];dialog('补充这条条件的事实',`<h3>${esc(c.label)}</h3><p>${esc(c.question)}</p><div class="hint">${esc(c.periodRequirement||c.expectedPeriod||'按适用申报期间核对原始材料')}</div><form id="followup-form" data-policy="${esc(id)}" data-condition="${esc(cid)}">${basic?`<label class="field">${esc(fields[c.field]||c.field)}${numbers.includes(c.field)?`<input name="fact" type="number" min="0" step="any" value="${esc(fact??'')}">`:booleans.includes(c.field)?`<select name="fact"><option value="">未知</option><option value="true" ${fact===true?'selected':''}>是</option><option value="false" ${fact===false?'selected':''}>否</option></select>`:`<input name="fact" value="${esc(fact??'')}" maxlength="300">`}</label><label class="field">数据所属期间<input name="period" value="${esc(profileForWork().period||'')}" placeholder="${esc(c.expectedPeriod||'例如2025年度')}" maxlength="300"></label><p class="meta">这是本次任务内的基础事实，保存档案需要在企业档案中操作。</p>`:`<label class="field">是否满足这条具体要求？<select name="answer">${[['unknown','尚未确认 / 不清楚'],['yes','是，有资料说明'],['no','否，有资料说明']].map(([v,l])=>`<option value="${v}" ${v===(a.answer||'unknown')?'selected':''}>${l}</option>`).join('')}</select></label><label class="field">资料依据与具体数值 / 情况<textarea name="note" rows="4" maxlength="4000" placeholder="写真实金额、计算口径、材料名称与页码；不要用一句“已满足”代替。">${esc(a.note||'')}</textarea></label><label class="field">对应期间<input name="period" value="${esc(a.period||'')}" maxlength="300" placeholder="${esc(c.expectedPeriod||c.periodRequirement||'例如2025年度')}"></label>${!c.assessmentAllowed?'<div class="hint warning">这一条件涉及复合规则或专项审核，信息会保留为核验线索，不能转为确定资格。</div>':'<div class="hint">有具体依据和适用期间的单项自报可用于初筛，仍需证明材料核验。</div>'}`}<details><summary class="disclosure-summary"><span class="disclosure-label">官方规则依据</span>${icon('chevron','disclosure-chevron')}</summary><div class="disclosure-body"><p>${esc(c.evidence)}</p>${link(c.sourceUrl,'官方原文')}</div></details><div class="form-actions"><button class="btn" type="button" data-action="close">取消</button><button class="btn primary">保留事实并重新核对</button></div></form>`);}
+async function aboutDialog(){await finishLayerClose();dialog('关于本演示',`<p><strong>这是一个展示原型。</strong>政策资料为 2026-10-10 核验的 6 条公开官方样本快照（龙岗 / 深圳 / 全国税惠），不是全量政策库；检索、条件核对与问答均为浏览器内的确定性模拟，不构成官方依据、资格判断或审批结论。</p><p>企业资料、草稿与过程记录只保存在本浏览器（localStorage），不上传任何服务器；换设备或清理缓存会丢失，请用“导出”备份。</p><p>提交前请以官方原文与当期申报指南为准：每条政策与条件都附有官方来源与留存快照链接，可在“官方来源”页逐一核对。</p><p>本项目由原站 <a href="https://radar.huixiang17.cn/" target="_blank" rel="noopener noreferrer">radar.huixiang17.cn</a> 的公开前端逆向优化而来，已在本地完整重写检索/核对/问答实现，运行时不依赖原站。</p>`);}
+function followUp(id,cid){if(S.work.historical){refreshSources();return;}const p=policyForWork(id),c=p?.conditions?.find(c=>c.id===cid);if(!c)return;const a=S.work.assessments[id]?.[cid]||{};const basic=c.operator!=='manual'&&c.field;const fact=profileForWork()[c.field];dialog('补充这条条件的事实',`<h3>${esc(c.label)}</h3><p>${esc(c.question)}</p><div class="hint">${esc(c.periodRequirement||c.expectedPeriod||'按适用申报期间核对原始材料')}</div><form id="followup-form" data-policy="${esc(id)}" data-condition="${esc(cid)}">${basic?`<label class="field">${esc(fields[c.field]||c.field)}${numbers.includes(c.field)?`<input name="fact" type="number" min="0" step="any" value="${esc(fact??'')}">`:booleans.includes(c.field)?`<select name="fact"><option value="">未知</option><option value="true" ${fact===true?'selected':''}>是</option><option value="false" ${fact===false?'selected':''}>否</option></select>`:`<input name="fact" value="${esc(fact??'')}" maxlength="300">`}</label><label class="field">数据所属期间<input name="period" value="${esc(profileForWork().period||'')}" placeholder="${esc(c.expectedPeriod||'例如2025年度')}" maxlength="300"></label><p class="meta">这是本次任务内的基础事实，保存档案需要在企业档案中操作。</p>`:`<label class="field">是否满足这条具体要求？<select name="answer">${[['unknown','尚未确认 / 不清楚'],['yes','是，有资料说明'],['no','否，有资料说明']].map(([v,l])=>`<option value="${v}" ${v===(a.answer||'unknown')?'selected':''}>${l}</option>`).join('')}</select></label><label class="field">资料依据与具体数值 / 情况<textarea name="note" rows="4" maxlength="4000" placeholder="写真实金额、计算口径、材料名称与页码；不要用一句“已满足”代替。">${esc(a.note||'')}</textarea></label><label class="field">对应期间<input name="period" value="${esc(a.period||'')}" maxlength="300" placeholder="${esc(c.expectedPeriod||c.periodRequirement||'例如2025年度')}"></label>${!c.assessmentAllowed?'<div class="hint warning">这一条件涉及复合规则或专项审核，信息会保留为核验线索，不能转为确定资格。</div>':'<div class="hint">有具体依据和适用期间的单项自报可用于初筛，仍需证明材料核验。</div>'}`}<details><summary class="disclosure-summary"><span class="disclosure-label">官方规则依据</span>${icon('chevron','disclosure-chevron')}</summary><div class="disclosure-body"><p>${esc(c.evidence)}</p>${link(c.sourceUrl,'官方原文')}</div></details><div class="form-actions"><button class="btn" type="button" data-action="close">取消</button><button class="btn primary">保存并继续核对</button></div></form>`);}
 function showSave(){if(!selected().length){toast('先选择要保存的事项');return;}const p=recordPayload();dialog(S.work.recordId?'更新这条准备过程':'保存准备过程',`<form id="save-form"><label class="field">记录名称<input name="title" value="${esc(p.title)}" required maxlength="200"></label><label class="field">实际进度<select name="status">${Object.entries(recStatus).map(([k,l])=>`<option value="${k}" ${p.status===k?'selected':''}>${l}</option>`).join('')}</select></label><p class="meta">提交与审核结果由你自行记录。保存包含材料、步骤、字段、问答与当时来源。</p>${S.work.analysis&&S.work.analysisStale?'<div class="hint warning">旧核对结果已过期，本次将保存资料与进度，待重新核对后再形成新判断。</div>':''}<div class="form-actions"><button class="btn" type="button" data-action="close">取消</button><button class="btn primary">${S.work.recordId?'更新过程':'保存过程'}</button></div></form>`);}
 async function refreshRecords(){S.records=(await request('/records')).items;}
 function exportWork(work=S.work,format='md'){const data={work,profile:profileForWork(),policies:S.policies};download('PolicyRadar-'+date(new Date().toISOString())+'.'+format,format==='json'?exportJson(data):exportMarkdown(data),format==='json'?'application/json;charset=utf-8':'text/markdown;charset=utf-8');toast('已导出含事实、字段和来源的准备记录');}
@@ -1967,8 +1984,8 @@ function refreshSources(){
 async function historyDialog(id){const d=await request('/records/'+id+'/history');dialog('记录的保存版本',`<p>最多保留最近20个版本。旧版本可独立查看与导出。</p><div class="version-list">${d.items.map(r=>`<div><strong>版本 ${r.revision} ${r.current?'· 当前':''}</strong><p>${esc(r.title)} · ${date(r.updatedAt)}</p><button class="btn" data-revision="${id}" data-number="${r.revision}">查看这次成果</button></div>`).join('')}</div>`);}
 async function ask(question){if(!selected().length)return toast('先选择需要解释的事项');if(S.busy.has('assistant'))return;const ids=[activePolicy().id],task=S.work.task==='explain'?'explain':S.view==='workspace'?S.tab==='fields'?'forms':S.tab:'explain',serial=++chatSerial,basis=analysisBasis(),record=S.work.recordId;const at=new Date().toISOString();S.work.messages.push({role:'user',text:question,policyIds:ids,task,at});S.work.messages=S.work.messages.slice(-30);persist();S.busy.add('assistant');render();try{const d=await request('/assistant',{method:'POST',body:{question,policyIds:ids,profile:profileForWork(),assessments:scopeAssessments(ids),task}});if(serial!==chatSerial||basis!==analysisBasis()||record!==S.work.recordId)return toast('任务资料已变化，请在当前事项重新提问。');S.work.messages.push({role:'assistant',text:d.answer,evidence:d.evidence||[],policyIds:ids,task,at:d.generatedAt||new Date().toISOString()});S.work.messages=S.work.messages.slice(-30);persist();}catch(e){S.work.messages.push({role:'assistant',text:'本次请求未完成：'+e.message,policyIds:ids,task,at:new Date().toISOString()});persist();throw e;}finally{S.busy.delete('assistant');render();}}
 async function saveProfile(profile){try{const d=await request('/profile',{method:'PUT',body:{profile,expectedRevision:S.profileRevision}});S.profile=d.profile;S.profileRevision=d.revision;S.profileDraft=clone(S.profile);S.profileDirty=false;if(!S.work.profileSnapshot)invalidateAnalysis();persist();render();toast('企业档案已保存到本浏览器');}catch(e){if(e.status===409){dialog('企业档案已在另一页面修改',`<p>你的编辑缓冲已保留。可以重载最新档案后继续编辑，或先导出本次任务事实。</p><div class="button-row"><button class="btn primary" data-action="reload-profile">读取最新档案</button><button class="btn" data-action="close">继续保留我的编辑</button></div>`);return;}throw e;}}
-async function action(a,{pointer=false}={}){switch(a){case 'search-scope':await scopeDialog();return;case 'policy-context':await contextDialog();return;case 'collapse-home':setHomeExpanded(false,{animate:pointer});document.querySelector('.home-heading h1')?.focus({preventScroll:true});return;case 'prep-next':case 'prep-skip':{const current=S.tab,next=preparationOrder[preparationOrder.indexOf(current)+1];if(next)prepareView(next);if(a==='prep-skip')toast('已略过这一步；未处理内容仍保留，未标记为完成。');return;}case 'menu':S.menuOpen=!S.menuOpen;render();if(S.menuOpen){document.querySelector('.top-menu .menu-item:not(:disabled)')?.focus();surfaceEntrance(document.querySelector('.top-menu'),'menu');}return;case 'edit-query':S.editingQuery=true;render();document.getElementById('query')?.focus();return;case 'start-task':{if(S.searching||S.searchError||!S.visible.some(p=>S.work.selected.includes(p.id))){toast('请先选择本次问题的相关政策。');return;}const task=S.discovery?.interpretation?.suggestedTask||'eligibility';if(task==='eligibility')await analyze();else{S.tab={materials:'materials',steps:'steps',forms:'fields',explain:'steps'}[task]||'steps';S.fieldIndex=0;S.work.task=task;S.assistantOpen=task==='explain';go('workspace');if(task==='explain')await ask(S.work.question);}return;}case 'continue-work':go(S.work.stage==='evaluate'?'analyze':'workspace');return;case 'all-conditions':S.showAllConditions=!S.showAllConditions;render();return;case 'assistant-toggle':S.assistantOpen=!S.assistantOpen;if(!S.assistantOpen&&S.work.task==='explain')S.work.task='steps';persist();render();if(S.assistantOpen){document.querySelector('.assistant')?.scrollIntoView({block:'start',behavior:'instant'});document.getElementById('assistant-question')?.focus({preventScroll:true});}return;case 'field-next':S.fieldIndex=Math.min(S.fieldIndex+1,(activePolicy()?.formGuide?.fields.length||1)-1);persist();render();document.querySelector('[data-form-field]')?.focus({preventScroll:true});return;case 'field-prev':S.fieldIndex=Math.max(S.fieldIndex-1,0);persist();render();document.querySelector('[data-form-field]')?.focus({preventScroll:true});return;case 'close':await closeDialog();return;case 'dismiss-restore':S.restored=false;render();return;case 'search':await search();return;case 'clear-search':S.query=S.region=S.category=S.applicationStatus='';await search();return;case 'clear-record-filters':S.recordQuery='';S.recordFilter='';render();document.getElementById('record-query')?.focus();return;case 'retry':await initialize(false);return;case 'analyze':await analyze();return;case 'save':showSave();return;case 'export':exportWork();return;case 'reviewed':S.work.lastReviewedAt=new Date().toISOString();S.work.stage='review';persist();render();toast('已记录本次自行复核时间');return;case 'refresh-sources':refreshSources();return;case 'confirm-refresh-sources':{const before=S.work.selected.map(policyForWork);S.work.historical=false;S.work.selected=S.work.selected.filter(id=>S.policies.some(p=>p.id===id));for(const p of selected()){const old=before.find(x=>x.id===p.id);S.work.checks[p.id]=Object.fromEntries(Object.entries(S.work.checks[p.id]||{}).filter(([id])=>p.materials.some(m=>m.id===id&&JSON.stringify(m)===JSON.stringify(old?.materials?.find(x=>x.id===id)))));const progress=S.work.steps[p.id]||{};S.work.steps[p.id]=Object.fromEntries(p.steps.map((step,i)=>{const prior=old?.steps?.findIndex(x=>JSON.stringify(x)===JSON.stringify(step));return ['step-'+i,prior>=0&&progress['step-'+prior]===true];}));}invalidateAnalysis();rememberSources();closeDialog();await analyze();return;}case 'compare':{const ps=selected();dialog('所选事项对照',`<p>并列比较适用对象、办理方式和缺口，不叠加不同项目金额。</p><div class="compare-grid">${ps.map(p=>`<article><h3>${esc(p.title)}</h3>${badge(p)}<p><strong>对象：</strong>${esc(p.audience)}</p><p><strong>支持：</strong>${esc(p.benefit)}</p><p>${esc(p.window?.note)}</p>${link(p.source?.url,'依据')}</article>`).join('')}</div><div class="form-actions"><button class="btn primary" data-action="analyze">逐项核对条件</button><button class="btn" data-action="close">关闭</button></div>`);return;}case 'recover-work':{const raw=localStorage.getItem(PREVIOUS_WORK_KEY);if(!raw)return toast('暂无上一任务缓冲');const old=JSON.parse(raw);dialog('恢复上一个任务缓冲',`<p>将恢复上一任务的选材、事实与准备成果，当前缓冲会先备份。</p><div class="button-row"><button class="btn primary" id="recover-confirm">备份并恢复</button><button class="btn" data-action="close">取消</button></div>`);document.getElementById('recover-confirm').onclick=()=>{localStorage.setItem(PREVIOUS_WORK_KEY,JSON.stringify(S.work));S.work={...S.work,...old};S.query=S.work.question||'';S.hasSearched=false;S.discovery=null;S.visible=[];++analysisSerial;++chatSerial;persist();closeDialog();go('workspace');};return;}case 'new-work':if(S.work.selected.length||S.work.question||S.work.notes)localStorage.setItem(PREVIOUS_WORK_KEY,JSON.stringify(S.work));++analysisSerial;++chatSerial;++searchSerial;searchController?.abort();S.searching=false;newWork();go('radar');toast('已开始新问题；上一任务可从工作设置恢复。');return;case 'confirm-new':localStorage.setItem(PREVIOUS_WORK_KEY,JSON.stringify(S.work));++analysisSerial;++chatSerial;newWork();closeDialog();go('radar');return;case 'feedback':dialog('保留问题与核实线索',`<form id="feedback-form"><label class="field">需要核实什么？<textarea name="comment" required maxlength="4000" rows="5" placeholder="写政策名称、条款、具体错误或未解决卡点。"></textarea></label><p class="meta">仅保存在本浏览器，便于自行核实；不会发送给运营方或改写官方依据。</p><div class="form-actions"><button class="btn" type="button" data-action="close">取消</button><button class="btn primary">保存反馈</button></div></form>`);return;case 'interfaces':dialog('后台接入与接口契约',`<p>真实大模型、企业数据、政策采集和消息服务均预留独立 adapter 接口；在线原型使用模拟助手。</p>${link('/openapi.json','查看 OpenAPI 契约','btn')}<p>前端通过同源 /api/v1 调用后台服务。浏览器保存、官方来源展示与模拟助手服务已接入；真实 API 可在对应 adapter 中接入。</p><button class="btn" data-action="close">关闭</button>`);return;case 'demo-profile':dialog('载入模拟企业资料',`<p>仅用于体验。模拟人员、收入、研发比例不代表任何真实企业，专项条件仍需补问。</p><div class="button-row"><button class="btn primary" data-action="confirm-demo">载入并保存模拟资料</button><button class="btn" data-action="close">取消</button></div>`);return;case 'confirm-demo':closeDialog();await saveProfile({companyName:'某龙岗研发企业（模拟）',region:'龙岗区',industry:'软件与技术服务',employees:40,revenue:800,rdRatio:5,ageYears:3,highTech:null,techSme:null,smallProfit:null,compliant:true,exporter:false,hasIp:true,period:'2025年度（模拟）',origin:'demo'});return;case 'clear-profile':dialog('清空本浏览器企业档案',`<p>当前基础档案将清空，任务与归档记录的独立快照保留。</p><div class="button-row"><button class="btn danger" data-action="confirm-clear">清空档案</button><button class="btn" data-action="close">取消</button></div>`);return;case 'confirm-clear':closeDialog();await saveProfile({});return;case 'reload-profile':{const d=await request('/profile');S.profile=d.profile;S.profileRevision=d.revision;S.profileDraft=clone(d.profile);S.profileDirty=false;closeDialog();persist();render();return;}}}
-document.addEventListener('click',async e=>{const t=e.target.closest('button,[data-nav]');if(!t)return;try{if(t.dataset.gapAction){openReviewGap(t.dataset.gapAction);return;}if(t.dataset.nav){if(activeLayer())await closeDialog({restoreFocus:false});go(t.dataset.nav);return;}if(t.dataset.action){if(['analyze'].includes(t.dataset.action)&&overlay.innerHTML)await closeDialog();await action(t.dataset.action,{pointer:e.detail>0});return;}if(t.dataset.fillQuery){S.query=t.dataset.fillQuery;S.homeExpanded=true;const q=document.getElementById('query');if(q){q.value=S.query;setHomeExpanded(true,{animate:false});q.focus();}persist();return;}if(t.dataset.query){S.query=t.dataset.query;await search();return;}if(t.dataset.removePolicy){choosePolicy(t.dataset.removePolicy,false);persist();render();return;}if(t.dataset.activePolicy){S.work.activePolicyId=t.dataset.activePolicy;S.fieldIndex=0;S.showAllConditions=false;persist();render();return;}if(t.dataset.detail){await detail(t.dataset.detail,t);return;}if(t.dataset.detailClose){await closeDialog();return;}if(t.dataset.followup){followUp(t.dataset.followup,t.dataset.condition);return;}if(t.dataset.add){choosePolicy(t.dataset.add,true);S.work.activePolicyId=t.dataset.add;S.fieldIndex=0;S.showAllConditions=false;await closeDialog({restoreFocus:false});persist();await action('start-task');return;}if(t.dataset.work){choosePolicy(t.dataset.work,true);S.work.activePolicyId=t.dataset.work;S.fieldIndex=0;await closeDialog({restoreFocus:false});prepareView('steps');return;}if(t.dataset.tab){prepareView(t.dataset.tab);return;}if(t.dataset.ask){S.assistantOpen=true;await ask(t.dataset.ask);return;}if(t.dataset.openRecord){await openRecord(t.dataset.openRecord);return;}if(t.dataset.switchRecord){localStorage.setItem(PREVIOUS_WORK_KEY,JSON.stringify(S.work));const r=S.records.find(r=>r.id===t.dataset.switchRecord);closeDialog();switchRecord(r);return;}if(t.dataset.exportRecord){exportWork(S.records.find(r=>r.id===t.dataset.exportRecord));return;}if(t.dataset.history){await historyDialog(t.dataset.history);return;}if(t.dataset.revision){const d=await request('/records/'+t.dataset.revision+'/revisions/'+t.dataset.number);dialog('版本 '+t.dataset.number+' 的准备成果',`<p>${esc(d.record.title)} · ${date(d.record.updatedAt)}</p><p>此版本作为历史成果查看。恢复编辑将另存为新记录，避免覆盖当前版本。</p><div class="button-row"><button class="btn" id="export-revision">导出这个版本</button><button class="btn primary" id="restore-revision">备份当前并复制</button><button class="btn" data-action="close">关闭</button></div>`);document.getElementById('export-revision').onclick=()=>exportWork(d.record);document.getElementById('restore-revision').onclick=()=>{localStorage.setItem(PREVIOUS_WORK_KEY,JSON.stringify(S.work));const copy=clone(d.record);delete copy.id;copy.revision=null;copy.title+=' · 历史版本副本';closeDialog();switchRecord(copy);};return;}if(t.dataset.deleteRecord){const r=S.records.find(x=>x.id===t.dataset.deleteRecord);dialog('删除这条过程记录',`<p>${esc(r.title)}</p><p>记录及其历史版本将从本浏览器删除，当前工作缓冲和企业档案保留。</p><div class="button-row"><button class="btn danger" data-confirm-delete="${esc(r.id)}">删除记录与版本</button><button class="btn" data-action="close">取消</button></div>`);return;}if(t.dataset.confirmDelete){const r=S.records.find(x=>x.id===t.dataset.confirmDelete);await request('/records/'+r.id,{method:'DELETE',headers:{'If-Match':'"'+r.revision+'"'}});if(S.work.recordId===r.id){S.work.recordId=null;S.work.recordRevision=null;}await refreshRecords();closeDialog();persist();render();toast('记录及其版本已删除');return;}}catch(error){handleError(error);}});
+async function action(a,{pointer=false}={}){switch(a){case 'about':await aboutDialog();return;case 'search-scope':await scopeDialog();return;case 'policy-context':await contextDialog();return;case 'collapse-home':setHomeExpanded(false,{animate:pointer});document.querySelector('.home-heading h1')?.focus({preventScroll:true});return;case 'prep-next':case 'prep-skip':{const current=S.tab,next=preparationOrder[preparationOrder.indexOf(current)+1];if(next)prepareView(next);if(a==='prep-skip')toast('已略过这一步；未处理内容仍保留，未标记为完成。');return;}case 'menu':S.menuOpen=!S.menuOpen;render();if(S.menuOpen){document.querySelector('.top-menu .menu-item:not(:disabled)')?.focus();surfaceEntrance(document.querySelector('.top-menu'),'menu');}return;case 'edit-query':S.editingQuery=true;render();document.getElementById('query')?.focus();return;case 'start-task':{if(S.searching||S.searchError||!S.visible.some(p=>S.work.selected.includes(p.id))){toast('请先选择本次问题的相关政策。');return;}const task=S.discovery?.interpretation?.suggestedTask||'eligibility';if(task==='eligibility')await analyze();else{S.tab={materials:'materials',steps:'steps',forms:'fields',explain:'steps'}[task]||'steps';S.fieldIndex=0;S.work.task=task;S.assistantOpen=task==='explain';go('workspace');if(task==='explain')await ask(S.work.question);}return;}case 'continue-work':go(S.work.stage==='evaluate'?'analyze':'workspace');return;case 'all-conditions':S.showAllConditions=!S.showAllConditions;render();return;case 'assistant-toggle':S.assistantOpen=!S.assistantOpen;if(!S.assistantOpen&&S.work.task==='explain')S.work.task='steps';persist();render();if(S.assistantOpen){document.querySelector('.assistant')?.scrollIntoView({block:'start',behavior:'instant'});document.getElementById('assistant-question')?.focus({preventScroll:true});}return;case 'field-next':S.fieldIndex=Math.min(S.fieldIndex+1,(activePolicy()?.formGuide?.fields.length||1)-1);persist();render();document.querySelector('[data-form-field]')?.focus({preventScroll:true});return;case 'field-prev':S.fieldIndex=Math.max(S.fieldIndex-1,0);persist();render();document.querySelector('[data-form-field]')?.focus({preventScroll:true});return;case 'close':await closeDialog();return;case 'dismiss-restore':S.restored=false;render();return;case 'search':await search();return;case 'clear-search':S.query=S.region=S.category=S.applicationStatus='';await search();return;case 'clear-record-filters':S.recordQuery='';S.recordFilter='';render();document.getElementById('record-query')?.focus();return;case 'retry':await initialize(false);return;case 'analyze':await analyze();return;case 'save':showSave();return;case 'export':exportWork();return;case 'reviewed':S.work.lastReviewedAt=new Date().toISOString();S.work.stage='review';persist();render();toast('已记录本次自行复核时间');return;case 'refresh-sources':refreshSources();return;case 'confirm-refresh-sources':{const before=S.work.selected.map(policyForWork);S.work.historical=false;S.work.selected=S.work.selected.filter(id=>S.policies.some(p=>p.id===id));for(const p of selected()){const old=before.find(x=>x.id===p.id);S.work.checks[p.id]=Object.fromEntries(Object.entries(S.work.checks[p.id]||{}).filter(([id])=>p.materials.some(m=>m.id===id&&JSON.stringify(m)===JSON.stringify(old?.materials?.find(x=>x.id===id)))));const progress=S.work.steps[p.id]||{};S.work.steps[p.id]=Object.fromEntries(p.steps.map((step,i)=>{const prior=old?.steps?.findIndex(x=>JSON.stringify(x)===JSON.stringify(step));return ['step-'+i,prior>=0&&progress['step-'+prior]===true];}));}invalidateAnalysis();rememberSources();closeDialog();await analyze();return;}case 'compare':{const ps=selected();dialog('所选事项对照',`<p>并列比较适用对象、办理方式和缺口，不叠加不同项目金额。</p><div class="compare-grid">${ps.map(p=>`<article><h3>${esc(p.title)}</h3>${badge(p)}<p><strong>对象：</strong>${esc(p.audience)}</p><p><strong>支持：</strong>${esc(p.benefit)}</p><p>${esc(p.window?.note)}</p>${link(p.source?.url,'依据')}</article>`).join('')}</div><div class="form-actions"><button class="btn primary" data-action="analyze">逐项核对条件</button><button class="btn" data-action="close">关闭</button></div>`);return;}case 'recover-work':{const raw=localStorage.getItem(PREVIOUS_WORK_KEY);if(!raw)return toast('暂无上一任务缓冲');const old=JSON.parse(raw);dialog('恢复上一个任务缓冲',`<p>将恢复上一任务的选材、事实与准备成果，当前缓冲会先备份。</p><div class="button-row"><button class="btn primary" id="recover-confirm">备份并恢复</button><button class="btn" data-action="close">取消</button></div>`);document.getElementById('recover-confirm').onclick=()=>{localStorage.setItem(PREVIOUS_WORK_KEY,JSON.stringify(S.work));S.work={...S.work,...old};S.query=S.work.question||'';S.hasSearched=false;S.discovery=null;S.visible=[];++analysisSerial;++chatSerial;persist();closeDialog();go('workspace');};return;}case 'new-work':if(S.work.selected.length||S.work.question||S.work.notes)localStorage.setItem(PREVIOUS_WORK_KEY,JSON.stringify(S.work));++analysisSerial;++chatSerial;++searchSerial;searchController?.abort();S.searching=false;newWork();go('radar');toast('已开始新问题；上一任务可从工作设置恢复。');return;case 'confirm-new':localStorage.setItem(PREVIOUS_WORK_KEY,JSON.stringify(S.work));++analysisSerial;++chatSerial;newWork();closeDialog();go('radar');return;case 'feedback':dialog('保留问题与核实线索',`<form id="feedback-form"><label class="field">需要核实什么？<textarea name="comment" required maxlength="4000" rows="5" placeholder="写政策名称、条款、具体错误或未解决卡点。"></textarea></label><p class="meta">仅保存在本浏览器，便于自行核实；不会发送给运营方或改写官方依据。</p><div class="form-actions"><button class="btn" type="button" data-action="close">取消</button><button class="btn primary">保存反馈</button></div></form>`);return;case 'interfaces':dialog('后台接入与接口契约',`<p>真实大模型、企业数据、政策采集和消息服务均预留独立 adapter 接口；在线原型使用模拟助手。</p>${link('/openapi.json','查看 OpenAPI 契约','btn')}<p>前端通过同源 /api/v1 调用后台服务。浏览器保存、官方来源展示与模拟助手服务已接入；真实 API 可在对应 adapter 中接入。</p><button class="btn" data-action="close">关闭</button>`);return;case 'demo-profile':dialog('载入模拟企业资料',`<p>仅用于体验。模拟人员、收入、研发比例不代表任何真实企业，专项条件仍需补问。</p><div class="button-row"><button class="btn primary" data-action="confirm-demo">载入并保存模拟资料</button><button class="btn" data-action="close">取消</button></div>`);return;case 'confirm-demo':closeDialog();await saveProfile({companyName:'某龙岗研发企业（模拟）',region:'龙岗区',industry:'软件与技术服务',employees:40,revenue:800,rdRatio:5,ageYears:3,highTech:null,techSme:null,smallProfit:null,compliant:true,exporter:false,hasIp:true,period:'2025年度（模拟）',origin:'demo'});return;case 'clear-profile':dialog('清空本浏览器企业档案',`<p>当前基础档案将清空，任务与归档记录的独立快照保留。</p><div class="button-row"><button class="btn danger" data-action="confirm-clear">清空档案</button><button class="btn" data-action="close">取消</button></div>`);return;case 'confirm-clear':closeDialog();await saveProfile({});return;case 'reload-profile':{const d=await request('/profile');S.profile=d.profile;S.profileRevision=d.revision;S.profileDraft=clone(d.profile);S.profileDirty=false;closeDialog();persist();render();return;}}}
+document.addEventListener('click',async e=>{const card=e.target.closest?.('.policy-card');if(card&&!e.target.closest('button,a,label,input,select,textarea,summary,details,[data-action],[data-detail]')){const cb=card.querySelector('[data-select]');if(cb){cb.checked=!cb.checked;cb.dispatchEvent(new Event('change',{bubbles:true}));return;}}const t=e.target.closest('button,[data-nav]');if(!t)return;try{if(t.dataset.gapAction){openReviewGap(t.dataset.gapAction);return;}if(t.dataset.nav){if(activeLayer())await closeDialog({restoreFocus:false});go(t.dataset.nav);return;}if(t.dataset.action){if(['analyze'].includes(t.dataset.action)&&overlay.innerHTML)await closeDialog();await action(t.dataset.action,{pointer:e.detail>0});return;}if(t.dataset.fillQuery){S.query=t.dataset.fillQuery;S.homeExpanded=true;const q=document.getElementById('query');if(q){q.value=S.query;setHomeExpanded(true,{animate:false});q.focus();}persist();return;}if(t.dataset.query){S.query=t.dataset.query;await search();return;}if(t.dataset.removePolicy){choosePolicy(t.dataset.removePolicy,false);persist();render();return;}if(t.dataset.activePolicy){S.work.activePolicyId=t.dataset.activePolicy;S.fieldIndex=0;S.showAllConditions=false;persist();render();return;}if(t.dataset.detail){await detail(t.dataset.detail,t);return;}if(t.dataset.detailClose){await closeDialog();return;}if(t.dataset.followup){followUp(t.dataset.followup,t.dataset.condition);return;}if(t.dataset.add){choosePolicy(t.dataset.add,true);S.work.activePolicyId=t.dataset.add;S.fieldIndex=0;S.showAllConditions=false;await closeDialog({restoreFocus:false});persist();await action('start-task');return;}if(t.dataset.work){choosePolicy(t.dataset.work,true);S.work.activePolicyId=t.dataset.work;S.fieldIndex=0;await closeDialog({restoreFocus:false});prepareView('steps');return;}if(t.dataset.tab){prepareView(t.dataset.tab);return;}if(t.dataset.ask){S.assistantOpen=true;await ask(t.dataset.ask);return;}if(t.dataset.openRecord){await openRecord(t.dataset.openRecord);return;}if(t.dataset.switchRecord){localStorage.setItem(PREVIOUS_WORK_KEY,JSON.stringify(S.work));const r=S.records.find(r=>r.id===t.dataset.switchRecord);closeDialog();switchRecord(r);return;}if(t.dataset.exportRecord){exportWork(S.records.find(r=>r.id===t.dataset.exportRecord));return;}if(t.dataset.history){await historyDialog(t.dataset.history);return;}if(t.dataset.revision){const d=await request('/records/'+t.dataset.revision+'/revisions/'+t.dataset.number);dialog('版本 '+t.dataset.number+' 的准备成果',`<p>${esc(d.record.title)} · ${date(d.record.updatedAt)}</p><p>此版本作为历史成果查看。恢复编辑将另存为新记录，避免覆盖当前版本。</p><div class="button-row"><button class="btn" id="export-revision">导出这个版本</button><button class="btn primary" id="restore-revision">备份当前并复制</button><button class="btn" data-action="close">关闭</button></div>`);document.getElementById('export-revision').onclick=()=>exportWork(d.record);document.getElementById('restore-revision').onclick=()=>{localStorage.setItem(PREVIOUS_WORK_KEY,JSON.stringify(S.work));const copy=clone(d.record);delete copy.id;copy.revision=null;copy.title+=' · 历史版本副本';closeDialog();switchRecord(copy);};return;}if(t.dataset.deleteRecord){const r=S.records.find(x=>x.id===t.dataset.deleteRecord);dialog('删除这条过程记录',`<p>${esc(r.title)}</p><p>记录及其历史版本将从本浏览器删除，当前工作缓冲和企业档案保留。</p><div class="button-row"><button class="btn danger" data-confirm-delete="${esc(r.id)}">删除记录与版本</button><button class="btn" data-action="close">取消</button></div>`);return;}if(t.dataset.confirmDelete){const r=S.records.find(x=>x.id===t.dataset.confirmDelete);await request('/records/'+r.id,{method:'DELETE',headers:{'If-Match':'"'+r.revision+'"'}});if(S.work.recordId===r.id){S.work.recordId=null;S.work.recordRevision=null;}await refreshRecords();closeDialog();persist();render();toast('记录及其版本已删除');return;}}catch(error){handleError(error);}});
 document.addEventListener('pointerdown',e=>{if(e.target.closest('.home-composer'))setHomeExpanded(true,{animate:true});});
 document.addEventListener('focusin',e=>{if(e.target.id==='query'&&e.target.closest('.home-stage'))setHomeExpanded(true,{animate:false});});
 document.addEventListener('change',async e=>{const t=e.target;try{if(t.dataset.select){choosePolicy(t.dataset.select,t.checked);persist();render();return;}if(['filter-region','filter-category','filter-status'].includes(t.id)){S.region=document.getElementById('filter-region').value;S.category=document.getElementById('filter-category').value;S.applicationStatus=document.getElementById('filter-status').value;persist();await search();return;}if(t.id==='field-jump'){S.fieldIndex=Number(t.value);persist();render();return;}if(t.id==='active-policy'){S.work.activePolicyId=t.value;persist();render();return;}if(t.dataset.material){const p=activePolicy();S.work.checks[p.id]||={};S.work.checks[p.id][t.dataset.material]=t.checked;persist();t.closest('.check-row')?.classList.toggle('done',t.checked);const track=document.querySelector('.progress-track');const completed=p.materials.filter(m=>S.work.checks[p.id]?.[m.id]).length;if(track){track.setAttribute('aria-valuenow',completed);track.querySelector('span').style.width=(completed/p.materials.length*100)+'%';}const progress=document.getElementById('material-progress');const count=p.materials.filter(m=>S.work.checks[p.id]?.[m.id]).length;if(progress)progress.textContent=count+'/'+p.materials.length+' 已准备';const bar=document.getElementById('workspace-material-progress');if(bar)bar.textContent=count+'/'+p.materials.length+' 项材料已备';return;}if(t.dataset.step){const p=activePolicy();S.work.steps[p.id]||={};S.work.steps[p.id][t.dataset.step]=t.checked;persist();const row=t.closest('.step-row');if(row){setDisclosureOpen(row,!t.checked);row.classList.toggle('is-done',t.checked);row.dataset.stepState=t.checked?'done':'pending';const summary=row.querySelector(':scope > summary');summary?.setAttribute('aria-expanded',String(!t.checked));const number=row.querySelector('.step-number');if(number)number.innerHTML=t.checked?icon('check'):String(Number(t.dataset.step.slice(5))+1);const completion=row.querySelector('[data-step-completion]');if(completion)completion.textContent=t.checked?'已自行完成':'';if(t.checked)summary?.focus({preventScroll:true});}const progress=document.getElementById('step-progress');if(progress)progress.textContent=p.steps.filter((_,i)=>S.work.steps[p.id]?.['step-'+i]).length+'/'+p.steps.length+' 已完成';return;}if(t.id==='record-filter'){S.recordFilter=t.value;render();return;}}catch(error){handleError(error);}});
@@ -1999,6 +2016,6 @@ async function initialize(restore=true){try{
  const [pr,rr,hr,sr,fr]=results.map(r=>r.status==='fulfilled'?r.value:null);
  const failures=results.filter(r=>r.status==='rejected').map(r=>r.reason?.message||'部分资料暂不可用');
  if(hr?.user?.id && hr.user.id!==document.querySelector('#app').dataset.storageScope)throw new Error('浏览器存储范围已变化，请刷新页面后继续。');
- S.dataset=data;S.policies=data.policies;S.visible=[];S.profile=pr?.profile||{};S.profileRevision=pr?.revision??0;S.records=rr?.items||[];S.health=hr;S.sources=sr?.items||[];S.feedback=fr?.items||[];if(!S.profileDirty)S.profileDraft=clone(S.profile);if(restore||!initialized)restoreSession();initialized=true;S.visible=S.hasSearched?(S.discovery?.items||[]).map(item=>{const p=S.policies.find(p=>p.id===item.id);return p?{...p,retrieval:item.retrieval}:null;}).filter(Boolean):[];const view=location.hash.slice(1);if(views[view])S.view=view;S.error=failures.length?failures[0]:null;render();if(S.view==='radar'&&S.hasSearched&&S.query.trim())await search();}catch(error){S.error=error.message;render();}}
+ S.dataset=data;S.policies=data.policies;S.visible=[];S.profile=pr?.profile||{};S.profileRevision=pr?.revision??0;S.records=rr?.items||[];S.health=hr;S.sources=sr?.items||[];S.feedback=fr?.items||[];if(!S.profileDirty)S.profileDraft=clone(S.profile);if(restore||!initialized)restoreSession();initialized=true;S.visible=S.hasSearched?(S.discovery?.items||[]).map(item=>{const p=S.policies.find(p=>p.id===item.id);return p?{...p,retrieval:item.retrieval}:null;}).filter(Boolean):[];const view=location.hash.slice(1);if(views[view])S.view=view;else S.view='radar';S.error=failures.length?failures[0]:null;render();if(S.view==='radar'&&S.hasSearched&&S.query.trim())await search();}catch(error){S.error=error.message;render();}}
 await initialize();
 

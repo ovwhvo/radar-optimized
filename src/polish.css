@@ -1,0 +1,115 @@
+/* ==========================================================================
+   polish.css —— 平面化收敛层（最后加载，覆盖玻璃/渐变/静置阴影）
+   依据：taste-skill 家规（无玻璃、无渐变、静置无阴影、色阶分层）+
+        impeccable craft-floor / Operate 模式（语义状态、熟悉感、克制色彩）
+   品牌保留：雷达蓝 #066ac8 体系、既有布局与文案不动。
+   ========================================================================== */
+
+/* 0) 全局盒模型：修复小屏由 padding 撑出的横向溢出（U4 相关） */
+*, *::before, *::after { box-sizing: border-box; }
+.topbar { max-width: 100%; }
+
+/* 1) 去玻璃：毛玻璃一律回退为实色（由下方规则给出实色） */
+.navigation-material::before, .top-menu, .stage-actions, .dialog, .dialog-frame,
+.modal-backdrop, .home-stage .home-composer, .reading-backdrop .dialog,
+.reading-backdrop .dialog-heading, .reading-backdrop .dialog-heading, .reading-actions,
+.draft-focus-scrim, .modal-backdrop.reading-backdrop {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* 2) 去渐变：全部控件与面板改实色 */
+.btn, .btn.primary, .policy-card, .record-card, .panel, .question-recap, .understanding,
+.policy-context, .source-row, .menu-item.active, .reading-trigger, .candidate-detail-trigger,
+details.disclosure-compact > .disclosure-summary, .candidate-details > .disclosure-summary,
+.segmented-indicator, .focus-overview, .reading-overview, .material-row.done, .dialog-frame,
+.home-stage .home-composer, .home-stage.is-expanded .home-composer {
+  background-image: none !important;
+}
+.btn { background: #fff; }
+.btn.primary { background: #066ac8; border-color: #0059ad; color: #fff; }
+.btn.primary:hover:not(:disabled) { background: #005bad; }
+.menu-item.active { background: #eaf2fc; box-shadow: none; }
+.reading-trigger:not(.subtle), .candidate-detail-trigger,
+details.disclosure-compact > .disclosure-summary, .candidate-details > .disclosure-summary {
+  background: #f2f7fd; box-shadow: none;
+}
+.focus-overview, .reading-overview { background: #17324e; box-shadow: none; }
+.material-row.done { background: #f2f8f4; }
+.home-stage .home-composer, .home-stage.is-expanded .home-composer { background: #fff; }
+
+/* 3) 静置无阴影：卡片/控件/浮条一律去掉，仅对话框与菜单保留一枚柔和阴影 */
+.policy-card, .record-card, .panel, .btn, .btn.primary, .question-recap,
+.segmented-indicator, .stage-actions, .candidate-detail-trigger,
+details.disclosure-compact > .disclosure-summary, .candidate-details > .disclosure-summary {
+  box-shadow: none !important;
+}
+.stage-actions { background: #fff; border-color: #dbe4ee; }
+.dialog, .top-menu { box-shadow: 0 12px 40px rgba(23, 38, 56, .14); }
+
+/* 4) 语义状态色（D3：四色一眼可读；正文用足色，不用灰字承担主信息） */
+.counts .count-met strong { color: #1a7f4b; }
+.counts .count-unmet strong { color: #c0392b; }
+.counts .count-missing strong { color: #b7791f; }
+.counts .count-verify strong { color: #5a6470; }
+
+/* 5) 已截止徽章（D1） */
+.pill.closed {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 6px;
+  background: #fdeceb; color: #a5342a; border: 1px solid #f0c4be;
+  font-size: 11px; font-weight: 600; white-space: nowrap;
+}
+
+/* 6) 卡片可点与选中态（I3 + 家规：描边与色阶，不用阴影和渐变） */
+.policy-card { cursor: pointer; transition: border-color .15s ease, background-color .15s ease; }
+.policy-card:hover { border-color: #b8d2ee; }
+.policy-card.selected { background: #f0f7ff; border-color: #066ac8; box-shadow: none !important; }
+
+/* 7) 演示横幅（D4：常驻、醒目、但不抢任务） */
+.demo-banner {
+  padding: 7px 16px; text-align: center;
+  font-size: 12px; line-height: 1.5;
+  background: #fff6e5; color: #7a4f00;
+  border-bottom: 1px solid #f0dfb8;
+}
+
+/* 8) 吸底浮条不再遮挡正文（U2） */
+.shell.view-workspace .content, .shell.view-analyze .content { padding-bottom: 120px; }
+
+/* 9) 步骤条小屏韧性（U4：横向可滚，不折断） */
+@media (max-width: 760px) {
+  .journey { overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+  .journey button { white-space: nowrap; }
+  .journey-divider { flex-shrink: 0; }
+}
+
+/* 10) 首屏留白压缩（报告 6.1）：hero 收紧，标题用足 */
+.home-stage { min-height: min(470px, 62vh) !important; padding-top: 24px !important; }
+.home-stage .home-aurora { display: none; }
+.home-stage .home-heading h1 { font-size: clamp(34px, 4.6vw, 58px); }
+/* 主题元素：雷达扫描环（取自产品自身的“雷达”形态，单色平涂描边，非装饰渐变） */
+.shell { overflow-x: clip; }
+.home-ambient { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.home-ambient::before, .home-ambient::after {
+  content: ""; position: absolute; border-radius: 50%;
+  border: 1px solid #dce9f8; pointer-events: none;
+}
+.home-ambient::before { width: 560px; height: 560px; right: -140px; top: -120px; }
+.home-ambient::after { width: 360px; height: 360px; right: -40px; top: -20px; border-color: #cfe2f6; }
+
+/* 首页搜索主按钮：明确实色，避免被通用 .btn 规则覆盖成白底白字 */
+.home-stage .home-composer .btn.primary { background: #066ac8; border-color: #0059ad; color: #fff; }
+.home-stage .home-composer .btn.primary:hover:not(:disabled) { background: #005bad; }
+
+@media (max-width: 520px) {
+  .demo-banner { font-size: 11px; padding: 6px 10px; }
+  .home-stage { min-height: auto !important; padding-bottom: 36px !important; }
+}
+
+/* 11) 浏览器表面纳入设计（craft-floor：选区、焦点环从调色板来） */
+::selection { background: #cfe4fb; color: #10243a; }
+:focus-visible { outline: 2px solid #066ac8; outline-offset: 2px; }
+
+/* 12) 弱化双进度并存的噪音（报告 6.2）：流程说明降噪，保留但不抢主进度 */
+.preparation-flow > p { font-size: 12px; color: #5a6470; }

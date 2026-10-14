@@ -174,13 +174,17 @@ async function discover(body) {
     if (r.score > 0) scored.push({ policy: p, retrieval: r });
   }
   scored.sort((a, b) => b.retrieval.score - a.retrieval.score || (a.policy.id < b.policy.id ? -1 : 1));
+  // F2 前置拦截：识别到未覆盖地区时立即说明，不返回弱相关结果。
+  const uncovered = regions.length > 0 && regions.every(r => !COVERED_REGIONS.has(r));
+  if (uncovered) scored.length = 0;
   const items = scored.map(s => ({ ...s.policy, retrieval: s.retrieval }));
   const status = items.length ? 'ready' : (topics.length || regions.length ? 'no_candidates' : 'needs_clarification');
   const closed = items.filter(i => i.applicationStatus === 'closed').length;
   const unknown = items.filter(i => (i.applicationStatus || 'unknown') === 'unknown').length;
   const primaryLabels = topics.filter(t => t.primary).map(t => t.label);
   let summary;
-  if (!topics.length) summary = '还需要说明你想解决的具体业务问题，才能提供有依据的候选事项。';
+  if (uncovered) summary = `已识别检索地区为${regions.join('、')}，当前样本暂未覆盖该地区。已收录的覆盖范围：深圳市（含各区）与全国政策。`;
+  else if (!topics.length) summary = '还需要说明你想解决的具体业务问题，才能提供有依据的候选事项。';
   else {
     summary = `你想了解${primaryLabels.join('、')}${region ? `，检索地区为${region}` : ''}。已找到 ${items.length} 个有真实来源的候选，请选择要进一步核对的事项。`;
     if (closed) summary += ` 其中 ${closed} 项对应已截止历史批次，只能作为后续准备参考。`;
@@ -188,8 +192,15 @@ async function discover(body) {
   }
   const followUpQuestions = [];
   if (unresolvedTerms.length) followUpQuestions.push(`描述中的“${unresolvedTerms.join('、')}”尚未准确对应规则；可补充业务目的或事项名称，数字和年度不会自动成为企业事实。`);
-  if (!regions.length && topics.length) followUpQuestions.push('你希望查哪个城市或区的事项？这个地区只用于发现范围，后续仍需提供真实注册或经营依据。');
-  if (!items.length && topics.length) followUpQuestions.push('可以换一个支持方向或事项名称再试，或先查看当前资料的覆盖范围。');
+  if (uncovered) followUpQuestions.push('当前样本只覆盖深圳市（含各区）与全国政策。可以改问这两类范围的事项，或前往当地政务服务平台查询办理。');
+  else if (!regions.length && topics.length) followUpQuestions.push('你希望查哪个城市或区的事项？这个地区只用于发现范围，后续仍需提供真实注册或经营依据。');
+  if (!items.length && topics.length && !uncovered) {
+    // F3 无结果兜底：给出标签最接近的样本方向，而不是沉默或弱相关结果。
+    const near = policies.filter(p => (p.tags ?? []).some(tag => topics.some(tp => tp.aliases.some(a => tag.includes(a) || a.includes(tag))))).slice(0, 2);
+    followUpQuestions.push(near.length
+      ? `暂时没有直接匹配的事项。相近的样本方向：${near.map(p => p.title).join('、')}，可以就这些方向继续提问。`
+      : '可以换一个支持方向或事项名称再试，或先查看当前资料的覆盖范围。');
+  }
   return {
     mode: 'mock',
     question,
@@ -406,6 +417,10 @@ async function assistant(body) {
 
 // ------------------------------------------------------------------ 入口
 export const HANDLED = ['/health', '/sources', '/discover', '/analyze', '/assistant'];
+// 供应用层复用：从问题中识别地区（I1 信息复用）。
+export function regionsOf(question) { return detectRegions(String(question ?? '')); }
+// 当前样本的覆盖范围（F2 前置拦截）：全部政策的 region 取值集合。
+const COVERED_REGIONS = new Set(['深圳市', '龙岗区', '南山区', '福田区', '宝安区', '龙华区', '坪山区', '光明区', '大鹏新区', '深汕特别合作区', '全国']);
 export function handlesLocalApi(endpoint) {
   return typeof endpoint === 'string' && HANDLED.includes(endpoint.split('?')[0]);
 }
