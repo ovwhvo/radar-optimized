@@ -1,0 +1,4 @@
+Contact: mailto:security@example.com
+Expires: 2027-10-14T00:00:00.000Z
+Preferred-Languages: zh-CN, en
+Policy: https://radar.huixiang17.cn/
