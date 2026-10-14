@@ -545,6 +545,48 @@ async function localApiRequest(endpoint, options = {}) {
 return {HANDLED, regionsOf, handlesLocalApi, localApiRequest};
 })();
 
+/* ===== ./motion.js ===== */
+const __m___motion_js = (() => {
+// motion.js —— GSAP 动效层（gsap-core skill：from 入场、stagger、matchMedia 静音）
+// 突出重点：候选卡片阶梯入场、核对数字滚动、选中态脉冲、浮条滑入。
+const g = () => window.gsap || null;
+const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function enhance(root) {
+  const gsap = g();
+  if (!gsap || !root || reduced()) return;
+  // 候选卡片：阶梯入场（重点内容首屏聚焦）
+  const cards = root.querySelectorAll('.policy-card');
+  if (cards.length) gsap.from(cards, { y: 18, opacity: 0, duration: 0.38, stagger: 0.06, ease: 'power2.out', clearProps: 'transform,opacity' });
+  // 底部行动条：滑入（提示“下一步在这里”）
+  const bar = root.querySelector('.stage-actions');
+  if (bar) gsap.from(bar, { y: 26, opacity: 0, duration: 0.32, ease: 'power3.out', clearProps: 'transform,opacity' });
+  // 核对结论卡：轻弹入场
+  const focus = root.querySelector('.focus-overview');
+  if (focus) gsap.from(focus, { y: 14, opacity: 0, scale: 0.985, duration: 0.4, ease: 'back.out(1.4)', clearProps: 'transform,opacity' });
+  // 四色统计数字：滚动到位（凸显能不能申）
+  root.querySelectorAll('.counts strong').forEach(el => {
+    const to = Number(el.textContent) || 0;
+    if (!to) return;
+    gsap.fromTo(el, { textContent: 0 }, {
+      textContent: to, duration: 0.6, ease: 'power1.out',
+      snap: { textContent: 1 }, clearProps: 'textContent'
+    });
+  });
+  // 条件行：短距淡入
+  const rows = root.querySelectorAll('.condition-list .condition, .check-row');
+  if (rows.length) gsap.from(rows, { y: 10, opacity: 0, duration: 0.3, stagger: 0.04, ease: 'power2.out', clearProps: 'transform,opacity' });
+}
+
+function pop(el) {
+  const gsap = g();
+  if (!gsap || !el || reduced()) return;
+  gsap.fromTo(el, { scale: 0.94, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.22, ease: 'back.out(2)', clearProps: 'transform,opacity' });
+}
+
+return {enhance, pop};
+})();
+
 /* ===== ./local-lib/validation.mjs ===== */
 const __m___local_lib_validation_mjs = (() => {
 class HttpError extends Error {
@@ -1841,6 +1883,7 @@ return {activeLayer, finishLayerClose, openLayer, closeLayer, handleLayerHistory
 /* ===== app.js（入口，保留顶层 await） ===== */
 const {S, SESSION_KEY, PREVIOUS_WORK_KEY, clone, selected, activePolicy, profileForWork, policyForWork, analysisBasis, invalidateAnalysis, choosePolicy, rememberSources, policyChanges, recordPayload, restoreRecord, saveSession, restoreSession, newWork, recordSaveState} = __m___state_js;
 const {regionsOf} = __m___local_api_js;
+const {enhance: motionEnhance, pop: motionPop} = __m___motion_js;
 const {request, ApiError} = __m___api_js;
 const {esc, link, icon, date, formatFact, fields, download, badge} = __m___utils_js;
 const {shell, views, recStatus, policyDetail} = __m___views_js;
@@ -1896,7 +1939,7 @@ let toastFrame;
 function repositionVisibleToast(){if(!document.querySelector('#toast.show')||toastFrame)return;toastFrame=requestAnimationFrame(()=>{toastFrame=null;positionToast();});}
 window.addEventListener('scroll',repositionVisibleToast,{passive:true});
 window.addEventListener('resize',repositionVisibleToast,{passive:true});
-function toast(text){const el=document.querySelector('#toast');el.textContent=text;positionToast();el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),5000);}
+function toast(text){const el=document.querySelector('#toast');el.textContent=text;positionToast();el.classList.add('show');motionPop(el);clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),5000);}
 function syncStepRows(){
  if(S.view!=='workspace'||S.tab!=='steps')return;
  const p=activePolicy();if(!p)return;
@@ -1913,11 +1956,12 @@ function render({focus=false}={}){
  const old=document.activeElement,key=old?.tagName==='H1'&&app.contains(old)?{heading:true}:old?.tagName==='SUMMARY'&&app.contains(old)?{disclosure:old.parentElement.dataset.disclosureKey}:old?.id?{id:old.id}:old?.dataset?Object.entries(old.dataset).find(([k])=>['select','material','step','tab','nav','formField','action','work','followup','ask','activePolicy','removePolicy','detail','detailClose'].includes(k)):null;
  const selectionStart=old?.selectionStart,selectionEnd=old?.selectionEnd,scroll=window.scrollY;
  app.innerHTML=shell(views[S.view]());app.inert=!!overlay.innerHTML;app.removeAttribute('aria-busy');const workScope=workInteractionScope();const disclosurePolicy=['analyze','workspace'].includes(S.view)?activePolicy()?.id||'':S.view==='radar'?S.work.question:'';restoreInteractions(app,S.view+'|'+workScope+'|'+disclosurePolicy+'|'+(S.view==='workspace'?S.tab:''),interactions,workScope);syncStepRows();positionToast();
- if(focus){installFieldFocus(app);document.querySelector('h1')?.focus();window.scrollTo(0,0);return;}
+ if(focus){installFieldFocus(app);document.querySelector('h1')?.focus();window.scrollTo(0,0);motionEnhance(app);return;}
  let next;if(key?.heading)next=app.querySelector('h1');else if(key?.id)next=document.getElementById(key.id);else if(key?.disclosure)next=[...app.querySelectorAll('details')].find(node=>node.dataset.disclosureKey===key.disclosure)?.querySelector(':scope > summary');else if(Array.isArray(key)){const[k,v]=key;next=[...app.querySelectorAll('[data-'+k.replace(/[A-Z]/g,c=>'-'+c.toLowerCase())+']')].find(n=>n.dataset[k]===v);}
  if(next){for(let parent=next.tagName==='SUMMARY'?next.parentElement.parentElement?.closest('details'):next.closest('details');parent;parent=parent.parentElement?.closest('details'))parent.open=true;next.focus({preventScroll:true});if(typeof selectionStart==='number'){try{next.setSelectionRange(selectionStart,selectionEnd);}catch{}}}
  window.scrollTo(0,scroll);
  installFieldFocus(app);
+ motionEnhance(app);
 }
 function go(view,{replace=false}={}){if(!views[view])return;const previousView=S.view;S.view=view;S.menuOpen=false;if(view==='analyze')S.work.task='eligibility';else if(view==='workspace'&&!(S.work.task==='explain'&&S.assistantOpen&&S.tab==='steps'))S.work.task=S.tab==='fields'?'forms':S.tab;S.work.stage=({radar:'discover',analyze:'evaluate',workspace:S.tab==='review'?'review':((S.work.analysis&&!S.work.analysisStale)||S.work.historical?'prepare':'evaluate')}[view])||S.work.stage;if(location.hash!=='#'+view)history[replace?'replaceState':'pushState'](null,'','#'+view);persist();render({focus:true});if(previousView!==view)taskEntrance();}
 function prepareView(tab){S.tab=preparationOrder.includes(tab)?tab:'steps';S.work.task=S.tab==='fields'?'forms':S.tab;go('workspace');}

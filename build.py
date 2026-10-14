@@ -258,7 +258,7 @@ def main():
     emit(DIST / "assets" / css_name, css_bytes)
     emit(DIST / "index.html", html_bytes)
 
-    for extra in ["favicon.svg", "robots.txt", ".well-known/security.txt"]:
+    for extra in ["favicon.svg", "robots.txt", ".well-known/security.txt", "vendor/gsap.min.js"]:
         s = SRC / extra
         if s.is_file():
             emit(DIST / extra, s.read_bytes(), also_gzip=False)

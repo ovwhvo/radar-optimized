@@ -1,5 +1,6 @@
 import {S,SESSION_KEY,PREVIOUS_WORK_KEY,clone,selected,activePolicy,profileForWork,policyForWork,analysisBasis,invalidateAnalysis,choosePolicy,rememberSources,policyChanges,recordPayload,restoreRecord,saveSession,restoreSession,newWork,recordSaveState} from './state.js';
 import {regionsOf} from './local-api.js';
+import {enhance as motionEnhance,pop as motionPop} from './motion.js';
 import {request,ApiError} from './api.js';
 import {esc,link,icon,date,formatFact,fields,download,badge} from './utils.js';
 import {shell,views,recStatus,policyDetail} from './views.js';
@@ -55,7 +56,7 @@ let toastFrame;
 function repositionVisibleToast(){if(!document.querySelector('#toast.show')||toastFrame)return;toastFrame=requestAnimationFrame(()=>{toastFrame=null;positionToast();});}
 window.addEventListener('scroll',repositionVisibleToast,{passive:true});
 window.addEventListener('resize',repositionVisibleToast,{passive:true});
-function toast(text){const el=document.querySelector('#toast');el.textContent=text;positionToast();el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),5000);}
+function toast(text){const el=document.querySelector('#toast');el.textContent=text;positionToast();el.classList.add('show');motionPop(el);clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),5000);}
 function syncStepRows(){
  if(S.view!=='workspace'||S.tab!=='steps')return;
  const p=activePolicy();if(!p)return;
@@ -72,11 +73,12 @@ function render({focus=false}={}){
  const old=document.activeElement,key=old?.tagName==='H1'&&app.contains(old)?{heading:true}:old?.tagName==='SUMMARY'&&app.contains(old)?{disclosure:old.parentElement.dataset.disclosureKey}:old?.id?{id:old.id}:old?.dataset?Object.entries(old.dataset).find(([k])=>['select','material','step','tab','nav','formField','action','work','followup','ask','activePolicy','removePolicy','detail','detailClose'].includes(k)):null;
  const selectionStart=old?.selectionStart,selectionEnd=old?.selectionEnd,scroll=window.scrollY;
  app.innerHTML=shell(views[S.view]());app.inert=!!overlay.innerHTML;app.removeAttribute('aria-busy');const workScope=workInteractionScope();const disclosurePolicy=['analyze','workspace'].includes(S.view)?activePolicy()?.id||'':S.view==='radar'?S.work.question:'';restoreInteractions(app,S.view+'|'+workScope+'|'+disclosurePolicy+'|'+(S.view==='workspace'?S.tab:''),interactions,workScope);syncStepRows();positionToast();
- if(focus){installFieldFocus(app);document.querySelector('h1')?.focus();window.scrollTo(0,0);return;}
+ if(focus){installFieldFocus(app);document.querySelector('h1')?.focus();window.scrollTo(0,0);motionEnhance(app);return;}
  let next;if(key?.heading)next=app.querySelector('h1');else if(key?.id)next=document.getElementById(key.id);else if(key?.disclosure)next=[...app.querySelectorAll('details')].find(node=>node.dataset.disclosureKey===key.disclosure)?.querySelector(':scope > summary');else if(Array.isArray(key)){const[k,v]=key;next=[...app.querySelectorAll('[data-'+k.replace(/[A-Z]/g,c=>'-'+c.toLowerCase())+']')].find(n=>n.dataset[k]===v);}
  if(next){for(let parent=next.tagName==='SUMMARY'?next.parentElement.parentElement?.closest('details'):next.closest('details');parent;parent=parent.parentElement?.closest('details'))parent.open=true;next.focus({preventScroll:true});if(typeof selectionStart==='number'){try{next.setSelectionRange(selectionStart,selectionEnd);}catch{}}}
  window.scrollTo(0,scroll);
  installFieldFocus(app);
+ motionEnhance(app);
 }
 function go(view,{replace=false}={}){if(!views[view])return;const previousView=S.view;S.view=view;S.menuOpen=false;if(view==='analyze')S.work.task='eligibility';else if(view==='workspace'&&!(S.work.task==='explain'&&S.assistantOpen&&S.tab==='steps'))S.work.task=S.tab==='fields'?'forms':S.tab;S.work.stage=({radar:'discover',analyze:'evaluate',workspace:S.tab==='review'?'review':((S.work.analysis&&!S.work.analysisStale)||S.work.historical?'prepare':'evaluate')}[view])||S.work.stage;if(location.hash!=='#'+view)history[replace?'replaceState':'pushState'](null,'','#'+view);persist();render({focus:true});if(previousView!==view)taskEntrance();}
 function prepareView(tab){S.tab=preparationOrder.includes(tab)?tab:'steps';S.work.task=S.tab==='fields'?'forms':S.tab;go('workspace');}
